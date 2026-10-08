@@ -38,13 +38,11 @@ EG1 inventory games, 596 completed foul repairs and one failed foul case
 inspections are current and all 755 selected history cases complete. The two
 postseason replays and 823631's foul addition have also promoted.
 
-These receipts do not update the dashboard by themselves. Its pointer still
-identifies the 09:35 Eastern publication below. The active roadmap calls for a
-bounded repair-to-dashboard handoff: the current temporary priority policy
-waits for `recordedWorkClear`, which remains false. Required evidence for each
-product must remain intact while independent supported results can publish.
-This is planned work, not a claim that the handoff has already changed or that
-the remaining metric exclusions are all source failures.
+These receipts did not update the dashboard by themselves. The October 8
+scheduling fix removes EG1's unrelated admission preflight and permits bounded
+dashboard publication between repairs while the legacy report stays deferred.
+Required evidence and unresolved statuses remain intact. A new measured
+publication is still needed before claiming improved player coverage.
 
 ## Latest measured SQL publication: October 6, 09:35 Eastern
 

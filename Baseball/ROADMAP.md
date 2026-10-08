@@ -98,13 +98,13 @@ parallel heavy processes or change the ingestion topology.
    handoff. Promotions must finish the applicable existing checks before their
    SQL partitions are refreshed. Preserve compatible successful proofs; a retired
    local export is not evidence of absent Fuseki RDF.
-2. Fix the bounded repair-to-dashboard handoff in the existing owners. The
-   temporary `repair-priority.json` policy currently waits for
-   `recordedWorkClear`; an isolated withheld case can therefore indefinitely
-   delay publication. Give Dashboard SQL a bounded turn after completed repair
-   batches, using the existing shared lease and current product requirements.
-   Preserve the source-priority intent and each unresolved status; do not mark
-   the queue clear, admit unsupported rows, or restart the stopped report build.
+2. The October 8 scheduling correction gives Dashboard SQL a turn between
+   repair batches through the existing shared lease, with ten minutes between
+   publications while repair priority is active. The legacy report still waits
+   for `recordedWorkClear`. The EG1 worker now selects its own repairs directly;
+   unrelated admission maintenance no longer consumes its turn. Verify these
+   corrections through NiFi's actual repair receipts and a new SQL publication.
+   Preserve every unresolved status and the stopped report build.
 3. Publish a new immutable dashboard candidate, then compare its actual Empty
    Game player coverage with the 879 published unresolved player-games. Group
    remaining exclusions by their first failing component and fix each shared

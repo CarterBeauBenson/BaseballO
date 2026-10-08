@@ -17,16 +17,17 @@ No RML mappings, ontology terms, or graph rebuilds change with this policy.
 The user's October 4 recovery order is API → RML → SHACL → Fuseki → SQL → UI.
 Queued dashboard builds have no resource priority over source repairs. During
 this recovery, `pipeline/control/mlb-game/repair-priority.json` in runtime state
-holds new dashboard/report builds. NiFi releases that temporary hold once its
-existing repair-status observer records the active backlog clear. This does
-not create a permanent all-games prerequisite for later serving builds.
+holds new legacy report builds until the repair-status observer records the
+active backlog clear. Dashboard SQL can take the shared lease between repair
+batches, with at least ten minutes between publications during this phase.
+It publishes supported results while preserving unresolved coverage, without
+requiring unrelated repairs to finish.
 The shared heavy-worker lock and memory reserve remain in effect, and the UI
 continues reading its last published SQL snapshot throughout the repair phase.
-Within that temporary phase, unfinished history discovery and repairs take the
-slot before recurring defense, foul and admission rechecks. Those workers resume
-as soon as the history queue clears, then SQL resumes when the observer clears
-the remaining upstream backlog. This prevents fixed one-minute timers from
-continually starving history work without starting parallel JVMs.
+The EG1 worker selects repairs directly and refreshes each repaired game's
+dependent evidence under the same lease. General admission maintenance runs in
+its separate worker; it cannot repeatedly consume EG1's repair turn. The bounded
+lease wait also prevents timer collisions from continually starving that lane.
 
 Start with the [current RML repair plan](review/rml-audit-2026-10-03.md#current-repair-plan-and-scope)
 and its [October 4 closure](review/rml-audit-2026-10-03.md#six-item-repair-implementation-october-4)

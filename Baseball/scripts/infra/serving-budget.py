@@ -1,4 +1,4 @@
-"""NiFi launch budget: one heavy worker; finish requested upstream repairs first.
+"""NiFi launch budget: one heavy worker, with bounded dashboard publication turns.
 
 This coordinates resources only. It never changes source schedules, evidence,
 RDF or serving pointers, and never terminates an existing worker.
@@ -38,11 +38,12 @@ def control_timestamp(value):
     return result
 
 
-def upstream_repair_priority(state):
+def upstream_repair_priority(state,kind='report',*,now=None):
     """Honor the temporary repair phase using NiFi's existing status report.
 
-    Release it once, after recorded upstream work clears. Later source work
-    remains independent; this is not a permanent corpus-wide serving gate.
+    Repairs keep priority over the legacy report. The dashboard can publish
+    supported results between repair batches, at most once per ten minutes.
+    One unresolved repair must not suppress all other completed results.
     """
     control=state/'pipeline/control/mlb-game'
     path=control/'repair-priority.json'
@@ -52,10 +53,18 @@ def upstream_repair_priority(state):
     report_path=control/'repair-status.json'
     if not report_path.is_file():return True
     report=json.loads(report_path.read_text(encoding='utf-8-sig'))
-    if report.get('recordedWorkClear') is not True:return True
     checked=control_timestamp(report['checkedAtUtc'])
     requested=control_timestamp(request['requestedAtUtc'])
     if checked<requested:return True
+    now=now or datetime.now(timezone.utc)
+    if report.get('recordedWorkClear') is not True:
+        if kind!='dashboard':return True
+        pointer=state/'serving/dashboard-current.json'
+        last_publication=requested
+        if pointer.is_file():
+            published=json.loads(pointer.read_text(encoding='utf-8-sig')).get('promotedAtUtc')
+            if published:last_publication=max(last_publication,control_timestamp(published))
+        return (now-last_publication).total_seconds()<600
     request.update(enabled=False,releasedAtUtc=datetime.now(timezone.utc).isoformat(),
         releaseReason='NiFi recorded upstream repair work clear',repairStatusCheckedAtUtc=report['checkedAtUtc'])
     temporary=path.with_suffix('.'+str(os.getpid())+'.pending')
@@ -81,7 +90,7 @@ def reserve(state,kind,*,wait_seconds=0):
                 if remaining<=0:
                     yield 'heavy-worker-busy';return
                 time.sleep(min(0.25,remaining))
-        if upstream_repair_priority(state):
+        if upstream_repair_priority(state,kind):
             yield 'upstream-repairs-first';return
         # Older workers may have started before this launch budget was deployed.
         if any(r['status']=='running' for r in PROCESS.reconcile_builds(state)):

@@ -5,19 +5,10 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot '..\..\..\scripts\infra\common.ps1')
 . (Join-Path $PSScriptRoot 'game-lock.ps1')
 . (Join-Path $PSScriptRoot 'repair-budget.ps1')
-Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-addition' -Action {
+Invoke-MlbRepairBudget -StateRoot $script:StateRoot -Worker 'targeted-runner-addition' -TimeoutSeconds 45 -Action {
     $admissionWorker = Join-Path $PSScriptRoot 'admission-evidence-queue.py'
-    # Give the already-published eligibility backlog its existing bounded
-    # turn before adding more graph versions that need dependent checks.
-    $admissionJson = & python -B $admissionWorker --state-root $script:StateRoot `
-        --java (Get-JavaExecutable) --jena-classpath (Join-Path $script:FusekiHome 'fuseki-server.jar')
-    if ($LASTEXITCODE -ne 0) { throw 'Pending admission maintenance failed; preserve its recorded retry.' }
-    $admissionJson
-    $admission = $admissionJson | ConvertFrom-Json
-    $outcomes = $admission.PSObject.Properties['outcomes']
-    if ($null -ne $outcomes -and @($outcomes.Value.PSObject.Properties | Where-Object {
-            $_.Name -in @('waiting-for-memory', 'failed', 'partial-refreshed', 'refreshed') -and $_.Value -gt 0
-        }).Count -gt 0) { return }
+    # General admission maintenance has its own NiFi worker. This lane repairs
+    # its selected games, then finishes only their dependent checks below.
     $worker = Join-Path $PSScriptRoot 'targeted-empty-game-addition.py'
     $selection = & python -B $worker --state-root $script:StateRoot --next
     if ($LASTEXITCODE -ne 0) { throw 'Empty Games repair inventory failed.' }

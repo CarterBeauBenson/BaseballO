@@ -1,6 +1,7 @@
 """Resource contention defers work without killing workers or losing requests."""
 import importlib.util
 from contextlib import contextmanager
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,23 @@ B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 
 
 class ServingBudget(unittest.TestCase):
+    def test_dashboard_publishes_between_repairs_without_releasing_report_priority(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game';control.mkdir(parents=True)
+            request=control/'repair-priority.json';report=control/'repair-status.json'
+            original=json.dumps(dict(enabled=True,requestedAtUtc='2026-10-08T10:00:00Z'))
+            request.write_text(original)
+            report.write_text(json.dumps(dict(recordedWorkClear=False,checkedAtUtc='2026-10-08T10:01:00Z')))
+            early=datetime(2026,10,8,10,9,tzinfo=timezone.utc)
+            later=datetime(2026,10,8,10,10,tzinfo=timezone.utc)
+            self.assertTrue(B.upstream_repair_priority(state,'dashboard',now=early))
+            self.assertFalse(B.upstream_repair_priority(state,'dashboard',now=later))
+            self.assertTrue(B.upstream_repair_priority(state,'report',now=later))
+            self.assertEqual(request.read_text(),original)
+            pointer=state/'serving/dashboard-current.json';pointer.parent.mkdir()
+            pointer.write_text(json.dumps(dict(promotedAtUtc='2026-10-08T10:09:00Z')))
+            self.assertTrue(B.upstream_repair_priority(state,'dashboard',now=later))
+
     def test_short_contention_hands_off_and_persistent_contention_stays_bounded(self):
         with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):
             attempts=[];clock=[0.0]
