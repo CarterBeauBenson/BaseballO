@@ -49,27 +49,28 @@ def approved_case(game_pk):
     return case
 
 
-def outstanding(state,case):
+def outstanding(state,case,connection=None):
     """Read the latest publication; never turn an older diagnostic into work."""
-    pointer=state/'serving/dashboard-current.json'
-    if not pointer.is_file():return None
-    publication=W.read(pointer)
-    if publication['buildId']<=W.read(INVENTORY)['publicationId']:return None
-    database=Path(publication['databasePath'])
-    with closing(sqlite3.connect(database.as_uri()+'?mode=ro&immutable=1',uri=True)) as connection:
-        proof=connection.execute('SELECT proof_json FROM dashboard_player_admission WHERE graph_iri=?',
+    if connection is None:
+        pointer=state/'serving/dashboard-current.json'
+        if not pointer.is_file():return None
+        publication=W.read(pointer)
+        if publication['buildId']<=W.read(INVENTORY)['publicationId']:return None
+        with closing(sqlite3.connect(Path(publication['databasePath']).as_uri()+'?mode=ro&immutable=1',uri=True)) as db:
+            return outstanding(state,case,db)
+    proof=connection.execute('SELECT proof_json FROM dashboard_player_admission WHERE graph_iri=?',
             (case['graph'],)).fetchone()
-        counts=dict(connection.execute('SELECT player,plate_appearances FROM dashboard_player_game WHERE graph_iri=?',
+    counts=dict(connection.execute('SELECT player,plate_appearances FROM dashboard_player_game WHERE graph_iri=?',
             (case['graph'],)).fetchall())
-        unknown={p['player'] for p in case['excludedPlayerGames'] if counts.get(p['player']) is None}
-        # Complete whole-game B1 admission needs no individual-player proof.
-        # Only selected players with unknown PA counts need the newer reader.
-        if unknown:
-            if not proof:return None
-            individual=json.loads(proof[0])
-            individual=dict(individual,players=[p for p in individual.get('players',[]) if p.get('player') in unknown])
-            if E.PLAYER_PARTICIPATION.needs_compound_refresh(individual):return None
-        rows=connection.execute("SELECT player,complete FROM dashboard_player_metric WHERE graph_iri=? AND metric_id='empty-game-rate'",
+    unknown={p['player'] for p in case['excludedPlayerGames'] if counts.get(p['player']) is None}
+    # Complete whole-game B1 admission needs no individual-player proof.
+    # Only selected players with unknown PA counts need the newer reader.
+    if unknown:
+        if not proof:return None
+        individual=json.loads(proof[0])
+        individual=dict(individual,players=[p for p in individual.get('players',[]) if p.get('player') in unknown])
+        if E.PLAYER_PARTICIPATION.needs_compound_refresh(individual):return None
+    rows=connection.execute("SELECT player,complete FROM dashboard_player_metric WHERE graph_iri=? AND metric_id='empty-game-rate'",
             (case['graph'],)).fetchall()
     current=dict(rows)
     if any(p['player'] not in current for p in case['excludedPlayerGames']):return None
@@ -328,16 +329,16 @@ def automatic_walk_retry(state,case,previous):
         document=doc)['awardAdvances'] for p in candidates)
 
 
-def selection_repair_retry(state,case,previous):
+def selection_repair_families(state,case,previous,players=None):
     """D2/W5: exact new selection plus a still-excluded approved player.
 
     A retained selection can diagnose D2 after raw retirement, but is never an
     ingestion input. The repair uses an independently checked original response.
     """
-    if previous.get('status') not in SUCCESS:return False
+    if previous.get('status') not in SUCCESS:return []
     d2=previous.get('independentRunningDecision')!=INDEPENDENT_DECISION
     w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
-    if not (d2 or w5):return False
+    if not (d2 or w5):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -356,15 +357,16 @@ def selection_repair_retry(state,case,previous):
                 doc=W.read(context)
     plays=doc.get('liveData',{}).get('plays',{}).get('allPlays',[])
     if not any(p.get('result',{}).get('eventType') in {'walk','intent_walk'} or
-               any(r.get('details',{}).get('eventType')=='defensive_indiff' for r in p.get('runners',[])) for p in plays):return False
-    players=outstanding(state,case)
-    if not players:return False
+               any(r.get('details',{}).get('eventType')=='defensive_indiff' for r in p.get('runners',[])) for p in plays):return []
+    if players is None:players=outstanding(state,case)
+    if not players:return []
     ids={p.rsplit('/',1)[-1] for p in players}
+    families=set()
     for play in plays:
         batter=str(play.get('matchup',{}).get('batter',{}).get('id'))
         if d2:
             selected=C.defensive_indifference_evidence(play)
-            if selected and (batter in ids or any(r['runnerId'] in ids for r in selected)):return True
+            if selected and (batter in ids or any(r['runnerId'] in ids for r in selected)):families.add('D2-defensive-indifference')
         if (w5 and batter in ids
                 and play.get('result',{}).get('eventType') in {'walk','intent_walk'}
                 and C.accounted_runner_count_reviews(play)['issues']):
@@ -378,27 +380,79 @@ def selection_repair_retry(state,case,previous):
                 if not dimension:continue
                 season=dimension[0]  # Diagnostic only; execution rereads the original source season.
             if C.runner_metric_evidence(play,str(play['atBatIndex']),str(season),
-                    document=doc)['awardAdvances']:return True
-    return False
+                    document=doc)['awardAdvances']:families.add('W5-reviewed-walk')
+    return sorted(families)
+
+
+def selection_repair_retry(state,case,previous):
+    return bool(selection_repair_families(state,case,previous))
+
+
+def repair_plan(state,publication,version,excluded=None):
+    """Discover all matching approved repairs once per published remainder.
+
+    Group by shared selector, retain the exact EG1 authorization boundary,
+    and never turn a successful receipt into proof of metric completion.
+    This is an execution work list, not another semantic admission gate.
+    """
+    groups={};held=[];resolved=[]
+    inventory=W.read(INVENTORY)
+    excluded=W.A.SCOPE.excluded_games(state) if excluded is None else excluded
+    with closing(sqlite3.connect(Path(publication['databasePath']).as_uri()+'?mode=ro&immutable=1',uri=True)) as db:
+        for number,case in enumerate(inventory['games']):
+            game_pk=case['gamePk']
+            if game_pk in excluded:continue
+            path=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
+            previous=W.read(path) if path.is_file() else {}
+            players=outstanding(state,case,db)
+            if players is None:
+                held.append(dict(gamePk=game_pk,reason='waiting-for-reader'));continue
+            if not players:
+                resolved.append(game_pk);continue
+            families=selection_repair_families(state,case,previous,players)
+            current_case=dict(case,excludedPlayerGames=[p for p in case['excludedPlayerGames'] if p['player'] in players])
+            if automatic_walk_retry(state,current_case,previous):families.append('W4-automatic-walk')
+            if previous.get('status') in SUCCESS and not families:
+                held.append(dict(gamePk=game_pk,players=players,reason='no-unapplied-approved-selection'));continue
+            if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
+                held.append(dict(gamePk=game_pk,players=players,reason='retry-exhausted'))
+                if number==0:return dict(publicationId=publication['buildId'],implementationSha256=version,
+                    families=[],held=held,resolvedGames=resolved,firstRouteFailed=True)
+                continue
+            family='+'.join(sorted(families)) if families else 'EG1-existing-runner-patterns'
+            groups.setdefault(family,[]).append(dict(gamePk=game_pk,players=players,firstRoute=number==0))
+    families=[dict(family=name,players=len({p for item in games for p in item['players']}),
+                   playerGames=sum(len(item['players']) for item in games),games=games)
+              for name,games in groups.items()]
+    families.sort(key=lambda g:(not any(item['firstRoute'] for item in g['games']),-g['players'],-g['playerGames'],g['family']))
+    return dict(publicationId=publication['buildId'],implementationSha256=version,
+                families=families,held=held,resolvedGames=resolved)
 
 
 def next_game(state):
     version=fingerprint()
-    for number,case in enumerate(W.read(INVENTORY)['games']):
-        game_pk=case['gamePk']
-        if not W.A.SCOPE.active(state,game_pk):continue
-        path=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
-        previous=W.read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS and not (
-                selection_repair_retry(state,case,previous) or automatic_walk_retry(state,case,previous)):continue
-        if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
-            if number==0:return None  # First promoted game proves the additive route.
-            continue
-        players=outstanding(state,case)
-        if players is None:continue
-        if not players:
-            W.atomic(path,dict(gamePk=game_pk,status='resolved-by-reader',checkedAtUtc=W.TX.now()));continue
-        return dict(gamePk=game_pk)
+    pointer=state/'serving/dashboard-current.json'
+    if not pointer.is_file():return None
+    publication=W.read(pointer)
+    if publication['buildId']<=W.read(INVENTORY)['publicationId']:return None
+    path=state/'pipeline/control/mlb-game/empty-game-repair-plan.json'
+    plan=W.read(path) if path.is_file() else {}
+    excluded=W.A.SCOPE.excluded_games(state)
+    scope_sha=hashlib.sha256(json.dumps(excluded,sort_keys=True).encode()).hexdigest()
+    if (plan.get('publicationId'),plan.get('implementationSha256'),plan.get('activeScopeSha256'))!=(publication['buildId'],version,scope_sha):
+        plan=repair_plan(state,publication,version,excluded);plan['activeScopeSha256']=scope_sha;W.atomic(path,plan)
+    for group in plan['families']:
+        for item in group['games']:
+            game_pk=item['gamePk']
+            if game_pk in excluded:continue
+            receipt=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
+            previous=W.read(receipt) if receipt.is_file() else {}
+            if previous.get('implementationSha256')==version:
+                if previous.get('status') in SUCCESS:continue
+                if previous.get('attempts',0)>=2:
+                    if item['firstRoute']:return None
+                    continue
+            return dict(gamePk=game_pk,family=group['family'],publicationId=plan['publicationId'])
     return None
 
 

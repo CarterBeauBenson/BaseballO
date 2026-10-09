@@ -307,6 +307,21 @@ class ProgressPlayers(unittest.TestCase):
                     # batting credit or completes other contribution metrics.
                     self.assertNotIn(str(P1),item['confirmedPositivePlayers'])
 
+    def test_complete_contact_positive_survives_another_runners_unknown_path(self):
+        data=continuation_fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        contact=URIRef(pa+'/contact')
+        # Player 3's fully reconciled two-step scoring path is known contact
+        # progress. Player 2's unrelated unknown path cannot erase it.
+        for suffix in ('first-second','second-third'):
+            g.remove((contact,BFO.BFO_0000117,URIRef(pa+'/'+suffix)))
+        def held():
+            result=M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+            return next(p for p in result['unresolvedPlateAppearances'] if p['plateAppearance']==pa)
+        self.assertEqual(held()['confirmedPositivePlayers'],[str(P1)])
+        whole=URIRef(str(GAME)+'/runner-trajectory/3')
+        g.remove((whole,BFO.BFO_0000117,URIRef(pa+'/scored/episode')))
+        self.assertEqual(held()['confirmedPositivePlayers'],[])
+
     def test_runner_only_out_does_not_inherit_another_players_unknown_progress(self):
         data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
         g.remove((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,URIRef(str(pa)+'/resolution')))

@@ -105,7 +105,8 @@ ISOLATED_PROGRESS_CALCULATIONS = (SAFE_PREFIX_CALCULATIONS[1],
     '67e3ead06fac32cdc31b7297881d24384ae5d86a4cbfecf239f58ba975478a09',
     '9b12fdc366c9e2961a652d86a657c7f68ccbf9bc213f1ff5cb709f01adafd8bc',
     'c63db0e59d19bd4901498bbf6ab3c5fab9c3a57735ca99dc10ca4e3b424e1dc3',
-    'f9b93e1bc83fe404dda63f3c9759d4cb0f51b97ce69f384f5787d45192324d0e')
+    'f9b93e1bc83fe404dda63f3c9759d4cb0f51b97ce69f384f5787d45192324d0e',
+    '38650278470bb8ab19cca7460b2574f207547e25e57dbf4affcb286c643186e2')
 
 
 def digest(value):
@@ -971,6 +972,11 @@ def build_locked(args, state, serving, work):
         # The atomic pointer is the commit point. Bookkeeping errors cannot
         # undo it or truthfully turn the already readable build into a failure.
         warnings = []
+        try:
+            remainder = module(ROOT/'serving/empty_game_remainder.py','empty_game_remainder').summarize(METRICS,connection,build_id)
+            RELEASE.atomic(work/'empty-game-remainder.json',remainder)
+            evidence['emptyGameRemainder'] = remainder['summary']
+        except Exception as error: warnings.append('Empty Games remainder report: '+str(error))
         try: retain_snapshots(published.parent,published)
         except OSError as error: warnings.append('Snapshot retention: '+str(error))
         try: checkpoint(status='published', postPublicationWarnings=warnings)

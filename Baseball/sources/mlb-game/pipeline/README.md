@@ -18,6 +18,24 @@ NiFi `MLB Game` process group. NiFi supplies the scheduling, FlowFile
 dependency order, bounded retries, quarantine routing, and provenance. Each
 game work stage quarantines after two total failed attempts.
 
+Empty Games repairs are selected as shared families. The existing runner owner
+reads the published population once and writes
+`pipeline/control/mlb-game/empty-game-repair-plan.json`, grouped by every matching
+approved selector. The plan is cached for that publication, implementation and
+active source scope. It finishes the selected family through the existing
+bounded batch, skips successful/exhausted receipts, and discovers the next
+remainder when a new dashboard publishes. Game IDs are execution units; no
+game-specific selector is introduced. The approved EG1 boundary, additive
+promotion, locks and retry limits remain. A held case is not marked complete
+just because all currently approved mappings have run.
+
+The dashboard owner writes `serving/dashboard/empty-game-remainder.json` after
+publication. It groups every incomplete player-game by the retained diagnostic
+family and keeps exact PA/eligibility/census references for diagnosis. Counts
+refer to that named publication; distinct player counts overlap across families.
+This report neither scores data nor authorizes source work. Report failure is
+a post-publication warning and cannot block an otherwise usable dashboard.
+
 `stage.ps1` exposes the accepted per-game lifecycle as separate actions:
 
 `rml -> shacl -> promote -> materialize -> cleanup`

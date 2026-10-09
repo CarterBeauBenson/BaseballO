@@ -55,6 +55,49 @@ class EmptyGameAddition(unittest.TestCase):
             with closing(sqlite3.connect(database)) as db,db:db.execute('UPDATE dashboard_player_game SET plate_appearances=NULL')
             self.assertIsNone(E.outstanding(state,case))
 
+    def test_family_plan_discovers_all_matches_once_and_reuses_bounded_receipts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);database=state/'published.sqlite';inventory=state/'inventory.json'
+            cases=[dict(gamePk=str(i),graph='urn:graph:'+str(i),excludedPlayerGames=[dict(player='p'+str(i))])
+                   for i in (1,2,3,4)]
+            E.W.atomic(inventory,dict(publicationId='20260101',games=cases))
+            with closing(sqlite3.connect(database)) as db,db:
+                db.executescript('CREATE TABLE dashboard_player_admission(graph_iri,proof_json);'
+                    'CREATE TABLE dashboard_player_game(graph_iri,player,plate_appearances);'
+                    'CREATE TABLE dashboard_player_metric(graph_iri,player,metric_id,complete);')
+                for case in cases:
+                    pk=case['gamePk'];player='p'+pk
+                    db.execute('INSERT INTO dashboard_player_game VALUES (?,?,?)',(case['graph'],player,4))
+                    db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?)',
+                        (case['graph'],player,'empty-game-rate',int(pk=='1')))
+                    E.W.atomic(state/'pipeline/control/mlb-game/empty-game-addition'/(pk+'.json'),
+                        dict(status='already-present',implementationSha256='old'))
+                # An unapproved game in the same publication never enters work.
+                db.execute('INSERT INTO dashboard_player_metric VALUES (?,?,?,?)',('urn:graph:999','p999','empty-game-rate',0))
+            pointer=dict(buildId='20261009',databasePath=str(database))
+            E.W.atomic(state/'serving/dashboard-current.json',pointer)
+            def matches(state,case,previous,players):
+                return ['W5-reviewed-walk' if case['gamePk']=='4' else 'D2-defensive-indifference']
+            with patch.object(E,'INVENTORY',inventory),patch.object(E,'fingerprint',return_value='new'),\
+                    patch.object(E.W.A.SCOPE,'excluded_games',return_value={}),\
+                    patch.object(E,'selection_repair_families',side_effect=matches),\
+                    patch.object(E,'automatic_walk_retry',return_value=False),\
+                    patch.object(E,'repair_plan',wraps=E.repair_plan) as plan:
+                self.assertEqual(E.next_game(state)['gamePk'],'2')
+                stored=E.W.read(state/'pipeline/control/mlb-game/empty-game-repair-plan.json')
+                self.assertEqual([len(g['games']) for g in stored['families']],[2,1])
+                self.assertEqual(stored['resolvedGames'],['1'])
+                E.W.atomic(state/'pipeline/control/mlb-game/empty-game-addition/2.json',
+                    dict(status='complete',implementationSha256='new',attempts=1))
+                self.assertEqual(E.next_game(state)['gamePk'],'3')
+                E.W.atomic(state/'pipeline/control/mlb-game/empty-game-addition/3.json',
+                    dict(status='failed',implementationSha256='new',attempts=2))
+                self.assertEqual(E.next_game(state)['gamePk'],'4')
+                self.assertEqual(plan.call_count,1)
+                E.W.atomic(state/'serving/dashboard-current.json',dict(pointer,buildId='20261010'))
+                self.assertEqual(E.next_game(state)['gamePk'],'4')
+                self.assertEqual(plan.call_count,2)
+
     def test_shared_balk_identity_keeps_both_runners_and_final_batting_result(self):
         play=copy.deepcopy(self.play)
         extra=copy.deepcopy(play['runners'][0]);extra['details']['runner']['id']=123456

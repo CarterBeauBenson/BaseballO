@@ -2313,6 +2313,7 @@ def batting_progress_evidence(rows):
                 single={runner for runner in runner_ids if len({r['resolution']
                     for r in movements[(graph,pa)] if r.get('runner')==runner})==1}
                 if (self_positive and player in single) or other & single:certain.add(player)
+                if any(path['positive'] for path in coalesced):certain.add(player)
                 certain.update(r['player'] for r in independent if r['player'] in single)
                 if set(reasons) <= {'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}:
                     for runner in {r['player'] for r in independent}-single:

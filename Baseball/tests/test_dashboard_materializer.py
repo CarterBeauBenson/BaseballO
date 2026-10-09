@@ -101,6 +101,16 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(result['display']['source'],'prepared-sql-player-labels')
         self.assertEqual(result['display']['labels'], [])  # No returned players in this withheld fixture.
 
+    def test_remainder_reporting_failure_does_not_block_a_valid_publication(self):
+        original=D.module
+        def load(path,name):
+            if name=='empty_game_remainder':raise OSError('diagnostic output unavailable')
+            return original(path,name)
+        with patch.object(D,'module',side_effect=load):result=D.build(self.args)
+        self.assertEqual(result['status'],'published')
+        self.assertEqual(self.pointer()['buildId'],result['buildId'])
+        self.assertTrue(any('Empty Games remainder report' in w for w in result['postPublicationWarnings']))
+
     def test_failed_game_rolls_back_and_resume_reuses_committed_games(self):
         materialize = D.METRICS.materialize_game
         def fail_second(connection, graph, *a, **kw):

@@ -15,7 +15,39 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## Latest measured publication: October 8 at 23:34 Eastern
+## Latest measured publication: October 9 at 08:14 Eastern
+
+Publication `20261009T115501Z-dashboard-ca88e5e8ee4f` contains all 2,429 selected
+2026 regular-season games. The complete eligible player count is now **520**;
+**142 players remain incomplete**, with **153 unresolved player-games across
+139 games**. The shared corrections below have reduced the previous 218-player
+remainder. They have not completed the metric.
+
+| Retained diagnostic family | Player-games | Distinct players | Games |
+| --- | ---: | ---: | ---: |
+| Progress attribution | 88 | 84 | 87 |
+| Progress attribution plus path coalescence | 32 | 32 | 31 |
+| Runner resolution census | 11 | 11 | 5 |
+| Offensive eligibility | 8 | 8 | 8 |
+| Independent-running attribution | 8 | 8 | 8 |
+| Ambiguous batting contributor | 5 | 5 | 4 |
+| Ambiguous batting contributor plus attribution | 1 | 1 | 1 |
+
+Each player-game occurs in exactly one row; player/game counts overlap across
+families. These groups report retained analytical failures, not newly inferred
+source semantics. All 455 originally approved EG1 candidate games were examined
+against this publication: 316 have no remaining original exclusions, while 139
+remain held with no unapplied approved selector. Successful repair receipts
+therefore no longer masquerade as remaining mapping jobs or metric completion.
+
+NiFi now maintains the whole grouped remainder and approved family work list
+through its existing owners. Repeated source discovery is cached per publication
+and implementation, and the existing bounded batch consumes the family. A further
+shared reader correction preserves a fully reconciled contact positive despite
+another runner's unknown path; its incremental publication is pending. Required
+meaning/source decisions remain EG2-EG5 below, not individual game approvals.
+
+## Earlier measured publication: October 8 at 23:34 Eastern
 
 Publication `20261009T031504Z-dashboard-d44e487fd373`, promoted October 9 at
 03:34:30 UTC, contains all 2,429 selected 2026 regular-season games. Empty Games

@@ -41,8 +41,8 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repairs, October 9 at 03:35 UTC | Game 823412's D2 dependency repair completed with two added triples | A successful repair receipt does not establish complete metric attribution |
-| Dashboard build, October 9 at 03:34 UTC | `20261009T031504Z-dashboard-d44e487fd373` published | Subsequent reader corrections enter an incremental publication |
-| Published dashboard, October 8 at 23:34 Eastern | 444 complete Empty Games players, 218 incomplete; 263 unresolved player-games: eight eligibility and 255 classification | Replaces the October 6 baseline of 281 players and 879 unresolved player-games; zero is still the finish line |
+| Dashboard build, October 9 at 12:14 UTC | `20261009T115501Z-dashboard-ca88e5e8ee4f` published | Subsequent reader corrections enter an incremental publication |
+| Published dashboard, October 9 at 08:14 Eastern | 520 complete Empty Games players, 142 incomplete; 153 unresolved player-games across 139 games | Replaces the October 6 baseline of 281 players and 879 unresolved player-games; zero is still the finish line |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable
@@ -108,6 +108,23 @@ RDF rebuild is part of this plan. F9, defensive completeness, damage weights,
 percentile references and review-card implementation are not prerequisites.
 Fix a shared component only when an actual Empty Game exclusion depends on it.
 
+**October 9 execution correction:** use the entire published remainder as the
+work population and a shared defect/selector as the unit of implementation.
+Fix and exercise each generic rule once, then let NiFi find every matching
+authorized occurrence. Individual games are witnesses and execution batches,
+not separate design tasks. Do not close a category from one successful example.
+The existing dashboard owner emits the grouped remainder after publication;
+the existing source owner caches a grouped work list for each publication and
+implementation. This adds no validation gate or new pipeline topology.
+
+The 12:14 UTC publication has 520 complete eligible players and 142 incomplete
+players, spanning 153 player-games in 139 games. The entire approved existing-
+pattern repair scope has been examined: 316 candidate games no longer contain
+their original exclusions; 139 still do, and none currently has an unapplied
+approved selector. This does not authorize rerunning those 139 games or treating
+them as complete. Fix retained-reader dependencies independently; the prepared
+EG2-EG5 source/meaning decisions remain pending their named review.
+
 | Order | Work and existing owner | Exit evidence |
 | --- | --- | --- |
 | EG-A. Publish the work already completed | Let the running Dashboard SQL build finish without restarting it. Read its full-season Empty Games result and compare excluded player/game identities with the October 6 baseline. Use current NiFi receipts to distinguish an unfixed case from a fix absent from the captured build. | New published build ID; displayed/excluded players; unresolved eligibility/classification counts and affected games. The old 879-row list is replaced by the new exact remainder. |
@@ -125,7 +142,7 @@ The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
 at a publication or recorded failure, not by continuously polling healthy work.
 
 The latest measured publication and subsequent fixes are recorded in
-[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-8-at-2334-eastern).
+[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-9-at-0814-eastern).
 NiFi refreshes these reader corrections from retained bindings without source
 work or unrelated metric recalculation. Keep a running snapshot intact and
 collect later changes in its next incremental publication; a code commit is
