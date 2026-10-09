@@ -71,6 +71,7 @@ function Get-ExplorerSourceFingerprint {
     $paths = @(
         (Join-Path $webRoot 'server.mjs'),
         (Join-Path $webRoot 'runtime-safety.mjs'),
+        (Join-Path $webRoot 'metric-team-qualification.mjs'),
         (Join-Path $webRoot 'query-builder\analytics-query-builder.js'),
         (Join-Path $webRoot 'query-builder\derived-metric-query-builder.js'),
         (Join-Path $webRoot 'query-builder\empty-games-query-builder.js'),

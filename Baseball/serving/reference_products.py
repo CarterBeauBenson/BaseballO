@@ -156,12 +156,14 @@ def prepare(m, connection, seasons=None, checkpoint=None, player_admissions=None
         "WHERE game_set='regular_season' ORDER BY season,official_date").fetchall()
     affected=set(seasons) if seasons is not None else {r[0] for r in dates}
     selected={'paq-2','paq-a','recovery-quality','paq-2.1'} if metric_ids is None else set(metric_ids) & {'paq-2','paq-a','recovery-quality','paq-2.1'}
+    rank_products=selected | ({'paq21-recovery'} if 'paq-2.1' in selected else set())
     # Family builds already calculate inputs with the individual admission.
     # The legacy combined builder still upgrades those inputs here.
     if metric_ids is None:prepare_individual_inputs(m,connection,player_admissions,affected)
     for year in affected:
-        for metric in selected:
+        for metric in rank_products:
             connection.execute('DELETE FROM dashboard_reference WHERE season=? AND metric_id=?',(year,metric))
+        for metric in selected:
             connection.execute('DELETE FROM dashboard_reference_players WHERE season=? AND metric_id=?',(year,metric))
     output=[]
     with prepared_ranks(m,connection):

@@ -55,6 +55,7 @@ const GAME_SETS = new Set(["regular_season", "all_star"]);
 const EXPLORER_RUNTIME_SOURCE_PATHS = [
   resolve(WEB_ROOT, "server.mjs"),
   resolve(WEB_ROOT, "runtime-safety.mjs"),
+  resolve(WEB_ROOT, "metric-team-qualification.mjs"),
   resolve(QUERY_BUILDER_ROOT, "analytics-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "derived-metric-query-builder.js"),
   resolve(QUERY_BUILDER_ROOT, "empty-games-query-builder.js"),

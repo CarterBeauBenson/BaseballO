@@ -78,6 +78,17 @@ that selection; it cannot silently shorten the requested range. Shared-snapshot
 publications remain readable during the migration. The working database is never
 served. `--max-games` uses an isolated development workspace and cannot publish.
 
+The web qualification step also follows each metric's own publication and roster;
+it accepts both prior combined IDs and family IDs. A qualification read failure
+withholds only its affected metric. Empty Games bypasses this rate-only step.
+The Explorer launcher includes this module in its runtime identity so a changed
+qualification implementation actually replaces the older running web process.
+
+Reference refreshes invalidate the selected percentile and its internal ranks.
+In particular, PAQ-2.1 also refreshes `paq21-recovery`; retaining that internal
+cohort could otherwise give an old tie-break rank to a changed observation.
+This does not invalidate independent offensive reference products.
+
 Provision with `serving/dashboard-nifi/provision.ps1 -Start`. Its one-minute
 tick checks for changed promotion/schedule evidence and exits immediately when
 unchanged. Per-game locks and resumable checkpoints allow progress during repairs;

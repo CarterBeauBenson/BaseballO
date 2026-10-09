@@ -1000,6 +1000,7 @@ def query_dashboard_families(args, request, pointer):
         try:
             if not publication:raise ValueError('Family has not published yet')
             freshness.update(status='published',buildId=publication['buildId'],
+                corpusFingerprint=publication['corpusFingerprint'],
                 publishedAtUtc=publication.get('promotedAtUtc'),sourceCapturedAtUtc=publication.get('sourceSnapshotCapturedAtUtc'))
             if pointer.get('familyBuildStatus',{}).get(family,{}).get('status')=='failed':
                 freshness.update(status='retained',updateStatus='retry-pending')

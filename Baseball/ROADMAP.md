@@ -50,8 +50,8 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repairs, October 9 at 03:35 UTC | Game 823412's D2 dependency repair completed with two added triples | A successful repair receipt does not establish complete metric attribution |
-| Dashboard build, October 9 at 12:14 UTC | `20261009T115501Z-dashboard-ca88e5e8ee4f` published | Subsequent reader corrections enter an incremental publication |
-| Published dashboard, October 9 at 08:14 Eastern | 520 complete Empty Games players, 142 incomplete; 153 unresolved player-games across 139 games | Replaces the October 6 baseline of 281 players and 879 unresolved player-games; zero is still the finish line |
+| Dashboard build, October 9 at 13:26 UTC | `20261009T125838Z-dashboard-859a41029327` published | First independent offense build began at 13:37 UTC |
+| Published dashboard, October 9 at 09:26 Eastern | 520 complete Empty Games players, 142 incomplete; 153 unresolved player-games across 139 games | Unchanged from the 12:14 UTC publication; zero is still the finish line |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable
@@ -126,7 +126,7 @@ The existing dashboard owner emits the grouped remainder after publication;
 the existing source owner caches a grouped work list for each publication and
 implementation. This adds no validation gate or new pipeline topology.
 
-The 12:14 UTC publication has 520 complete eligible players and 142 incomplete
+The 13:26 UTC publication has 520 complete eligible players and 142 incomplete
 players, spanning 153 player-games in 139 games. The entire approved existing-
 pattern repair scope has been examined: 316 candidate games no longer contain
 their original exclusions; 139 still do, and none currently has an unapplied
@@ -151,7 +151,7 @@ The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
 at a publication or recorded failure, not by continuously polling healthy work.
 
 The latest measured publication and subsequent fixes are recorded in
-[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-9-at-0814-eastern).
+[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-9-at-0926-eastern).
 NiFi refreshes these reader corrections from retained bindings without source
 work or unrelated metric recalculation. Keep a running snapshot intact and
 collect later changes in its next incremental publication; a code commit is

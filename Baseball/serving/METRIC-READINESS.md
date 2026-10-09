@@ -21,9 +21,10 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 9 at 08:14 Eastern
+## Latest measured publication: October 9 at 09:26 Eastern
 
-Publication `20261009T115501Z-dashboard-ca88e5e8ee4f` contains all 2,429 selected
+Publication `20261009T125838Z-dashboard-859a41029327`, promoted at 13:26:27 UTC,
+contains all 2,429 selected
 2026 regular-season games. The complete eligible player count is now **520**;
 **142 players remain incomplete**, with **153 unresolved player-games across
 139 games**. The shared corrections below have reduced the previous 218-player
@@ -40,9 +41,10 @@ remainder. They have not completed the metric.
 | Ambiguous batting contributor plus attribution | 1 | 1 | 1 |
 
 Each player-game occurs in exactly one row; player/game counts overlap across
-families. These groups report retained analytical failures, not newly inferred
-source semantics. All 455 originally approved EG1 candidate games were examined
-against this publication: 316 have no remaining original exclusions, while 139
+families. These counts are unchanged from the 12:14 UTC publication and report
+retained analytical failures, not newly inferred source semantics. The prior
+complete inventory of 455 originally approved EG1 candidate games found that
+316 had no remaining original exclusions, while 139
 remain held with no unapplied approved selector. Successful repair receipts
 therefore no longer masquerade as remaining mapping jobs or metric completion.
 
@@ -50,8 +52,13 @@ NiFi now maintains the whole grouped remainder and approved family work list
 through its existing owners. Repeated source discovery is cached per publication
 and implementation, and the existing bounded batch consumes the family. A further
 shared reader correction preserves a fully reconciled contact positive despite
-another runner's unknown path; its incremental publication is pending. Required
+another runner's unknown path; it is included in the 13:26 publication. Required
 meaning/source decisions remain EG2-EG5 below, not individual game approvals.
+
+The first independent offense build started at 13:37 UTC. Its recorded 14:00
+checkpoint contained 500 of 2,455 active games; that is build progress, not a new
+publication or additional complete players. The remaining families retain the
+previous published snapshot until their own replacements finish.
 
 ## Earlier measured publication: October 8 at 23:34 Eastern
 

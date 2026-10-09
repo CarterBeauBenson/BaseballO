@@ -14,6 +14,23 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class References(unittest.TestCase):
+    def test_combined_refresh_rebuilds_internal_recovery_ranks_and_preserves_offense(self):
+        db=self.complete_database()
+        R.prepare(M,db)
+        scope=dict(SEASON_SCOPE,startDate='2026-08-03',endDate='2026-08-03')
+        graph='https://w3id.org/baseball/graph/game/103'
+        before=Q.reference_players(M,db,'paq-2.1',scope,[graph])
+        offensive=db.execute("SELECT * FROM dashboard_reference_players WHERE metric_id!='paq-2.1' ORDER BY metric_id,season,graph_set_sha256").fetchall()
+        retained,=M.read_results(db,graph,'paq-2.1')
+        retained['paq21Inputs']['plateAppearances'][0]['recoveryInput']=M.exact(-1)
+        M.store_result(db,graph,'paq-2.1','game-scope',retained)
+        expected=M.query_sql(db,{'metricId':'paq-2.1'},scope,_use_blocks=False)['metric']
+        self.assertNotEqual(before['value'],expected['value'])
+        R.prepare(M,db,metric_ids={'paq-2.1'})
+        actual=Q.reference_players(M,db,'paq-2.1',scope,[graph])
+        self.assert_same_player_scores(actual,expected)
+        self.assertEqual(db.execute("SELECT * FROM dashboard_reference_players WHERE metric_id!='paq-2.1' ORDER BY metric_id,season,graph_set_sha256").fetchall(),offensive)
+
     def individual(self,db,graph):
         rows=M._blocks.read_scope(M._block_api(),db,[graph])
         return dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
