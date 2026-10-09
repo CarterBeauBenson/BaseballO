@@ -275,6 +275,38 @@ class ProgressPlayers(unittest.TestCase):
             origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
         self.assertIn(str(P1),held()['possiblePositivePlayers'])
 
+    def test_known_running_positive_survives_only_a_complete_all_safe_path(self):
+        rows=M.normalize_bindings(bindings(continuation_fixture(),[G1]),[G1])
+        pa=str(GAME)+'/plate-appearance/0'
+        for known in ('first-second','second-third'):
+            for change in ('none','out','missing_member','branch','conflicting_end','no_known_positive'):
+                with self.subTest(known=known,change=change):
+                    candidate=copy.deepcopy(rows)
+                    for row in candidate:
+                        if row.get('plateAppearance')!=pa or row.get('runner')!=str(P2):continue
+                        row.pop('contactPlay',None)
+                        if row['resolution']==pa+'/'+known and change!='no_known_positive':
+                            row.update(record='urn:wp-record',independentRunningProcess='urn:wp',
+                                independentRunningType=str(BASE.WildPitchProcess),
+                                independentRunningJudgment='urn:wp-judgment',
+                                independentRunningDecision='urn:wp-decision')
+                        if row['resolution']!=pa+'/second-third':continue
+                        if change in ('out','conflicting_end'):
+                            row['hasOutType']='true'
+                            if change=='out':row['hasSafeType']='false'
+                        elif change=='branch':row['originCode']='1B'
+                    if change=='missing_member':
+                        candidate=[r for r in candidate if not (r['kind']=='runner_history'
+                            and r.get('episode')==pa+'/second-third/episode')]
+                    result=M.batting_progress_evidence(candidate)
+                    item=next(p for p in result['unresolvedPlateAppearances'] if p['plateAppearance']==pa)
+                    self.assertEqual(str(P2) in item['confirmedPositivePlayers'],change=='none')
+                    self.assertTrue(item['gaps'])
+                    if change=='none':self.assertIn('UNRESOLVED_PROGRESS_ATTRIBUTION',item['gaps'])
+                    # Known running credit never turns the unknown step into
+                    # batting credit or completes other contribution metrics.
+                    self.assertNotIn(str(P1),item['confirmedPositivePlayers'])
+
     def test_runner_only_out_does_not_inherit_another_players_unknown_progress(self):
         data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
         g.remove((URIRef(str(pa)+'/contact'),BFO.BFO_0000117,URIRef(str(pa)+'/resolution')))

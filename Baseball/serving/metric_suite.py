@@ -2305,15 +2305,21 @@ def batting_progress_evidence(rows):
         if reasons:
             runner_ids={r.get('runner') for r in movements[(graph,pa)]}
             # A different person's unresolved path cannot erase a verified
-            # single-resolution positive. An unidentified runner cannot safely
-            # be separated; multiple resolutions for the same person still
-            # need their own coalescence.
+            # single-resolution positive. A complete all-safe personal path
+            # also preserves a known independent advance; it does not attribute
+            # the other steps or settle their contribution magnitudes.
             certain=set()
             if None not in runner_ids:
                 single={runner for runner in runner_ids if len({r['resolution']
                     for r in movements[(graph,pa)] if r.get('runner')==runner})==1}
                 if (self_positive and player in single) or other & single:certain.add(player)
                 certain.update(r['player'] for r in independent if r['player'] in single)
+                if set(reasons) <= {'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}:
+                    for runner in {r['player'] for r in independent}-single:
+                        states=[group[0] for group in resolutions.values() if group[0].get('runner')==runner]
+                        if any(r.get('hasOutType')!='false' for r in states):continue
+                        path=runner_progress_path(states,histories,history_movements)
+                        if path['status']=='available' and path['positive']:certain.add(runner)
             possible={player,*runner_ids}
             if excluded_interference_entry and None not in runner_ids:
                 possible.discard(player)
