@@ -3,6 +3,7 @@
   "contractVersion": 1,
   "moduleId": "mlb-game",
   "profiles": [
+    "shacl/official-scoring.ttl",
     "shacl/balk-runner-attribution.ttl",
     "shacl/defensive-indifference-running.ttl",
     "shacl/pitcher-participation.ttl",

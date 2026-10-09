@@ -10,8 +10,9 @@ import json
 import re
 import unicodedata
 from datetime import date, datetime
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 
 SAFE_IRI_SEGMENT = re.compile(r"^[A-Za-z0-9._~-]+$")
@@ -2886,6 +2887,154 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
     return result
 
 
+SCORING_BASE = 'https://baseballontology.org/'
+OFFICIAL_PA_RULE = SCORING_BASE+'data/rule/official-pa-assignment'
+OFFICIAL_RBI_RULE = SCORING_BASE+'data/rule/rbi-assignment'
+SCORING_ERROR_KINDS = {'f_fielding_error', 'f_throwing_error', 'f_catching_error'}
+SCORING_ERROR_EVENTS = {'error', 'field_error', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b'}
+
+
+def official_pa_assignment(play, participants):
+    """One explicit replacement; Q4 separately proves the actual act chain."""
+    changes = [e for e in play.get('playEvents', [])
+               if e.get('details', {}).get('eventType') == 'offensive_substitution'
+               and e.get('position', {}).get('abbreviation') != 'PR']
+    if len(changes) != 1 or len(participants) != 2 or play.get('about', {}).get('isComplete') is not True:
+        return None
+    change = changes[0]
+    old, new = (str(change.get(k, {}).get('id', '')) for k in ('replacedPlayer', 'player'))
+    if {p['playerId'] for p in participants} != {old, new} or str(play['matchup']['batter']['id']) != new:
+        return None
+    count = change.get('count', {})
+    if any(type(count.get(k)) is not int or not 0 <= count[k] <= bound
+           for k, bound in (('balls', 3), ('strikes', 2))):
+        return None
+    prior = [e for e in play['playEvents'] if e['index'] < change['index']
+             and (e.get('isPitch') is True or e.get('type') == 'no_pitch')]
+    if not prior or any(prior[-1].get('count', {}).get(k) != count[k] for k in ('balls', 'strikes')):
+        return None
+    return old if count['strikes'] == 2 and play['result']['eventType'] in {'strikeout', 'strikeout_double_play'} else new
+
+
+def official_credit_row(pa, player, kind, subject):
+    stem = pa+'/'+kind
+    return dict(atBatIndex=pa.rsplit('/', 1)[-1], player=player, subject=subject,
+                judgment=stem+'/judgment', decision=stem+'/decision', record=stem+'/record')
+
+
+def official_pa_rows(census):
+    if census['status'] != 'reconciled':
+        return []
+    return [official_credit_row(r['pa'], r['player'], 'official-pa-credit', r['pa'])
+            for r in census['members'] if r.get('officialCredit')]
+
+
+def secondary_error_rows(play, game_pk, reviews_reconciled):
+    """Deduplicate an explicitly scored error; preserve each affected resolution."""
+    if not reviews_reconciled or play.get('about', {}).get('isComplete') is not True:
+        return []
+    events = play.get('playEvents', [])
+    if [e.get('index') for e in events] != list(range(len(events))):
+        return []
+    credits = defaultdict(set)
+    primary_events = {r.get('details', {}).get('playIndex') for r in play.get('runners', [])
+        if play.get('result', {}).get('eventType') == 'field_error'
+        and r.get('details', {}).get('eventType') == 'field_error'
+        and r.get('details', {}).get('runner', {}).get('id') == play.get('matchup', {}).get('batter', {}).get('id')
+        and r.get('movement', {}).get('start') is None}
+    for row in play.get('runners', []):
+        event = row.get('details', {}).get('playIndex')
+        if type(event) is not int or not 0 <= event < len(events):
+            continue
+        for credit in row.get('credits', []):
+            kind, person = credit.get('credit'), credit.get('player', {}).get('id')
+            if kind in SCORING_ERROR_KINDS and type(person) is int and person > 0:
+                credits[event].add((str(person), kind))
+    pa = SCORING_BASE+f'data/game/{game_pk}/plate-appearance/{play["atBatIndex"]}'
+    output = []
+    for index, row in enumerate(play.get('runners', [])):
+        details, movement = row.get('details', {}), row.get('movement', {})
+        event = details.get('playIndex')
+        if event in primary_events or details.get('eventType') not in SCORING_ERROR_EVENTS or len(credits[event]) != 1:
+            continue
+        if type(movement.get('isOut')) is not bool or type(details.get('runner', {}).get('id')) is not int:
+            continue
+        start, end = movement.get('start'), movement.get('end')
+        if start not in {None, '1B', '2B', '3B'}:
+            continue
+        kind = ('out' if movement['isOut'] else 'score' if end == 'score' else
+                'reach' if start is None and end == '1B' else 'advance' if start in {'1B', '2B', '3B'} and end in {'2B', '3B'} else None)
+        if kind is None or (kind == 'score' and details.get('isScoringEvent') is not True):
+            continue
+        person, error_kind = next(iter(credits[event]))
+        stem = pa+f'/secondary-error/{event}/{person}/{error_kind}'
+        # Runner indices are source-array indices, never indices in a subset.
+        resolution = SCORING_BASE+f'data/game/{game_pk}/runner-resolution/{kind}/{play["atBatIndex"]}/{index}'
+        output.append(dict(atBatIndex=str(play['atBatIndex']), runnerIndex=str(index),
+            error=stem, judgment=stem+'/judgment', decision=stem+'/decision',
+            record=SCORING_BASE+f'data/game/{game_pk}/runner-record/{play["atBatIndex"]}/{index}',
+            resolution=resolution))
+        if events[event].get('details', {}).get('isInPlay') is True:
+            play_id = events[event].get('playId')
+            if not isinstance(play_id, str) or not play_id:
+                output.pop()
+            else:
+                output[-1]['contactPlay'] = SCORING_BASE+f'data/game/{game_pk}/process/batted-ball-play/{play_id}'
+    return output
+
+
+def official_rbi_rows(document, census, reviews):
+    """Require the entire per-play and official RBI inventory to reconcile."""
+    if census['status'] != 'reconciled':
+        return []
+    members = {r['atBatIndex']: r for r in census['members']}
+    counts, output = Counter(), []
+    for play in document['liveData']['plays']['allPlays']:
+        member = members[play['atBatIndex']]
+        reported = play.get('result', {}).get('rbi')
+        credited = [(i, r) for i, r in enumerate(play.get('runners', [])) if r.get('details', {}).get('rbi') is True]
+        if type(reported) is not int or reported < 0 or reported != len(credited):
+            return []
+        if not credited:
+            continue
+        if not member.get('resultType') or not reviews(play):
+            return []
+        # RBI belongs to the unambiguously credited completing batter; EG4's
+        # outgoing strikeout recipient cannot acquire another batter's acts.
+        player = SCORING_BASE+'data/player/'+str(play['matchup']['batter']['id'])
+        if player != member['player']:
+            return []
+        seen = set()
+        for index, runner in credited:
+            details, move = runner['details'], runner['movement']
+            person = details.get('runner', {}).get('id')
+            if (person in seen or type(person) is not int or move.get('isOut') is not False
+                    or move.get('end') != 'score' or details.get('isScoringEvent') is not True
+                    or move.get('start') not in {None, '1B', '2B', '3B'}):
+                return []
+            seen.add(person)
+            run = SCORING_BASE+f'data/game/{document["gamePk"]}/runner-resolution/score/{play["atBatIndex"]}/{index}'
+            record = official_credit_row(member['pa'], player, f'rbi-credit/{player.rsplit("/",1)[-1]}/{index}', run)
+            record['runnerIndex'] = str(index)
+            output.append(record)
+            counts[player] += 1
+    for side in ('away', 'home'):
+        team = document['liveData']['boxscore']['teams'][side]
+        total = team.get('teamStats', {}).get('batting', {}).get('rbi')
+        known = 0
+        for person in team['players'].values():
+            stats = person.get('stats', {}).get('batting', {})
+            value = stats.get('rbi', 0 if stats == {} else None)
+            if type(value) is not int or value < 0 or value != counts[SCORING_BASE+'data/player/'+str(person['person']['id'])]:
+                return []
+            known += value
+        if type(total) is not int or total != known:
+            return []
+    return output
+
+SCORING = SimpleNamespace(BASE=SCORING_BASE, PA_RULE=OFFICIAL_PA_RULE, RBI_RULE=OFFICIAL_RBI_RULE, ERROR_KINDS=SCORING_ERROR_KINDS, ERROR_EVENTS=SCORING_ERROR_EVENTS, pa_assignment=official_pa_assignment, credit_row=official_credit_row, pa_rows=official_pa_rows, secondary_errors=secondary_error_rows, rbi_rows=official_rbi_rows)
+
+
 def main() -> None:
     args = parse_args()
     document = json.loads(args.source.read_text(encoding="utf-8"))
@@ -3353,6 +3502,18 @@ def main() -> None:
         previous_manifest = json.loads(args.previous_defensive_evidence.read_text(encoding='utf-8-sig'))
         previous_defense = previous_manifest.get('defensiveEvidence')
     defensive_act_context(document, previous_defense)
+    # EG4/EG5: scoring credit is distinct from each person's actual acts.
+    scoring_path = Path(__file__).resolve().parents[2] / 'sources/mlb-game/pipeline/batting-admission.py'
+    scoring_spec = importlib.util.spec_from_file_location('rml_scoring_census', scoring_path)
+    scoring = importlib.util.module_from_spec(scoring_spec)
+    scoring_spec.loader.exec_module(scoring)
+    credit_census = scoring.census(args.source.read_bytes(), game_pk)
+    root_context['officialPACredits'] = scoring.SCORING.pa_rows(credit_census)
+    reviewed = lambda play: not accounted_runner_history_reviews(play)['issues']
+    root_context['secondaryErrors'] = ([row for play in plays
+        for row in scoring.SCORING.secondary_errors(play, game_pk, reviewed(play))]
+        if credit_census['sourceConsistency'] == 'consistent' else [])
+    root_context['rbiCredits'] = scoring.SCORING.rbi_rows(document, credit_census, reviewed)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(document, ensure_ascii=False, separators=(",", ":")),

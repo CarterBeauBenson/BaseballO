@@ -9,6 +9,7 @@ SELECT DISTINCT ?graph ?game ?kind ?entity ?player ?act ?roleType
                 ?playerTeamRole ?team ?teamRole
                 ?paResult ?paResultType ?paResultJudgment ?paResultDecision ?paResultRecord ?recognizedBattingResult ?batterProgressExcluded
                 ?compoundOut ?compoundDescription
+                ?creditedPlayer ?creditJudgment ?creditDecision ?creditRecord
                 ?reviewRecord ?original ?operative ?disposition ?decision
                 ?reviewPA ?reviewPitch ?reviewMotion ?reviewBatterAct ?affectedPlayer
                 ?defensiveAct ?defensiveActType ?defensiveAgent ?defensiveRole ?defensiveNext
@@ -28,6 +29,14 @@ WHERE {
       OPTIONAL {
         ?act a base:BatterAct ; obo:BFO_0000132 ?entity ; obo:BFO_0000055 ?battingRole .
         ?battingRole a base:BatterRole ; obo:BFO_0000197 ?player .
+      }
+      OPTIONAL {
+        ?creditJudgment a base:ScoringJudgmentAct ;
+          cco:ont00001921 <https://baseballontology.org/data/rule/official-pa-assignment> ;
+          cco:ont00001986 ?creditDecision .
+        ?creditDecision a base:BaseballDecisionICE ; cco:ont00001808 ?entity, ?creditedPlayer .
+        ?creditedRole a base:BatterRole ; obo:BFO_0000197 ?creditedPlayer .
+        ?creditRecord a base:BaseballEventRecord ; cco:ont00001808 ?creditJudgment, ?creditDecision .
       }
       # Inventory the existing adjudicated result. These bindings do not by
       # themselves declare statistical PA eligibility or player qualification.

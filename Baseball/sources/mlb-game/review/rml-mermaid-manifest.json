@@ -913,6 +913,39 @@
         "BalkAdvanceDecisionMap",
         "BalkAdvanceRecordMap"
       ]
+    },
+    {
+      "id": "73-officialpa",
+      "title": "Official PA credit",
+      "summary": "Accepted EG4/EG5 scoring decisions remain distinct from actual participation and physical causation.",
+      "maps": [
+        "OfficialPAJudgmentMap",
+        "OfficialPADecisionMap",
+        "OfficialPARecordMap",
+        "OfficialPARuleMap"
+      ]
+    },
+    {
+      "id": "74-rbicredit",
+      "title": "Official RBI credit",
+      "summary": "Accepted EG4/EG5 scoring decisions remain distinct from actual participation and physical causation.",
+      "maps": [
+        "RBICreditJudgmentMap",
+        "RBICreditDecisionMap",
+        "RBICreditRecordMap",
+        "RBICreditRuleMap"
+      ]
+    },
+    {
+      "id": "75-secondaryerror",
+      "title": "Secondary scored errors",
+      "summary": "Accepted EG4/EG5 scoring decisions remain distinct from actual participation and physical causation.",
+      "maps": [
+        "SecondaryErrorProcessMap",
+        "SecondaryErrorJudgmentMap",
+        "SecondaryErrorDecisionMap",
+        "SecondaryErrorRecordMap"
+      ]
     }
   ]
 }

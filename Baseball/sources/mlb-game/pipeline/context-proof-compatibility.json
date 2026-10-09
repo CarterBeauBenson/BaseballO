@@ -4525,5 +4525,220 @@
     "changedValidationDefinitions": [
       "runner-resolution-admission.census: selected D2 acts require StealAttemptAct; targeted projection preserves other existing expectations"
     ]
+  },
+  "emptyGameScoringCompletion": {
+    "decision": "archive/design-records/mlb-game-official-pa-credit/review.json",
+    "companionDecisions": [
+      "archive/design-records/mlb-game-empty-game-remaining-selections/review.json",
+      "archive/design-records/mlb-game-secondary-error-attribution/review.json"
+    ],
+    "baselineCommit": "39734f5",
+    "previousRepair": "reviewedWalkIndependentRunning",
+    "previousContextSha256": "7f99603afb92945f6a99b5fd24baaa4e3fb3041c4d8f005f9cba3b0173955bb5",
+    "currentContextSha256": "28e8baf9d562efd55b5b71c357526bbcecdba32f67407eab8e2397cd12b86dcc",
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+        "currentImplementationSha256": "5342fa8028761256dd563ab8e3b6c0a5f5c207aa6660626a0f7537dfe49afc61",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+        "currentImplementationSha256": "868c2ae00334aec598fb7a8c41d7065aaeabbfc39c1e8e8af54e25fa902e1fab",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "d8d12fe76e49cffa26914b58effae430faaf810d163f26e0186e1dcbbba087f6",
+        "currentImplementationSha256": "d34f52da2876c8e1dc664b846448a09e8f167660ca1ab0c5f5f56468c87f262c",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "f83d93716a53d16072207c2e62fee0c725ae6d2fd8bf408e84581625737f0245",
+        "currentImplementationSha256": "b5cbaab9c302f81ac647b29fd23eec220cc089d65e08557ca108fe7e584a0a3b",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "d8b760084876f81e839fcefb3f9195736e666d4e8fc4c77c3385dd37bd94e4ae",
+        "currentImplementationSha256": "dd9ede440129588819ddb855cacda23ca01206090b922f9a5d12686797bf3c55",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "defensive": {
+        "previousImplementationSha256": "4c8d874b20871f1390cf6a97fd2e5b8530262062214ee355c458ce966389987f",
+        "currentImplementationSha256": "1c509fd47b874b6a380355f45af526f0c89d342174b1d4bd2a423223f28e84b9",
+        "reuseKind": "unchanged-proof-dependencies"
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "currentImplementationSha256": "b32fdcf5e38f240fc65c21fef49adc4a5a3fdae73c00951eebb9a5ae8f16c338",
+        "previous": [
+          {
+            "previousImplementationSha256": "2d126b4df793bfd534fb95fbd5805e85b9ab14dcd3fb0773f220c0a2cb859990",
+            "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "scoring-run": {
+        "currentImplementationSha256": "25613e3daea84cb748ec8ad999cf536289da4115b2359c758ad7348c42cf1ee4",
+        "previous": [
+          {
+            "previousImplementationSha256": "b2f44718a50eb8b565d0b01d8d589d2e661a7503cb27a554be5377b7dbf766c6",
+            "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "runner-resolution": {
+        "currentImplementationSha256": "f56f4121b2906c6ff0892fd7a84a5cfbd6cafcc1eb674b093328fca99a3a84ff",
+        "previous": [
+          {
+            "previousImplementationSha256": "3e2124c257e144a8a6bb5e36f1de93a8e838860621f891971a4df37ec4c5e55a",
+            "previousSourceProducerSha256": "d8d12fe76e49cffa26914b58effae430faaf810d163f26e0186e1dcbbba087f6",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "pitch-count": {
+        "currentImplementationSha256": "e2d4189a412b1e219e26496809f016d7fb60f0b464ba91ffae538cff924b3142",
+        "previous": [
+          {
+            "previousImplementationSha256": "a193e6eb7edab664aa08b78d6adc01c2fa9db9e094645ba1e3c577dd86636f94",
+            "previousSourceProducerSha256": "f83d93716a53d16072207c2e62fee0c725ae6d2fd8bf408e84581625737f0245",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "runner-boundary": {
+        "currentImplementationSha256": "40dc17161aa72c101608eec4775f48a22416c6c94dbc2670e1d465a5eb0e0130",
+        "previous": [
+          {
+            "previousImplementationSha256": "5de6aa1144efd9e9070fd50047def7145d3b4034b7874167d609bb9f3d2a5c75",
+            "previousSourceProducerSha256": "d8b760084876f81e839fcefb3f9195736e666d4e8fc4c77c3385dd37bd94e4ae",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "defensive": {
+        "currentImplementationSha256": "3d04a1b8e294016cc4ea9e388fece0c2b83219091e071059034200e2d7d7ad4d",
+        "previous": [
+          {
+            "previousImplementationSha256": "e62168bca4f07942274fdb622007ddcc36bf8de4ac29981baea7d3880fc4e568",
+            "previousSourceProducerSha256": "4c8d874b20871f1390cf6a97fd2e5b8530262062214ee355c458ce966389987f",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
+        "previousImplementationSha256s": [
+          "343befe7a01fe3da57ee7b843b909c7882390d7dbca38e0b3ba2ed916c4138aa",
+          "0ea85bfbe665fc0a4b7cff986614076bdbc4e64d726d99b48b8fb3489617c806",
+          "d2a169e02913fd13902df3a4ecb9988251619a51478c264f545079ff7447eb1a",
+          "75b8c08f446b482c66e0b3159bba776af196f8fc8c7cd25401a5e45a33d53eaa",
+          "8cb765a70f37e8dc2570cafd8ccd86a5b5cd0ab14761593d29469d7301fafe6c",
+          "9503a9efedaae32a7234d9635d511af30c0f06824376029fe99a4f302d243bfa",
+          "fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7",
+          "e4f1dca7cc98bda644809cbc6ca39ac4d5201ef16253afb0605abd2396e3c1d3",
+          "eb0b1235f409be7ada5d7363f21b1f93d6442ee3b3bca55eeed3fcd39157a1db",
+          "d6dc3c4e7ccec61482df5fea7076aeab341aa6bcede3cf090cbb5d497b752234",
+          "8d1c41bf3f91c83ad45b968c2597630699257980a73eb0dbd81332dec36d02a6",
+          "af37a2c0e325d82303bd98b5b3a4a7853a1832de4194ec40f7644f338ac9697b",
+          "f1ee38368f44ad5d5543a6d6022af4d49f2952b3e8721582efd48698b92a72b8",
+          "0591aa9fc37c993b542defee9b7a006f643e6126dbf8c514c1b4af0f48e5605f",
+          "9630ad5d1891142d65c081a0ce0844871127d41583fa4c8a3e5a9ec844c1cb37",
+          "3bdba40753642a7d6e5e4a30630d465fcc57c74c1d6a59c8b1e425291b021051",
+          "ea53cf17db11939b03f52047923fc322462b9090cc37827faf3fadf2f6b3e43d",
+          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      },
+      "pa": {
+        "currentImplementationSha256": "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
+        "previousImplementationSha256s": [
+          "8817a0d99eda10dee596ee502fd7676ea7d7513eff4e17b119030c0d11bf871c",
+          "9c449239f98787ba2d8cdd0c9c9aec15f70258ed773940ab8da042ec10476817",
+          "267640d5196076214f7ec9b0ad954ac976554617047c8240e4cd005fb6046c0c",
+          "bbb6201c711d0ffd55f129ed0c78be81e9a15a3921dbf6eb038420b8c31195c4",
+          "e3bfc417a834bf1df788f81eb772da9ed32615b285369d550262e4f4915941a5",
+          "0307e78e35666d96b8623fce676aabb0d523191b4193b4f9dcd1de28e8516785",
+          "313d39b781b4f18dd1143cf2157e32046ee9db60bb6a39f7800042a85d602357",
+          "35b9acd9dad4814acd432930d0afab6433591855abe75c46d0df4d674a31c146",
+          "cd674a03f35fce820f3ec2f4bb40d7d3c2e2b951c898cc975a36f70d0263b128",
+          "ffbf4f7c0487ad1636c8bfae3032c11f63738b9592ea2e492c649cebd0cfdf84",
+          "ca9e059a256a0d23ee937391bffd3076170a64f88b5ab065740e6734803039e2",
+          "233815f267bb8f92a2bcd006aa74e9d0f1bb3c06c6698bff37ecdc68b687a06a",
+          "5dc50818a5a9f24c8f3b45c7c2d7c2d72eaee7a390a686cef89cc46d4c33e596",
+          "78836179c8fef71636dd00b083f3331e377aad47f97a0e419c51f080acdcffa4",
+          "84d73443f688a138975799102170d17af88e28583116fdc52837946112313544",
+          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
+          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
+          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
+          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ]
+      },
+      "c2pa": {
+        "currentImplementationSha256": "bb8294d0935911001ddfbd5c4c3e6cdee17a14bc73b0d022263a52a9a4eef8cc",
+        "previousImplementationSha256s": [
+          "8f751db49c738d55889c288bc4ba07f23325d43696feb90f42003b3d6c89ef15",
+          "847b8db8e11d0678ce19f5ebea61d5f4e807e5a59bf7e917b00a64c8b9fabdc2",
+          "ec215b6f0fa22db89de2043cb9063680bd8c9ed98c52ebc278a429be749430a5",
+          "8d6574431c668f364034968add055f2f75b1d4d738e255b0fe774450a77db613",
+          "cb7c68b231953cf952312ee01b9992e18e52d20c5206d3fef2e96d9e1495290b",
+          "486940618d1113dcad7abed1ba69e3f227a8b4732aa1e616430ef76882015e0d",
+          "f77458ac4b83e39bdf1b808e9309eb498930cae8baae70d07fe894a2bd8a6c64",
+          "643c6be7e3e418b8c37fd426a6e4cf057cf095de6f0db6c5e4b02727e75000e5",
+          "8d2f06fe1833518b604b53fb503b4d45d183c2f8287dbe95cc03a969816a0ce2",
+          "b1ec414982dcda31c901bf948ec155ec0aebf6f38c726b8c5ac3016597c66dff",
+          "7c2ff771c158481f9daac5451d31794ebc23211024aa1fa25af5ece6e471b2e8",
+          "1c688300c7047a3c21b059e0ac482cba60a4c96921156ce73b3ac09e92baf274",
+          "f00f92f37fc910945d9ceeec354612f951ec27e2e68371bd97a4fd5d70632a13",
+          "0c25baae1fcfe564f2aa6aa75c6add9a537193cc3b12a2a091ef11866c15e3fd",
+          "12b19cae660f2cadaa4344410b881a0cae507bdc6dbf93b1012d7b53714e61c1",
+          "760645e6912352f524e9b49129cba75b6043525f757b4f30660a5b5cb13d8b48",
+          "9d4a2a9e97e051374ab0bee7faf95e3c8d1c6951c1c517be40c789f431f12116",
+          "45d11a02b9baeb6ef83b34941c8f3cece2160cbb1607402b28e5d6f5b885f4d2",
+          "b4b34a14c10a12b4b318cd213b83b5e7ad540525d14f050a03e8eb63061bc017",
+          "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd",
+          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
+        ]
+      },
+      "retained-batting": {
+        "currentImplementationSha256": "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
+        "previousImplementationSha256s": [
+          "4f9f6da0305a7de7ae16e1dcd97d9aa0b46237fb6958e4ccc69feb7161fd3376"
+        ]
+      }
+    },
+    "changedDefinitions": [
+      "balk_runner_evidence",
+      "compound_double_play_parts",
+      "contact_continuation_supported",
+      "main",
+      "nonmovement_strikeout_records",
+      "official_credit_row",
+      "official_pa_assignment",
+      "official_pa_rows",
+      "official_rbi_rows",
+      "runner_metric_evidence",
+      "secondary_error_rows"
+    ],
+    "changedValidationDefinitions": [
+      "batting census and player shapes separate actual actors from reconciled official PA credit",
+      "EG2 source selections admit additional reconciled runner and result patterns; previous positive proofs retain original producers and outcomes"
+    ]
   }
 }

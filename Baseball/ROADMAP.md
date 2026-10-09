@@ -26,7 +26,7 @@ and other metrics separately, sharing the existing working store and memory
 lease. Each family publishes an immutable prepared snapshot; the dashboard
 combines those snapshots with their own freshness. A defensive exception does
 not roll back, delay, or relabel offensive results. Actual runner outcomes remain
-offensive dependencies, and this isolation does not resolve pending EG2–EG5
+offensive dependencies, and this isolation does not resolve pending EG2â€“EG5
 decisions or count previously incomplete players as complete.
 
 Metric, performance and UI work starts from existing promoted RDF. A missing
@@ -36,7 +36,7 @@ permission is not a standing rebuild instruction.
 
 ## 1. Complete the nineteen metrics: execution plan
 
-Updated October 8, 2026. Empty Games is the sole primary delivery milestone
+Updated October 9, 2026. Empty Games is the sole primary delivery milestone
 until its complete player population reaches the UI. The execution sequence
 below replaces the earlier immediate-work list; prior versions remain in Git.
 [Metric readiness](serving/METRIC-READINESS.md) retains
@@ -135,14 +135,13 @@ them as complete. Fix retained-reader dependencies independently; the prepared
 EG2-EG5 source/meaning decisions were explicitly accepted on October 9;
 implementation is now authorized through the existing owners.
 
-**Approved implementation sequence (October 9):** EG3 binary running entry;
-EG2 generic selection repairs (both implemented, NiFi publication pending);
-EG4 official PA decisions; EG5 secondary error
-and RBI decisions. Add focused regressions for each shared pattern, refresh
-only its semantic pins, and publish the implementation. The existing EG1 owner
-reopens matching unresolved player-games on its implementation fingerprint;
-NiFi validates and promotes additions, then refreshes the affected offensive
-products. Keep independent publication active and preserve all unrelated RDF.
+**Approved implementation sequence (October 9):** EG2 selections, EG3 binary
+running entry, EG4 official PA decisions and EG5 secondary-error/RBI decisions
+are implemented across their source, graph and prepared-reader owners. Focused
+regressions pass. NiFi now applies matching additive repairs, checks the affected
+facts, refreshes graph answers and publishes the prepared family snapshots.
+Read the next publication's grouped remainder; fix any recorded execution defect
+through that same bounded owner. Do not call code publication metric completion.
 
 | Order | Work and existing owner | Exit evidence |
 | --- | --- | --- |
@@ -174,11 +173,11 @@ Current remainder, grouped by cause:
 | SQL attribution and proof compatibility | Published fixes preserve admitted PA scopes, known positives across complete safe paths, and accepted exclusions in interference and substituted turns | NiFi refreshes affected retained products; verify the exact remaining player-games in published SQL. Do not repeat their source work. |
 | Defensive indifference | 82 unresolved selected PAs contained these advances; [D2](archive/design-records/mlb-game-defensive-indifference-running/README.md) is accepted and implemented | NiFi applies targeted type additions and refreshes derived products. Verify the resulting player coverage; this diagnostic PA count is not a promised player gain. |
 | Walks after reconciled reviews | [W5](archive/design-records/mlb-game-walk-after-reconciled-review/README.md) is accepted and implemented; 822714 received ten missing triples without removals | NiFi reopens matching still-excluded cases, completes admission and refreshes SQL. Confirm those players in the next publication. |
-| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | EG2c and EG4 accepted October 9; implement official-credit and compound selection. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
-| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Prepared EG2e selects only explicit disengagement violations using the existing balk pattern; accepted October 9; implementation pending. |
+| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | EG2c and EG4 implemented; NiFi applies official-credit and compound additions. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
+| Three `forced_balk` PAs | BK1 explicitly excludes this source code | EG2e now selects only explicit disengagement violations using the existing balk pattern; targeted execution/publication is pending. |
 | Uncaught third strikes with WP/PB entry | Structured attribution exists, but first-base entry credit remains distinct from the occupied-base running weights | EG3 accepted October 9 for binary running credit only, without a batting benefit or scalar weight. |
-| 822688, PA 67 | The sacrifice fly has a runner-level RBI credit for Conine; other error advances have no RBI credit | Prepared EG5b proposes a distinct scoring decision and binary credit under the existing result exclusions. Accepted October 9; implement the graph pattern before the SQL reader can use it. |
-| Remaining error/contact/award paths | Source witnesses distinguish pickoff/throwing errors, interrupted contact plays and reviewed HBP awards | EG2a/d and EG5 accepted October 9; implement generic selectors and judgments. Existing accepted repairs remain with NiFi; avoid blanket reruns of successful EG1 cases. |
+| 822688, PA 67 | The sacrifice fly has a runner-level RBI credit for Conine; other error advances have no RBI credit | EG5b implements a distinct scoring decision and binary credit under the existing result exclusions; the reader uses promoted graph decisions. |
+| Remaining error/contact/award paths | Source witnesses distinguish pickoff/throwing errors, interrupted contact plays and reviewed HBP awards | EG2a/d and EG5 generic selectors and judgments are implemented. Existing accepted repairs remain with NiFi; avoid blanket reruns of successful EG1 cases. |
 
 If an exact remaining case needs new semantics or falls outside named source
 approval, prepare that concrete decision while continuing independent work.

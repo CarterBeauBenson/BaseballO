@@ -257,7 +257,7 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result','prior-stricter-defensive-selection'}
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result','prior-stricter-defensive-selection','prior-stricter-scoring-selection'}
     if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],

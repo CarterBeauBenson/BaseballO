@@ -213,3 +213,12 @@ balk_runner_attribution:
   selection: explicit nonpitch balk action with unique actionPlayId and exact playIndex runner joins
   scope: safe one-base or scoring advances from an occupied base; reconciled reviews only
   excluded: ambiguous joins, waived calls, forced_balk, additional error advances and unsupported attribution
+
+# EG4/EG5 accepted October 9; selected source inventory is reconciled before RML.
+official_scoring_completion:
+  official_pa: Existing ScoringJudgmentAct, BaseballDecisionICE and BaseballRule distinguish statistical credit from actual Batter Acts.
+  secondary_error: One ErrorProcess per game, PA, source event and explicit fielder/error credit; runner records join exact affected resolutions.
+  mixed_contact: A runner record about the same explicit BattedBallPlayProcess preserves contact context without asserting contact causation or resolution parthood.
+  rbi: Explicit runner RBI flags must agree with completed play and official per-person/team totals before a decision about the batter and counted Run is emitted.
+  missing: Ambiguous replacements, reviews, errors or mismatched totals remain unselected; no invented scorer or timestamp.
+  execution: Existing NiFi ingestion and bounded EG1 additive repair use the same selectors, RML and official-scoring SHACL profile.

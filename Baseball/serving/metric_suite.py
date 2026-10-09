@@ -920,6 +920,9 @@ def normalize_bindings(bindings, graphs):
         for field in ('graph', 'game', 'entity', 'player', 'act', 'roleType', 'reviewRecord',
                       'playerTeamRole', 'team', 'teamRole', 'paResult', 'paResultType',
                       'paResultJudgment', 'paResultDecision', 'paResultRecord', 'compoundOut',
+                      'creditedPlayer','creditJudgment','creditDecision','creditRecord',
+                      'secondaryError','errorJudgment','errorDecision','errorContactPlay',
+                      'rbiPlayer','rbiJudgment','rbiDecision','rbiRecord',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'reviewPA', 'reviewPitch', 'reviewMotion', 'reviewBatterAct', 'affectedPlayer',
                       'defensiveAct', 'defensiveActType', 'defensiveAgent', 'defensiveRole', 'defensiveNext',
@@ -1071,6 +1074,14 @@ def complete_batting_admission(proof, individual=None):
         and all(p.get('status') == 'admitted' for p in people))
 
 
+def officially_credited_player(row):
+    fields=('creditedPlayer','creditJudgment','creditDecision','creditRecord')
+    if any(row.get(k) for k in fields):
+        if not all(row.get(k) for k in fields):raise EvidenceError('Incomplete official PA credit decision')
+        return row['creditedPlayer']
+    return row.get('player')
+
+
 def batting_qualification(rows, *, graphs, admissions, date_scope, selected_games_complete=False,
                           player_admissions=None):
     """Project B1-admitted RDF counts; source expectations never enter here.
@@ -1106,11 +1117,12 @@ def batting_qualification(rows, *, graphs, admissions, date_scope, selected_game
                                            'paResultJudgment','paResultDecision','paResultRecord')):
                 raise EvidenceError('Admitted PA has incomplete adjudicated RDF bindings')
             key = (row['graph'],row['entity'])
-            value = dict(graph=row['graph'],plateAppearance=row['entity'],player=row['player'])
+            credited=officially_credited_player(row)
+            value = dict(graph=row['graph'],plateAppearance=row['entity'],player=credited)
             if key in members and members[key] != value:
                 raise EvidenceError('Admitted PA has conflicting player assignment')
             members[key] = value
-            pa_players[row['graph']].add(row['player'])
+            pa_players[row['graph']].add(credited)
     if observed_graphs != graph_set or any(m['player'] not in people for m in members.values()):
         raise EvidenceError('Admitted qualification is missing game/player evidence')
     for graph in graph_set:

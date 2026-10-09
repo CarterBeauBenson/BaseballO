@@ -70,14 +70,14 @@ FILTER(!BOUND(?player) || !BOUND(?team) ||
         ' UNION '.join(missing_turns) or 'FILTER(1 = 0)',scope,members(r['pa'] for r in turns))
     kinds=members(B.BASE+t for t in B.RESULTS.values());shapes=[]
     for person in roster:
-        player=person['player'];own=[r for r in turns if r['player']==player]
+        player=person['player'];own=[r for r in turns if r['player']==player
+            or any(B.BASE+'data/player/'+b['playerId']==player for b in r.get('actualBatters',[]))]
         absent=[];batters=[];results=[];eligible=[]
         for row in own:
             pa=row['pa'];act=pa+'/batter-act';role=player+'/role/batter'
-            pattern=f'''{B.iri(pa)} a base:PlateAppearance ; {scope} .
-{B.iri(act)} a base:BatterAct ; obo:BFO_0000132 {B.iri(pa)} ; obo:BFO_0000055 {B.iri(role)} .
-{B.iri(role)} a base:BatterRole ; obo:BFO_0000197 $this .'''
-            batters.append('|'.join((pa,act,role,player)))
+            participation,expected=B.participation_pattern(row)
+            pattern=f'''{B.iri(pa)} a base:PlateAppearance ; {scope} .'''+participation
+            batters.extend(expected)
             if row['resultType']:
                 result,judgment,decision,record=(pa+s for s in ('/result','/judgment/result','/decision/result','/event-record/result'))
                 pattern+=f'''
@@ -89,12 +89,14 @@ FILTER(!BOUND(?player) || !BOUND(?team) ||
                 # Empty Games needs at least one official PA, not an exact
                 # full-game PA total. Reuse the complete ordinary-turn B1
                 # pattern, with one actual batter, as a positive witness.
-                eligible.append('{ '+pattern+f'''
+                ordinary_unique=f'''
 FILTER NOT EXISTS {{ ?otherAct a base:BatterAct ; obo:BFO_0000132 {B.iri(pa)} .
   FILTER(?otherAct != {B.iri(act)}) }}
 FILTER NOT EXISTS {{ {B.iri(act)} obo:BFO_0000055 ?otherRole .
   ?otherRole a base:BatterRole ; obo:BFO_0000197 ?otherPlayer . FILTER(?otherPlayer != $this) }}
-'''+' }')
+'''
+                if row['player']==player:
+                    eligible.append('{ '+pattern+('' if row.get('officialCredit') else ordinary_unique)+' }')
             absent.append('{ FILTER NOT EXISTS { '+pattern+' } }')
         membership='''SELECT $this WHERE {
 { %s } UNION {
@@ -118,13 +120,12 @@ FILTER(CONCAT(STR(?pa),"|",STR(?result),"|",STR(?type)) NOT IN (%s)) } }''' % (
 ?rosterRole a base:PlayerRole ; obo:BFO_0000197 $this .
 OPTIONAL {
 ?pa a base:PlateAppearance ; %s .
-?act a base:BatterAct ; obo:BFO_0000132 ?pa ; obo:BFO_0000055 ?role .
-?role a base:BatterRole ; obo:BFO_0000197 $this .
+{ %s }
 ?result a base:BaseballInstitutionalProcess, ?type ; obo:BFO_0000132 ?pa . FILTER(?type IN (%s))
 ?judgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ?result ; cco:ont00001986 ?decision .
 ?decision a base:BaseballDecisionICE ; cco:ont00001808 ?result .
 ?record a base:BaseballEventRecord ; cco:ont00001808 ?result, ?judgment, ?decision .
-} } GROUP BY $this } FILTER(?actual != %d) }''' % (game,scope,kinds,count)
+} } GROUP BY $this } FILTER(?actual != %d) }''' % (game,scope,B.counted_player_pattern('?pa','$this'),kinds,count)
         shapes.append(node('urn:baseballo:validation:player-participation:'+player.rsplit('/',1)[-1],player,
             [('B1 player PA/result/batter membership differs',membership),('B1 official player PA count differs',count_query)]))
         if B.integer(count) and count>0 and eligible:

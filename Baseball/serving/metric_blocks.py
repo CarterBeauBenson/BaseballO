@@ -18,7 +18,8 @@ INPUTS = {
 }
 SCOPE_FIELDS = {
     'plate_appearance': ('graph','game','kind','entity','player','act','recognizedBattingResult',
-        'paResult','paResultType','paResultJudgment','paResultDecision','paResultRecord'),
+        'paResult','paResultType','paResultJudgment','paResultDecision','paResultRecord',
+        'creditedPlayer','creditJudgment','creditDecision','creditRecord'),
     'player_team_game': ('graph','game','kind','entity','player','team','teamRole','playerTeamRole'),
     'run': ('graph','game','kind','entity'),
     'batted_play': ('graph','game','kind','entity'),

@@ -109,12 +109,13 @@ def qualification(m,rows,graph,scope,batting,individual):
         valid=set()
     members={};exposures=defaultdict(set)
     for row in rows:
-        if row.get('player') not in valid:continue
+        credited=m.officially_credited_player(row) if row['kind']=='plate_appearance' else row.get('player')
+        if credited not in valid:continue
         if row['kind']=='player_team_game':exposures[row['player']].add((row['game'],row['team']))
         if row['kind']=='plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
             if not all(row.get(k) for k in ('player','act','paResult','paResultType','paResultJudgment','paResultDecision','paResultRecord')):
                 raise m.EvidenceError('Individually admitted PA lacks RDF result bindings')
-            value=dict(graph=graph,plateAppearance=row['entity'],player=row['player'])
+            value=dict(graph=graph,plateAppearance=row['entity'],player=credited)
             if row['entity'] in members and members[row['entity']]!=value:
                 raise m.EvidenceError('Individually admitted PA has conflicting ownership')
             members[row['entity']]=value
@@ -257,6 +258,68 @@ def empty_running_entries(m, rows, progress):
     return result
 
 
+def empty_scoring_inputs(m, rows, progress):
+    """EG5 binary attribution from promoted scoring decisions and actual paths.
+
+    A mixed contact/error record remains uncertain; its error label alone
+    cannot exclude all progress. Explicit RBI credit can establish a batter
+    positive without supplying a numeric advance or transferring running credit.
+    """
+    turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])}
+    actors=defaultdict(set);types=defaultdict(set);moves=defaultdict(list)
+    histories=defaultdict(list);whole_rows=defaultdict(list)
+    for row in rows:
+        if row['kind']=='plate_appearance':
+            actors[row['entity']].add(row.get('player'))
+            if row.get('recognizedBattingResult') in ('true','1'):types[row['entity']].add(row.get('paResultType'))
+        elif row['kind']=='runner_history':histories[(row['graph'],row['trajectory'])].append(row)
+        elif row['kind']=='runner_movement':
+            moves[row['plateAppearance']].append(row)
+            if row.get('trajectory'):whole_rows[(row['graph'],row['trajectory'])].append(row)
+    output={};excluded=set(m.policies()['batterProgressExcludedResultTypes'])
+    for pa in turns:
+        if (not actors[pa] or None in actors[pa] or len(types[pa])!=1
+                or not any(r.get('secondaryError') or r.get('rbiDecision') for r in moves[pa])):continue
+        batting=set() if types[pa]<=excluded else actors[pa]
+        possible=set();positive=set();groups=defaultdict(list)
+        for row in moves[pa]:groups[row.get('runner')].append(row)
+        if None in groups:continue
+        for runner,states in groups.items():
+            states=list({m._json(r):r for r in states}.values())
+            if len({r['resolution'] for r in states})!=len(states):
+                possible.update(batting|{runner});continue
+            if len(states)>1:
+                path=m.runner_progress_path(states,histories,whole_rows)
+                if path['status']!='available':possible.update(batting|{runner});continue
+                if path['end'] is None:continue
+            for row in states:
+                outcome=(row.get('hasSafeType'),row.get('hasOutType'),row.get('hasRunType'))
+                if outcome==('false','true','false'):continue
+                start=m.segment_origin(row)
+                end=4 if outcome==('false','false','true') else int(row['destinationCode'][0]) if outcome==('true','false','false') and row.get('destinationCode') in {'1B','2B','3B'} else None
+                if start is None or end is None or end<start:
+                    possible.update(batting|{runner});continue
+                if start==end:continue
+                rbi=(end==4 and row.get('rbiPlayer') in batting and all(row.get(k)
+                     for k in ('rbiPlayer','rbiJudgment','rbiDecision','rbiRecord')))
+                if rbi:positive.add(row['rbiPlayer'])
+                contact=bool(row.get('contactPlay'));award=bool(row.get('award') and row.get('awardRule'))
+                running=bool(m.independent_running_act(row))
+                error=all(row.get(k) for k in ('secondaryError','errorJudgment','errorDecision','record'))
+                if sum((contact,award,running))>1:
+                    possible.update(batting|{runner});continue
+                if running:positive.add(runner)
+                elif contact or award:
+                    if len(batting)==1:positive.update(batting)
+                    else:possible.update(batting)
+                elif error and not row.get('errorContactPlay'):
+                    pass  # A separately scored, noncontact error-only advance.
+                else:
+                    possible.update(batting|{runner})
+        output[pa]=dict(positivePlayers=sorted(positive),possiblePositivePlayers=sorted(possible))
+    return output
+
+
 def resolution_census_players(rows, roster, resolution, individual):
     """Reuse admitted PA censuses for a team's entire offensive inventory.
 
@@ -328,6 +391,10 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         if pa.get('possiblePositivePlayers') is None:
             affected=inputs.get('ambiguousEmptyPositivePlayers',{}).get(pa['plateAppearance'],affected)
         affected=set(affected)
+        scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
+        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
+            affected=set(scoring['possiblePositivePlayers'])
+            positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
         uncertain.update(affected)
@@ -390,7 +457,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         empty_eligible=(bool(pa_count) if person is not None else
                         True if player in individual.get('eligiblePlayers',[]) else None)
         empty_known=(empty_eligible is not None and (player in certain_positive or
-                     (player in resolution_players and progress_census
+                     (player in resolution_players and empty_population
                       and (player in positive or empty_population and player not in uncertain))))
         for metric in sorted(selected):
             complete=False;aggregate=zero();reason='OFFICIAL_PA_POPULATION'
@@ -573,6 +640,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
             if help_progress['unresolvedPlateAppearances']:
                 inputs['binaryHelp']=binary_help_inputs(m,evidence,help_progress)
                 inputs['emptyRunningEntries']=empty_running_entries(m,evidence,help_progress)
+                inputs['emptyScoring']=empty_scoring_inputs(m,evidence,help_progress)
             if needs_channels:
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
             if needs_ambiguity:

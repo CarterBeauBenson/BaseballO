@@ -811,3 +811,16 @@ balk_runner_attribution:
   decision: "{data}game/{gamePk}/decision/balk/{actionPlayId}"
   record: "{data}game/{gamePk}/runner-record/{atBatIndex}/{runnerIndex}"
   review: archive/design-records/mlb-game-balk-runner-attribution/review.json
+
+official_scoring_completion:
+  official_pa: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/official-pa-credit/{judgment|decision|record}"
+  rbi: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/rbi-credit/{creditedPlayerId}/{runnerIndex}/{judgment|decision|record}"
+  secondary_error: "{data}game/{gamePk}/plate-appearance/{atBatIndex}/secondary-error/{eventIndex}/{fielderId}/{errorKind}"
+  error_judgment_and_decision: "{secondaryErrorIri}/{judgment|decision}"
+  error_record: "{data}game/{gamePk}/runner-record/{atBatIndex}/{runnerIndex}"
+  pa_rule: "{data}rule/official-pa-assignment"
+  rbi_rule: "{data}rule/rbi-assignment"
+  identity: One operative PA credit per completed turn; one RBI credit per batter and counted run; repeated error credits across runner rows share the same error identity.
+  decisions:
+    - archive/design-records/mlb-game-official-pa-credit/review.json
+    - archive/design-records/mlb-game-secondary-error-attribution/review.json

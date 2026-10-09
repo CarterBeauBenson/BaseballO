@@ -3962,3 +3962,66 @@
 <#DefensiveIndifferenceAttemptOverlayMap> a rr:TriplesMap ;
   rml:logicalSource <#DefensiveIndifferenceSource> ;
   rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-act/movement/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ; rr:class base:StealAttemptAct ] .
+
+# EG4/EG5: separately evidenced official scoring judgments. No invented scorer or time.
+
+<#OfficialPASource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.officialPACredits[*]" .
+
+<#OfficialPAJudgmentMap> a rr:TriplesMap ; rml:logicalSource <#OfficialPASource> ;
+  rr:subjectMap [ rml:reference "judgment" ; rr:termType rr:IRI ; rr:class base:ScoringJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/official-pa-assignment> ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] .
+
+<#OfficialPADecisionMap> a rr:TriplesMap ; rml:logicalSource <#OfficialPASource> ;
+  rr:subjectMap [ rml:reference "decision" ; rr:termType rr:IRI ; rr:class base:BaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "subject" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "player" ; rr:termType rr:IRI ] ] .
+
+<#OfficialPARecordMap> a rr:TriplesMap ; rml:logicalSource <#OfficialPASource> ;
+  rr:subjectMap [ rml:reference "record" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "judgment" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] .
+
+<#OfficialPARuleMap> a rr:TriplesMap ; rml:logicalSource <#OfficialPASource> ; rr:subjectMap [ rr:constant <https://baseballontology.org/data/rule/official-pa-assignment> ; rr:termType rr:IRI ; rr:class base:BaseballRule ] .
+
+<#RBICreditSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.rbiCredits[*]" .
+
+<#RBICreditJudgmentMap> a rr:TriplesMap ; rml:logicalSource <#RBICreditSource> ;
+  rr:subjectMap [ rml:reference "judgment" ; rr:termType rr:IRI ; rr:class base:ScoringJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/rbi-assignment> ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] .
+
+<#RBICreditDecisionMap> a rr:TriplesMap ; rml:logicalSource <#RBICreditSource> ;
+  rr:subjectMap [ rml:reference "decision" ; rr:termType rr:IRI ; rr:class base:BaseballDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "subject" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "player" ; rr:termType rr:IRI ] ] .
+
+<#RBICreditRecordMap> a rr:TriplesMap ; rml:logicalSource <#RBICreditSource> ;
+  rr:subjectMap [ rml:reference "record" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "judgment" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] .
+
+<#RBICreditRuleMap> a rr:TriplesMap ; rml:logicalSource <#RBICreditSource> ; rr:subjectMap [ rr:constant <https://baseballontology.org/data/rule/rbi-assignment> ; rr:termType rr:IRI ; rr:class base:BaseballRule ] .
+
+<#SecondaryErrorSource> a rml:LogicalSource ; rml:source "game-context.json" ; rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.secondaryErrors[*]" .
+
+<#SecondaryErrorProcessMap> a rr:TriplesMap ; rml:logicalSource <#SecondaryErrorSource> ;
+  rr:subjectMap [ rml:reference "error" ; rr:termType rr:IRI ; rr:class base:ErrorProcess ] ;
+  rr:predicateObjectMap [ rr:predicate obo:BFO_0000117 ; rr:objectMap [ rml:reference "judgment" ; rr:termType rr:IRI ] ] .
+
+<#SecondaryErrorJudgmentMap> a rr:TriplesMap ; rml:logicalSource <#SecondaryErrorSource> ;
+  rr:subjectMap [ rml:reference "judgment" ; rr:termType rr:IRI ; rr:class base:ErrorJudgmentAct ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001921 ; rr:objectMap [ rr:constant <https://baseballontology.org/data/rule/error> ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001986 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] .
+
+<#SecondaryErrorDecisionMap> a rr:TriplesMap ; rml:logicalSource <#SecondaryErrorSource> ;
+  rr:subjectMap [ rml:reference "decision" ; rr:termType rr:IRI ; rr:class base:ErrorDecisionICE ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "error" ; rr:termType rr:IRI ] ] .
+
+<#SecondaryErrorRecordMap> a rr:TriplesMap ; rml:logicalSource <#SecondaryErrorSource> ;
+  rr:subjectMap [ rml:reference "record" ; rr:termType rr:IRI ; rr:class base:BaseballEventRecord ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "error" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "judgment" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "resolution" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "contactPlay" ; rr:termType rr:IRI ] ] .

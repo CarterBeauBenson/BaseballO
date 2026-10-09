@@ -21,12 +21,15 @@ D2=W.module(HERE/'defensive-indifference-running.py','eg1_indifference')
 E=W.module(HERE/'admission-evidence.py','eg1_evidence')
 K=W.module(HERE/'targeted-compound-addition.py','eg1_compound')
 CONTACT=W.module(HERE/'contact-continuation-admission.py','eg1_contact')
+SCORING=W.module(HERE/'scoring-admission.py','eg1_scoring')
 DECISION='archive/design-records/mlb-game-empty-game-completion/review.json'
 BALK_DECISION='archive/design-records/mlb-game-balk-runner-attribution/review.json'
 WALK_DECISION='archive/design-records/mlb-game-automatic-ball-walk-award/review.json'
 INDEPENDENT_DECISION='archive/design-records/mlb-game-defensive-indifference-running/review.json'
 REVIEW_WALK_DECISION='archive/design-records/mlb-game-walk-after-reconciled-review/review.json'
 SELECTION_DECISION='archive/design-records/mlb-game-empty-game-remaining-selections/review.json'
+PA_CREDIT_DECISION='archive/design-records/mlb-game-official-pa-credit/review.json'
+ERROR_DECISION='archive/design-records/mlb-game-secondary-error-attribution/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
 SUCCESS=R.SUCCESS|{'resolved-by-reader','no-supported-addition'}
 PA_MAPS=('PlateAppearanceMap','PlateAppearanceIntervalMap','BatterActMap',
@@ -38,14 +41,14 @@ RESULT_MAPS=tuple('ResultType_'+kind for kind in ('home_run','field_out','double
     'sac_bunt','field_error','hit_by_pitch','balk','interference'))
 RUNNER_MAPS=tuple('Runner'+kind+part+'Map' for kind in ('Out','ScoreOrigin','ScoreBase','Reach','Advance')
     for part in ('Act','Resolution','Record','Judgment','Decision','AdjudicationLinks','RecordAdjudication'))
-MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+D2.MAPS+PA_MAPS+RESULT_MAPS+RUNNER_MAPS+
+MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+D2.MAPS+SCORING.MAPS+PA_MAPS+RESULT_MAPS+RUNNER_MAPS+
     ('ReachedBaseArtifactMap','AdvancedToBaseArtifactMap','HomePlateArtifactMap','SafeRuleMap','OutRuleMap',
      'UncaughtThirdStrikeProcessMap','UncaughtThirdStrikeJudgmentMap','UncaughtThirdStrikeDecisionMap',
      'UncaughtThirdStrikeResultRecordMap','UncaughtThirdStrikePlaceholderRecordMap')))
 
 
 def approved_case(game_pk):
-    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION,SELECTION_DECISION):
+    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION,SELECTION_DECISION,PA_CREDIT_DECISION,ERROR_DECISION):
         if W.read(ROOT/decision)['status']!='accepted':raise ValueError('EG1 selected repair is not accepted')
     case=next((g for g in W.read(INVENTORY)['games'] if g['gamePk']==game_pk),None)
     if case is None:raise ValueError('Game is outside the approved EG1 inventory')
@@ -141,8 +144,13 @@ def select(raw,game_pk,players):
     selected['context']['liveData']['plays']['allPlays']=list(scoped.values())
     parts=[p for p in document[C.CONTEXT_KEY].get('compoundDoublePlayParts',[]) if p['atBatIndex'] in pas]
     selected['context'][C.CONTEXT_KEY]['compoundDoublePlayParts']=parts
+    scoring={name:[row for row in document[C.CONTEXT_KEY].get(name,[])
+        if row['atBatIndex'] in pas and (name=='officialPACredits' or (row['atBatIndex'],row['runnerIndex']) in episode_keys)]
+        for name in ('officialPACredits','rbiCredits','secondaryErrors')}
+    selected['context'][C.CONTEXT_KEY].update(scoring)
     selected.update(balks=balks,independent=independent,plateAppearances=sorted(pas),unresolved=unsupported,players=players,
-        contactCensus=CONTACT.census(raw,game_pk))
+        contactCensus=CONTACT.census(raw,game_pk),scoring=scoring,
+        battingCensus=SCORING.B.census(raw,game_pk) if scoring['officialPACredits'] else {})
     return selected
 
 
@@ -150,20 +158,22 @@ def execution_inputs(raw,game_pk,selected,context,mapping):
     W.atomic(context,selected['context'])
     # RootSource supplies only existing constant rule/artifact dependencies.
     (context.parent/'game.json').write_bytes(raw)
-    W.A.subset_mapping(game_pk,mapping,MAPS)
+    uncaught=any(p.get(C.CONTEXT_KEY,{}).get('isUncaughtThirdStrike') for p in selected['context']['liveData']['plays']['allPlays'])
+    maps=MAPS if uncaught else tuple(name for name in MAPS if not name.startswith('UncaughtThirdStrike'))
+    W.A.subset_mapping(game_pk,mapping,maps)
     venue=str(selected['context']['gameData']['venue']['id'])
     if not venue.isdecimal():raise ValueError('EG1 venue identity is invalid')
     text=mapping.read_text(encoding='utf-8').replace('{$.gameData.venue.id}',venue)
     umpires={str(r.get('official',{}).get('id','')) for r in json.loads(raw).get('liveData',{}).get('boxscore',{}).get('officials',[])
              if r.get('officialType')=='Home Plate'}
     umpire=next(iter(umpires)) if len(umpires)==1 else ''
-    if not umpire.isdecimal():raise ValueError('EG1 home plate umpire identity is unavailable')
+    if '{$.homePlateUmpire.id}' in text and not umpire.isdecimal():raise ValueError('EG1 home plate umpire identity is unavailable')
     mapping.write_text(text.replace('{$.homePlateUmpire.id}',umpire),encoding='utf-8',newline='\n')
 
 
 def shapes(game_pk,selected):
     parts=[R.shapes(game_pk,selected),BK.shapes(game_pk,selected['balks']),
-        D2.shapes(game_pk,selected.get('independent',[]))]
+        D2.shapes(game_pk,selected.get('independent',[])),SCORING.shapes(selected.get('scoring',{}))]
     game='https://baseballontology.org/data/game/'+game_pk
     compounds=selected['context'][C.CONTEXT_KEY]['compoundDoublePlayParts']
     for pa in {p['atBatIndex'] for p in compounds}:
@@ -183,6 +193,26 @@ def project_census(field,source,selected):
     updated=copy.deepcopy(source)
     provenance=dict(decision=DECISION,sourceWitness=selected['sourceWitness'],
         projectionImplementationSha256=W.sha(Path(__file__)))
+    if field=='battingAdmission':
+        current=selected.get('battingCensus',{})
+        selected_pas={r['subject'] for r in selected.get('scoring',{}).get('officialPACredits',[])}
+        if not selected_pas:return None
+        new={r['pa']:r for r in current.get('members',[]) if r['pa'] in selected_pas}
+        if len(new)!=len(selected_pas) or source['roster']!=current['roster']:
+            raise ValueError('EG4 credit witness differs from the retained roster/counts')
+        updated['members']=[copy.deepcopy(new.get(r['pa'],r)) for r in source['members']]
+        indices={r['atBatIndex'] for r in new.values()}
+        updated['issues']=[i for i in source['issues'] if not (
+            i.get('code')=='OFFENSIVE_REPLACEMENT_WITHIN_TURN' and i.get('atBatIndex') in indices)
+            and i.get('code')!='PLAYER_PA_MISMATCH']
+        from collections import Counter
+        counts=Counter(r['player'] for r in updated['members'] if r.get('resultType'))
+        for person in updated['roster']:
+            if counts[person['player']]!=person['officialPA']:
+                updated['issues'].append(dict(code='PLAYER_PA_MISMATCH',player=person['player'],reported=person['officialPA'],observed=counts[person['player']]))
+        updated['status']='withheld' if updated['issues'] else 'reconciled'
+        provenance.update(officialPACreditDecision=PA_CREDIT_DECISION,updatedPlateAppearances=sorted(selected_pas))
+        return updated,SCORING.B.shape_text(updated),provenance
     if field=='runnerResolutionAdmission':
         acts={source['game']+'/runner-act/movement/'+r['atBatIndex']+'/'+r['runnerIndex']
               for r in selected.get('independent',[])}
@@ -257,7 +287,8 @@ def project_census(field,source,selected):
 def revalidate(*args):
     return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
-        reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION),
+        reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
+        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION),
         project_census=project_census)
 
 
@@ -314,6 +345,8 @@ def retire_input(state,result):
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+Path(BK.__file__).read_bytes()+BK.SHAPE.read_bytes()
         +Path(D2.__file__).read_bytes()+D2.SHAPE.read_bytes()
+        +Path(SCORING.__file__).read_bytes()+SCORING.SHAPE.read_bytes()
+        +SCORING.B.fingerprint().encode()
         +R.fingerprint().encode()+INVENTORY.read_bytes()).hexdigest()
 
 
@@ -349,7 +382,9 @@ def selection_repair_families(state,case,previous,players=None):
     d2=previous.get('independentRunningDecision')!=INDEPENDENT_DECISION
     w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
     eg2=previous.get('emptySelectionDecision')!=SELECTION_DECISION
-    if not (d2 or w5 or eg2):return []
+    eg4=previous.get('officialPACreditDecision')!=PA_CREDIT_DECISION
+    eg5=previous.get('secondaryErrorDecision')!=ERROR_DECISION
+    if not (d2 or w5 or eg2 or eg4 or eg5):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -374,6 +409,12 @@ def selection_repair_families(state,case,previous,players=None):
     for play in plays:
         batter=str(play.get('matchup',{}).get('batter',{}).get('id'))
         affected=batter in ids or any(str(r.get('details',{}).get('runner',{}).get('id')) in ids for r in play.get('runners',[]))
+        substituted=any(e.get('position',{}).get('abbreviation')=='PH' and
+            (str(e.get('player',{}).get('id')) in ids or str(e.get('replacedPlayer',{}).get('id')) in ids)
+            for e in play.get('playEvents',[]))
+        if eg4 and substituted:families.add('EG4-official-pa-credit')
+        if eg5 and affected and any(r.get('details',{}).get('eventType') in SCORING.S.ERROR_EVENTS for r in play.get('runners',[])):
+            families.add('EG5-secondary-error-attribution')
         if eg2 and affected:
             result=play.get('result',{}).get('eventType');pa=str(play['atBatIndex'])
             if result in C.BATTED_RUNNER_RESULT_TYPES and any(r.get('details',{}).get('eventType')=='other_out' for r in play.get('runners',[])):
@@ -492,6 +533,7 @@ def tick(state,game_pk,java,mapper,classpath):
     result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
         reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
+        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION,
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         players=outstanding(state,case)
@@ -505,7 +547,8 @@ def tick(state,game_pk,java,mapper,classpath):
                 selected['sourceWitness']=witness
                 result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
                     decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,automaticWalkDecision=WALK_DECISION,
-                        independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION),select=lambda raw,pk:selected,
+                        independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
+                        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION),select=lambda raw,pk:selected,
                     execution_inputs=execution_inputs,revalidate=revalidate,
                     validation_scope='eg1-selected-pa-runner-patterns-and-retained-admissions')))
                 result['unresolved']=selected['unresolved']

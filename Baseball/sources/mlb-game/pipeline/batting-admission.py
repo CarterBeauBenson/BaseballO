@@ -47,6 +47,8 @@ def module(path, name):
 
 
 SOURCE = module(HERE / 'reconcile-metric-source.py', 'b1_source_census')
+CONTEXT = module(ROOT / 'scripts/pipeline/prepare-rml-context.py', 'b1_actual_batters')
+SCORING = CONTEXT.SCORING
 
 
 def sha(raw):
@@ -55,6 +57,7 @@ def sha(raw):
 
 def fingerprint():
     paths = [Path(__file__), SHAPE, HERE / 'reconcile-metric-source.py',
+             ROOT / 'scripts/pipeline/prepare-rml-context.py',
              ROOT / 'scripts/pipeline/validate-shacl.py']
     return sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+sha(p.read_bytes())
                          for p in paths).encode())
@@ -125,6 +128,19 @@ def census(raw, game_pk):
         if player not in owners or owners[player]['side'] != ('away' if play['about']['halfInning']=='top' else 'home'):
             issues.append(dict(code='BATTER_ROSTER_MISMATCH', atBatIndex=index))
         events = play.get('playEvents', [])
+        actual, credit = [], None
+        if any(e.get('position', {}).get('abbreviation') == 'PH' for e in events):
+            try:
+                actual = CONTEXT.batter_participation_context(play, game_pk,
+                    source_consistent=source['status'] == 'consistent')['participations']
+                if result_type and not CONTEXT.accounted_runner_history_reviews(play)['issues']:
+                    credit = SCORING.pa_assignment(play, actual)
+                if credit and any(owners.get(BASE+'data/player/'+p['playerId'],{}).get('side') != owners.get(player,{}).get('side') for p in actual):
+                    credit = None
+            except (ValueError, KeyError):
+                pass  # Existing scoped source issues below retain the gap.
+        if credit:
+            player = BASE+'data/player/'+credit
         # A PH event at the untouched 0-0 boundary can be reconciled. An
         # explicit PR change between two other rostered people leaves this
         # batter unchanged. Counts and the exact single-Batter-Act graph census
@@ -168,11 +184,13 @@ def census(raw, game_pk):
                         and event.get('count', {}).get('strikes') == 0
                         and old_id > 0 and old_id != new_id
                         and owners.get(BASE+'data/player/'+str(old_id), {}).get('side') == owners.get(player, {}).get('side'))
-            if not (pristine or runner_only):
+            if not (pristine or runner_only or (credit and event.get('position', {}).get('abbreviation') == 'PH')):
                 issues.append(dict(code='OFFENSIVE_REPLACEMENT_WITHIN_TURN', atBatIndex=index,
                                    eventIndex=event.get('index')))
         row = dict(pa=pa, player=player, resultType=BASE+result_type if result_type else None,
                    atBatIndex=index, eventType=event_type)
+        if credit:
+            row.update(officialCredit=True, actualBatters=actual)
         if result_type:
             counts[player] += 1
         else:
@@ -208,6 +226,41 @@ def terms(values):
     return ', '.join(Literal(v).n3() for v in sorted(set(values))) or '""'
 
 
+def credit_pattern(pa, player):
+    return f'''?creditJudgment a base:ScoringJudgmentAct ; cco:ont00001921 <{SCORING.PA_RULE}> ;
+ cco:ont00001986 ?creditDecision .
+?creditDecision a base:BaseballDecisionICE ; cco:ont00001808 {pa}, {player} .
+?creditRecord a base:BaseballEventRecord ; cco:ont00001808 ?creditJudgment, ?creditDecision .'''
+
+
+def counted_player_pattern(pa, player):
+    """Read credit decisions when present, actual participation otherwise."""
+    return '{ '+credit_pattern(pa, player)+''' } UNION {
+?act a base:BatterAct ; obo:BFO_0000132 '''+pa+''' ; obo:BFO_0000055 ?role .
+?role a base:BatterRole ; obo:BFO_0000197 '''+player+''' .
+FILTER NOT EXISTS { '''+credit_pattern(pa, '?assignedPlayer')+' } }'
+
+
+def actual_batters(row):
+    return row.get('actualBatters') or [dict(playerId=row['player'].rsplit('/', 1)[-1], actIri=row['pa']+'/batter-act')]
+
+
+def participation_pattern(row):
+    pattern, members = '', []
+    for actual in actual_batters(row):
+        act, player = actual['actIri'], BASE+'data/player/'+actual['playerId']
+        role = player+'/role/batter'
+        pattern += f'''\n{iri(act)} a base:BatterAct ; obo:BFO_0000132 {iri(row['pa'])} ; obo:BFO_0000055 {iri(role)} .
+{iri(role)} a base:BatterRole ; obo:BFO_0000197 {iri(player)} .'''
+        members.append('|'.join((row['pa'], act, role, player)))
+    if row.get('officialCredit'):
+        pattern += '\n'+credit_pattern(iri(row['pa']), iri(row['player']))
+        # An operative credit cannot also name a different rostered person.
+        pattern += '\nFILTER NOT EXISTS { '+credit_pattern(iri(row['pa']), '?otherCredited')+f'''
+?otherCreditRole a base:PlayerRole ; obo:BFO_0000197 ?otherCredited . FILTER(?otherCredited != {iri(row['player'])}) }}'''
+    return pattern, members
+
+
 def shape_text(source):
     """Bind expected source identities/counts into the owning SHACL profile."""
     game = source['game']
@@ -215,11 +268,9 @@ def shape_text(source):
     result_types = ', '.join(iri(BASE+t) for t in sorted(set(RESULTS.values())))
     for row in source['members']:
         pa, player = row['pa'], row['player']
-        act, role = pa+'/batter-act', player+'/role/batter'
-        pattern = f'''{iri(pa)} a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
-{iri(act)} a base:BatterAct ; obo:BFO_0000132 {iri(pa)} ; obo:BFO_0000055 {iri(role)} .
-{iri(role)} a base:BatterRole ; obo:BFO_0000197 {iri(player)} .'''
-        batters.append('|'.join((pa, act, role, player)))
+        participation, expected = participation_pattern(row)
+        pattern = f'''{iri(pa)} a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .'''+participation
+        batters.extend(expected)
         if row['resultType']:
             result, judgment, decision, record = (pa+s for s in ('/result','/judgment/result','/decision/result','/event-record/result'))
             pattern += f'''\n{iri(result)} a base:BaseballInstitutionalProcess, {iri(row['resultType'])} ; obo:BFO_0000132 {iri(pa)} .
@@ -241,14 +292,13 @@ def shape_text(source):
 $this a base:BaseballGame .
 OPTIONAL {
 ?pa a base:PlateAppearance ; obo:BFO_0000132/obo:BFO_0000132/obo:BFO_0000132 $this .
-?act a base:BatterAct ; obo:BFO_0000132 ?pa ; obo:BFO_0000055 ?role .
-?role a base:BatterRole ; obo:BFO_0000197 %s .
+{ %s }
 ?result a base:BaseballInstitutionalProcess, ?type ; obo:BFO_0000132 ?pa .
 FILTER(?type IN (%s))
 ?judgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ?result ; cco:ont00001986 ?decision .
 ?decision a base:BaseballDecisionICE ; cco:ont00001808 ?result .
 ?record a base:BaseballEventRecord ; cco:ont00001808 ?result, ?judgment, ?decision .
-} } GROUP BY $this } FILTER(?actual != %d) }''' % (iri(player), result_types, row['officialPA'])
+} } GROUP BY $this } FILTER(?actual != %d) }''' % (counted_player_pattern('?pa', iri(player)), result_types, row['officialPA'])
         counts.append('[] a sh:NodeShape ; sh:targetNode '+iri(game)+' ; sh:sparql [ sh:message '+
                       Literal('B1 player PA count differs: '+player).n3()+' ; sh:select '+Literal(query).n3()+' ] .')
     substitutions = dict(GAME=game, PREFIXES=PREFIXES, MISSING_PA=' UNION '.join(missing),

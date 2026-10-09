@@ -148,7 +148,7 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
                     if sha(source)!=proof[key]:raise ValueError('W1 retained validation artifact changed')
                     target.with_suffix(suffix).write_bytes(source.read_bytes())
             projection=None
-            if project_census is not None and 'sourceCensusSha256' in proof and 'shapeSha256' in proof:
+            if project_census is not None and 'sourceCensusSha256' in proof:
                 projection=project_census(field,read(target.with_suffix('.source.json')),selected)
                 if projection is not None:
                     # An accepted addition changes an exact selected census.
@@ -156,7 +156,7 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
                     # the additional witness; SHACL checks the new exact set.
                     source,shape_text_updated,provenance=projection
                     provenance=dict(provenance,originalSourceCensusSha256=proof['sourceCensusSha256'],
-                        originalShapeSha256=proof['shapeSha256'])
+                        originalShapeSha256=proof.get('shapeSha256'))
                     counts={}
                     if field=='runnerHistoryAdmission':
                         counts['selectedHistories']=len(source['history']['histories'])

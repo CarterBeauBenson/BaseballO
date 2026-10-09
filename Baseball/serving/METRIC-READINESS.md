@@ -45,15 +45,15 @@ families. These counts are unchanged from the 13:26 UTC publication and report
 retained analytical failures, not newly inferred source semantics. The prior
 complete inventory of 455 originally approved EG1 candidate games found that
 316 had no remaining original exclusions, while 139
-remain held with no unapplied approved selector. Successful repair receipts
+remained held before the newly accepted EG2/EG4/EG5 selectors were implemented. Successful repair receipts
 therefore no longer masquerade as remaining mapping jobs or metric completion.
 
 NiFi now maintains the whole grouped remainder and approved family work list
 through its existing owners. Repeated source discovery is cached per publication
 and implementation, and the existing bounded batch consumes the family. A further
 shared reader correction preserves a fully reconciled contact positive despite
-another runner's unknown path; it is included in the 13:26 publication. Required
-meaning/source decisions remain EG2-EG5 below, not individual game approvals.
+another runner's unknown path; it is included in the 13:26 publication. The EG2-EG5 meaning/source decisions below were accepted October 9;
+no individual game approval is needed within those bounded scopes.
 
 All four families have now published independently. A live full-season request
 returned the offense snapshot above and the other families' own snapshots;
@@ -66,7 +66,17 @@ EG3 adds binary running entry to the prepared Empty Games projection without
 changing numeric running weights or batting credit. Focused selector, runner
 entry and targeted-owner checks pass. NiFi owns the additions and publication;
 these are implementation results, not a reduction in the measured remainder.
-EG4 and EG5 implementation is next in the same approved work sequence.
+EG4 and EG5 are now implemented in generic context selection, RML, owning SHACL,
+SPARQL and prepared player products. Official PA decisions count one credited
+person while both actual Batter Acts remain. Separate secondary errors give no
+binary positive on an error-only advance; mixed contact remains explicit and
+independently supported running survives. Reconciled RBI decisions can supply
+an eligible batter's binary positive without a numeric advance or running credit.
+The same EG1 owner reopens only matching still-incomplete selections and projects
+only their changed admission obligations. Ordinary future ingestion uses the same
+patterns. Focused source/RML/SHACL/SPARQL and prepared-reader regressions pass.
+The measured 520/142 population above predates these additions; NiFi publication
+must demonstrate the resulting coverage before this milestone can close.
 
 ## Earlier measured publication: October 8 at 23:34 Eastern
 
@@ -592,7 +602,7 @@ schedule snapshot at 19:10, after that publication. The next incremental SQL
 publication must import that snapshot and the later game evidence; the check
 must not be bypassed or the old publication described as current.
 
-A separate September 16â€“27 HTTP check covers 159 games with a complete schedule
+A separate September 16Ã¢â‚¬â€œ27 HTTP check covers 159 games with a complete schedule
 and all 159 rosters. It returns **11/19 populated cards**, including 119 Offensive
 Reach players, 140 Help Without Advancing players, 396 Empty Games counts,
 246 Scoring History Length players and 170 Run Contributors players. Player

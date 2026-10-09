@@ -12,6 +12,8 @@ SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner ?episode
        ?batter ?metricOrigin ?awardRule
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType ?independentStealAct
        ?independentRunningProcess ?independentRunningType ?independentRunningJudgment ?independentRunningDecision
+       ?secondaryError ?errorJudgment ?errorDecision ?errorContactPlay
+       ?rbiPlayer ?rbiJudgment ?rbiDecision ?rbiRecord
 WHERE {
   GRAPH ?graph {
     ?game a base:BaseballGame .
@@ -72,6 +74,22 @@ WHERE {
     }
     OPTIONAL {
       ?record a base:BaseballEventRecord ; cco:ont00001808 ?resolution, ?act .
+    }
+    OPTIONAL {
+      ?record cco:ont00001808 ?secondaryError, ?errorJudgment, ?errorDecision .
+      ?secondaryError a base:ErrorProcess ; bfo:BFO_0000117 ?errorJudgment .
+      ?errorJudgment a base:ErrorJudgmentAct ; cco:ont00001921 <https://baseballontology.org/data/rule/error> ;
+        cco:ont00001986 ?errorDecision .
+      ?errorDecision a base:ErrorDecisionICE ; cco:ont00001808 ?secondaryError .
+      OPTIONAL { ?record cco:ont00001808 ?errorContactPlay . ?errorContactPlay a base:BattedBallPlayProcess . }
+    }
+    OPTIONAL {
+      ?resolution a base:RunProcess .
+      ?rbiJudgment a base:ScoringJudgmentAct ; cco:ont00001921 <https://baseballontology.org/data/rule/rbi-assignment> ;
+        cco:ont00001986 ?rbiDecision .
+      ?rbiDecision a base:BaseballDecisionICE ; cco:ont00001808 ?resolution, ?rbiPlayer .
+      ?rbiRole a base:BatterRole ; bfo:BFO_0000197 ?rbiPlayer .
+      ?rbiRecord a base:BaseballEventRecord ; cco:ont00001808 ?rbiJudgment, ?rbiDecision .
     }
     # The owning mapping attaches this adjudicated PB/WP classification to
     # the particular runner record. A PA-level label or a different runner's

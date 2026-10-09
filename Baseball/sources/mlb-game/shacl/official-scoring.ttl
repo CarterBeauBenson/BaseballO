@@ -1,0 +1,15 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+# EG4/EG5 source-owned exact scoring inventory. It does not infer an actor,
+# event time, physical cause, positive advancement magnitude or PA eligibility.
+<__RECORD__/scoring-shape> a sh:NodeShape ; sh:targetNode <__RECORD__> ;
+  sh:sparql [ sh:message "The operative scoring decision differs from the reconciled source selection." ;
+    sh:select """
+PREFIX base: <https://baseballontology.org/>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+PREFIX cco: <https://www.commoncoreontologies.org/>
+SELECT $this WHERE {
+  { FILTER NOT EXISTS { __PATTERN__ } }
+  UNION { __CONFLICTS__ }
+}
+""" ] .
