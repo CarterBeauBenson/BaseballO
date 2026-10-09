@@ -1,0 +1,1619 @@
+{
+  "notAnIngestionInput": true,
+  "witnesses": [
+    {
+      "gamePk": "823150",
+      "atBatIndex": 67,
+      "sourceWitness": {
+        "kind": "targeted-reacquisition",
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\quarantine\\mlb-game\\823150\\targeted-eg1\\input.json",
+        "sha256": "b4f2b7a8cbad7e67149f4ae4bf2274cc3ec14c40075ce282a7f8f9971bb59084",
+        "gamePk": "823150",
+        "url": "https://statsapi.mlb.com/api/v1.1/game/823150/feed/live",
+        "decision": "archive/design-records/mlb-game-empty-game-completion/review.json",
+        "acquiredAtUtc": "2026-10-05T19:51:00.932747Z"
+      },
+      "container": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\evidence\\mlb-game\\823150\\939d1cb9b68a4bef8711b767074aa2f3\\game-context.json",
+        "sha256": "3e48ed35e6c2bb31931df963edcbdf852ac6e2829f7479581ba40f256d64ab88"
+      },
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Strikeout",
+          "eventType": "strikeout",
+          "description": "Jake Burger strikes out swinging. Jake Burger to 1st. Wild pitch by pitcher Andrés Muñoz.",
+          "rbi": 0,
+          "awayScore": 2,
+          "homeScore": 5,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 67,
+          "halfInning": "top",
+          "isTopInning": true,
+          "inning": 9,
+          "startTime": "2026-04-19T22:35:05.304Z",
+          "endTime": "2026-04-19T22:36:50.359Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": false,
+          "hasOut": false,
+          "captivatingIndex": 14
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 3,
+          "outs": 0
+        },
+        "matchup": {
+          "batter": {
+            "id": 669394,
+            "fullName": "Jake Burger",
+            "link": "/api/v1/people/669394"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 662253,
+            "fullName": "Andrés Muñoz",
+            "link": "/api/v1/people/662253"
+          },
+          "pitchHand": {
+            "code": "R",
+            "description": "Right"
+          },
+          "postOnFirst": {
+            "id": 669394,
+            "fullName": "Jake Burger",
+            "link": "/api/v1/people/669394"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_RHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Men_On"
+          }
+        },
+        "pitchIndex": [
+          2,
+          3,
+          4,
+          6,
+          7,
+          8
+        ],
+        "actionIndex": [
+          0,
+          1
+        ],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "1B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Wild Pitch",
+              "eventType": "wild_pitch",
+              "movementReason": "r_adv_play",
+              "runner": {
+                "id": 669394,
+                "fullName": "Jake Burger",
+                "link": "/api/v1/people/669394"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 8
+            },
+            "credits": [],
+            "_baseballO": {
+              "atBatIndex": "67",
+              "runnerIndex": "1",
+              "hasRunnerResolution": true,
+              "hasSupportedStartBase": false,
+              "endsAtScore": false,
+              "eventPlayId": "f6c73074-3147-37a4-afbb-45f8da755150"
+            }
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "description": "Luke Raley remains in the game as the right fielder.",
+              "event": "Defensive Switch",
+              "eventType": "defensive_switch",
+              "awayScore": 2,
+              "homeScore": 5,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 0,
+            "startTime": "2026-04-19T22:33:59.338Z",
+            "endTime": "2026-04-19T22:33:59.365Z",
+            "isPitch": false,
+            "isSubstitution": true,
+            "type": "action",
+            "player": {
+              "id": 670042,
+              "link": "/api/v1/people/670042"
+            },
+            "position": {
+              "code": "9",
+              "name": "Outfielder",
+              "type": "Outfielder",
+              "abbreviation": "RF"
+            },
+            "battingOrder": "101",
+            "replacedPlayer": {
+              "id": 608701,
+              "link": "/api/v1/people/608701"
+            }
+          },
+          {
+            "details": {
+              "description": "Pitching Change: Andrés Muñoz replaces Gabe Speier.",
+              "event": "Pitching Substitution",
+              "eventType": "pitching_substitution",
+              "awayScore": 2,
+              "homeScore": 5,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 0,
+              "outs": 0
+            },
+            "index": 1,
+            "startTime": "2026-04-19T22:33:59.365Z",
+            "endTime": "2026-04-19T22:35:07.258Z",
+            "isPitch": false,
+            "isSubstitution": true,
+            "type": "action",
+            "player": {
+              "id": 662253,
+              "link": "/api/v1/people/662253"
+            },
+            "position": {
+              "code": "1",
+              "name": "Pitcher",
+              "type": "Pitcher",
+              "abbreviation": "P"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 1,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 98.1,
+              "endSpeed": 90.6,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 29.221404944771542,
+                "aZ": -18.906255105887432,
+                "pfxX": -7.160912480791132,
+                "pfxZ": 6.368984003175645,
+                "pX": -0.06661682345654649,
+                "pZ": 1.9026213632844977,
+                "vX0": 10.39373901632203,
+                "vY0": -142.57719014060737,
+                "vZ0": -5.831217183353634,
+                "x": 119.54,
+                "y": 187.41,
+                "x0": -2.8094135057616145,
+                "y0": 50.00098310492056,
+                "z0": 5.1461211339319055,
+                "aX": -14.913392586946632
+              },
+              "breaks": {
+                "breakAngle": 32.4,
+                "breakLength": 4.8,
+                "breakY": 24.0,
+                "breakVertical": -17.6,
+                "breakVerticalInduced": 10.7,
+                "breakHorizontal": 11.2,
+                "spinRate": 2241,
+                "spinDirection": 230
+              },
+              "zone": 8,
+              "typeConfidence": 2.0,
+              "plateTime": 0.38247402958283416,
+              "extension": 6.454014731762605
+            },
+            "index": 2,
+            "playId": "d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+            "pitchNumber": 1,
+            "startTime": "2026-04-19T22:35:07.258Z",
+            "endTime": "2026-04-19T22:35:10.258Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 86.3,
+              "endSpeed": 80.1,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 24.132257156026263,
+                "aZ": -34.732656952307586,
+                "pfxX": 4.074706202247453,
+                "pfxZ": -1.5894145690129982,
+                "pX": -0.6633772471368607,
+                "pZ": 1.249391993034335,
+                "vX0": 4.1108623414481835,
+                "vY0": -125.757906807324,
+                "vZ0": -3.1066306094625906,
+                "x": 142.29,
+                "y": 205.05,
+                "x0": -2.8451123275710657,
+                "y0": 50.00231933436681,
+                "z0": 5.301731241195965,
+                "aX": 6.562948472073423
+              },
+              "breaks": {
+                "breakAngle": 12.0,
+                "breakLength": 9.6,
+                "breakY": 24.0,
+                "breakVertical": -39.8,
+                "breakVerticalInduced": -3.4,
+                "breakHorizontal": -8.3,
+                "spinRate": 2352,
+                "spinDirection": 95
+              },
+              "zone": 13,
+              "typeConfidence": 2.0,
+              "plateTime": 0.434589626254287,
+              "extension": 6.4390166079672655
+            },
+            "index": 3,
+            "playId": "0ffd3255-fad5-305e-9434-f42a12cd85c4",
+            "pitchNumber": 2,
+            "startTime": "2026-04-19T22:35:27.733Z",
+            "endTime": "2026-04-19T22:35:30.971Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/SliderPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/0ffd3255-fad5-305e-9434-f42a12cd85c4",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 86.5,
+              "endSpeed": 80.5,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 22.96127724998831,
+                "aZ": -32.82753271911561,
+                "pfxX": 2.4529880114049947,
+                "pfxZ": -0.40627569372978733,
+                "pX": -0.18634436810251018,
+                "pZ": 2.048513914989139,
+                "vX0": 5.723840216540848,
+                "vY0": -126.05058086545085,
+                "vZ0": -1.6160643417042546,
+                "x": 124.1,
+                "y": 183.47,
+                "x0": -2.7950622679550112,
+                "y0": 50.000390282222114,
+                "z0": 5.321323132895412,
+                "aX": 3.9884601176936534
+              },
+              "breaks": {
+                "breakAngle": 8.4,
+                "breakLength": 8.4,
+                "breakY": 24.0,
+                "breakVertical": -37.0,
+                "breakVerticalInduced": -0.8,
+                "breakHorizontal": -5.6,
+                "spinRate": 2218,
+                "spinDirection": 109
+              },
+              "zone": 8,
+              "typeConfidence": 2.0,
+              "plateTime": 0.4327150211600026,
+              "extension": 6.581284167550814
+            },
+            "index": 4,
+            "playId": "5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+            "pitchNumber": 3,
+            "startTime": "2026-04-19T22:35:43.459Z",
+            "endTime": "2026-04-19T22:35:46.459Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/SliderPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "description": "Batter Timeout.",
+              "event": "Batter Timeout",
+              "eventType": "batter_timeout",
+              "awayScore": 2,
+              "homeScore": 5,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "index": 5,
+            "startTime": "2026-04-19T22:35:55.318Z",
+            "endTime": "2026-04-19T22:36:06.893Z",
+            "isPitch": false,
+            "type": "action",
+            "player": {
+              "id": 669394,
+              "link": "/api/v1/people/669394"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 2,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 86.9,
+              "endSpeed": 80.4,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 24.949813335058387,
+                "aZ": -36.072009022377365,
+                "pfxX": 2.5633569708526696,
+                "pfxZ": -2.4046126169558537,
+                "pX": 0.8134165892110882,
+                "pZ": 2.0189161343249546,
+                "vX0": 8.192512794758278,
+                "vY0": -126.41679565932974,
+                "vZ0": -1.0722548333362603,
+                "x": 85.99,
+                "y": 184.27,
+                "x0": -2.797572205546085,
+                "y0": 50.00004596251203,
+                "z0": 5.335351630660396,
+                "aX": 4.160671977085611
+              },
+              "breaks": {
+                "breakAngle": 8.4,
+                "breakLength": 9.6,
+                "breakY": 24.0,
+                "breakVertical": -40.6,
+                "breakVerticalInduced": -4.3,
+                "breakHorizontal": -6.5,
+                "spinRate": 2316,
+                "spinDirection": 90
+              },
+              "zone": 14,
+              "typeConfidence": 2.0,
+              "plateTime": 0.4327146922632634,
+              "extension": 6.556174236270527
+            },
+            "index": 6,
+            "playId": "8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+            "pitchNumber": 4,
+            "startTime": "2026-04-19T22:36:06.893Z",
+            "endTime": "2026-04-19T22:36:12.651Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/SliderPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 96.8,
+              "endSpeed": 89.0,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 29.421515362791926,
+                "aZ": -20.057069049422093,
+                "pfxX": -3.3774810051219184,
+                "pfxZ": 5.978933575145568,
+                "pX": -0.481980332860848,
+                "pZ": 4.859197223829346,
+                "vX0": 8.100572174913824,
+                "vY0": -140.89208576754913,
+                "vZ0": 1.9191111254687991,
+                "x": 135.37,
+                "y": 107.58,
+                "x0": -2.9446752875411466,
+                "y0": 50.00694219282309,
+                "z0": 5.458537387755747,
+                "aX": -6.850199400197197
+              },
+              "breaks": {
+                "breakAngle": 14.4,
+                "breakLength": 3.6,
+                "breakY": 24.0,
+                "breakVertical": -17.6,
+                "breakVerticalInduced": 11.4,
+                "breakHorizontal": 4.6,
+                "spinRate": 2126,
+                "spinDirection": 217
+              },
+              "zone": 11,
+              "typeConfidence": 2.0,
+              "plateTime": 0.3874733476319636,
+              "extension": 6.3997033842103965
+            },
+            "index": 7,
+            "playId": "d92fc730-896d-3594-90f1-2afba35b7dff",
+            "pitchNumber": 5,
+            "startTime": "2026-04-19T22:36:30.679Z",
+            "endTime": "2026-04-19T22:36:33.679Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/d92fc730-896d-3594-90f1-2afba35b7dff",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 3,
+              "outs": 0
+            },
+            "pitchData": {
+              "startSpeed": 88.0,
+              "endSpeed": 81.3,
+              "strikeZoneTop": 3.23,
+              "strikeZoneBottom": 1.63,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 26.290034519483818,
+                "aZ": -32.91870114310228,
+                "pfxX": 3.394840581286818,
+                "pfxZ": -0.44769632659854164,
+                "pX": 2.51730987917141,
+                "pZ": 0.8253484951337999,
+                "vX0": 11.647975774728614,
+                "vY0": -127.61774268678633,
+                "vZ0": -4.363302934455927,
+                "x": 21.05,
+                "y": 216.5,
+                "x0": -2.547595279124422,
+                "y0": 50.00481550176998,
+                "z0": 5.150500275599986,
+                "aX": 5.6002147496592185
+              },
+              "breaks": {
+                "breakAngle": 13.2,
+                "breakLength": 8.4,
+                "breakY": 24.0,
+                "breakVertical": -37.2,
+                "breakVerticalInduced": -1.7,
+                "breakHorizontal": -8.8,
+                "spinRate": 2393,
+                "spinDirection": 95
+              },
+              "zone": 14,
+              "typeConfidence": 2.0,
+              "plateTime": 0.4292082252428657,
+              "extension": 6.724009803426846
+            },
+            "index": 8,
+            "playId": "f6c73074-3147-37a4-afbb-45f8da755150",
+            "pitchNumber": 6,
+            "startTime": "2026-04-19T22:36:46.456Z",
+            "endTime": "2026-04-19T22:36:50.359Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "67",
+              "batterId": "669394",
+              "batterActIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitcherId": "662253",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/SliderPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260419_224135/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/f6c73074-3147-37a4-afbb-45f8da755150",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823150/decision/ball/f6c73074-3147-37a4-afbb-45f8da755150",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/ball/f6c73074-3147-37a4-afbb-45f8da755150",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/f6c73074-3147-37a4-afbb-45f8da755150",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823150/decision/strike/f6c73074-3147-37a4-afbb-45f8da755150",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823150/judgment/strike/f6c73074-3147-37a4-afbb-45f8da755150",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          }
+        ],
+        "playEndTime": "2026-04-19T22:36:50.359Z",
+        "atBatIndex": 67,
+        "_baseballO": {
+          "outsBefore": 0,
+          "startBaseOccupancies": [],
+          "battedRunnerResolutions": [],
+          "runnerEpisodes": [
+            {
+              "atBatIndex": "67",
+              "runnerIndex": "1",
+              "resolutionKind": "reach",
+              "runnerId": "669394"
+            }
+          ],
+          "safeDecisionDestinations": [
+            {
+              "atBatIndex": "67",
+              "runnerIndex": "1",
+              "resolutionKind": "reach",
+              "runnerId": "669394",
+              "baseCode": "1B"
+            }
+          ],
+          "segmentOrigins": [],
+          "awardAdvances": [],
+          "balkAdvances": [],
+          "hasPlateAppearanceStructure": true,
+          "hasPlateAppearanceClocks": true,
+          "hasCompletedPlateAppearanceResult": true,
+          "hasReview": false,
+          "hasReviewStatus": false,
+          "hasReviewChallengerId": false,
+          "batterParticipations": [
+            {
+              "atBatIndex": "67",
+              "playerId": "669394",
+              "actIri": "https://baseballontology.org/data/game/823150/plate-appearance/67/batter-act",
+              "pitchIds": [
+                "d2755723-ad02-3ad2-bea5-d767c8bb9c05",
+                "0ffd3255-fad5-305e-9434-f42a12cd85c4",
+                "5f6c79d1-7c0a-32be-9be2-93eddc02417e",
+                "8869ea54-39ce-3bdf-94a3-eeb90fccfaed",
+                "d92fc730-896d-3594-90f1-2afba35b7dff",
+                "f6c73074-3147-37a4-afbb-45f8da755150"
+              ]
+            }
+          ],
+          "pitcherParticipations": [
+            {
+              "atBatIndex": "67",
+              "playerId": "662253"
+            }
+          ],
+          "terminalPitchPlayId": "f6c73074-3147-37a4-afbb-45f8da755150",
+          "terminalPitchIsInPlay": false,
+          "isUncaughtThirdStrike": true,
+          "uncaughtThirdStrikeEventType": "wild_pitch",
+          "uncaughtThirdStrikePlayId": "f6c73074-3147-37a4-afbb-45f8da755150"
+        }
+      }
+    },
+    {
+      "gamePk": "823911",
+      "atBatIndex": 65,
+      "sourceWitness": null,
+      "container": {
+        "path": "C:\\Users\\carte\\AppData\\Local\\BaseballO\\state\\pipeline\\control\\mlb-game\\empty-game-addition\\823911.json",
+        "sha256": "278c3e0fe968c5c1e1ab2f14c6b5edef23c796f44160a12e5a866874c3810bd7"
+      },
+      "play": {
+        "result": {
+          "type": "atBat",
+          "event": "Strikeout",
+          "eventType": "strikeout",
+          "description": "Rafael Flores Jr. strikes out swinging. Rafael Flores Jr. to 1st. Passed ball by catcher Hunter Feduccia.",
+          "rbi": 0,
+          "awayScore": 4,
+          "homeScore": 4,
+          "isOut": false
+        },
+        "about": {
+          "atBatIndex": 65,
+          "halfInning": "top",
+          "isTopInning": true,
+          "inning": 8,
+          "startTime": "2026-08-22T04:37:59.509Z",
+          "endTime": "2026-08-22T04:39:50.775Z",
+          "isComplete": true,
+          "isScoringPlay": false,
+          "hasReview": false,
+          "hasOut": false,
+          "captivatingIndex": 14
+        },
+        "count": {
+          "balls": 2,
+          "strikes": 3,
+          "outs": 1
+        },
+        "matchup": {
+          "batter": {
+            "id": 804668,
+            "fullName": "Rafael Flores Jr.",
+            "link": "/api/v1/people/804668"
+          },
+          "batSide": {
+            "code": "R",
+            "description": "Right"
+          },
+          "pitcher": {
+            "id": 669165,
+            "fullName": "Kyle Hurt",
+            "link": "/api/v1/people/669165"
+          },
+          "pitchHand": {
+            "code": "R",
+            "description": "Right"
+          },
+          "postOnFirst": {
+            "id": 804668,
+            "fullName": "Rafael Flores Jr.",
+            "link": "/api/v1/people/804668"
+          },
+          "batterHotColdZones": [],
+          "pitcherHotColdZones": [],
+          "splits": {
+            "batter": "vs_RHP",
+            "pitcher": "vs_RHB",
+            "menOnBase": "Men_On"
+          }
+        },
+        "pitchIndex": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6
+        ],
+        "actionIndex": [],
+        "runnerIndex": [
+          0,
+          1
+        ],
+        "runners": [
+          {
+            "movement": {
+              "originBase": null,
+              "start": null,
+              "end": "1B",
+              "outBase": null,
+              "isOut": false,
+              "outNumber": null
+            },
+            "details": {
+              "event": "Passed Ball",
+              "eventType": "passed_ball",
+              "movementReason": "r_adv_play",
+              "runner": {
+                "id": 804668,
+                "fullName": "Rafael Flores Jr.",
+                "link": "/api/v1/people/804668"
+              },
+              "responsiblePitcher": null,
+              "isScoringEvent": false,
+              "rbi": false,
+              "earned": false,
+              "teamUnearned": false,
+              "playIndex": 6
+            },
+            "credits": [],
+            "_baseballO": {
+              "atBatIndex": "65",
+              "runnerIndex": "1",
+              "hasRunnerResolution": true,
+              "hasSupportedStartBase": false,
+              "endsAtScore": false,
+              "eventPlayId": "27dbcfbb-8cb1-3b80-8cf5-66d5a5382333"
+            }
+          }
+        ],
+        "playEvents": [
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 0,
+              "strikes": 1,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 99.0,
+              "endSpeed": 90.8,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 32.21369893247479,
+                "aZ": -13.168404930376136,
+                "pfxX": -5.69727995738727,
+                "pfxZ": 8.99381083164101,
+                "pX": -0.34243807745109534,
+                "pZ": 3.3099955990127796,
+                "vX0": 4.06514587857327,
+                "vY0": -144.1629866626471,
+                "vZ0": -3.7040894474232515,
+                "x": 130.05,
+                "y": 149.41,
+                "x0": -1.0276208208541757,
+                "y0": 50.00442240448475,
+                "z0": 5.419298888716949,
+                "aX": -12.042907591365068
+              },
+              "breaks": {
+                "breakAngle": 38.4,
+                "breakLength": 3.6,
+                "breakY": 24.0,
+                "breakVertical": -12.0,
+                "breakVerticalInduced": 15.7,
+                "breakHorizontal": 9.6,
+                "spinRate": 2043,
+                "spinDirection": 215
+              },
+              "zone": 1,
+              "typeConfidence": 0.93,
+              "plateTime": 0.3793252794414461,
+              "extension": 6.5115046882419865
+            },
+            "index": 0,
+            "playId": "5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+            "pitchNumber": 1,
+            "startTime": "2026-08-22T04:38:07.882Z",
+            "endTime": "2026-08-22T04:38:12.624Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 1,
+              "strikes": 1,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 97.9,
+              "endSpeed": 89.5,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 32.20001155948312,
+                "aZ": -14.574090062065846,
+                "pfxX": -4.434310984315294,
+                "pfxZ": 8.523265617519055,
+                "pX": -0.8422367570824483,
+                "pZ": 4.925147160323659,
+                "vX0": 2.035939463303557,
+                "vY0": -142.65026061264615,
+                "vZ0": 0.713575023927551,
+                "x": 149.1,
+                "y": 105.8,
+                "x0": -0.9882777069302391,
+                "y0": 50.00385333658335,
+                "z0": 5.589249543843665,
+                "aX": -9.157231639049803
+              },
+              "breaks": {
+                "breakAngle": 31.2,
+                "breakLength": 3.6,
+                "breakY": 24.0,
+                "breakVertical": -12.6,
+                "breakVerticalInduced": 15.7,
+                "breakHorizontal": 7.7,
+                "spinRate": 2022,
+                "spinDirection": 213
+              },
+              "zone": 11,
+              "typeConfidence": 0.92,
+              "plateTime": 0.3836731314577362,
+              "extension": 6.607514885172934
+            },
+            "index": 1,
+            "playId": "ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+            "pitchNumber": 2,
+            "startTime": "2026-08-22T04:38:22.777Z",
+            "endTime": "2026-08-22T04:38:25.777Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "B",
+                "description": "Ball"
+              },
+              "description": "Ball",
+              "code": "B",
+              "ballColor": "rgba(39, 161, 39, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": false,
+              "isBall": true,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 1,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 98.6,
+              "endSpeed": 90.0,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 33.00656071386247,
+                "aZ": -9.884353311102076,
+                "pfxX": -4.935479242467592,
+                "pfxZ": 10.714650495690188,
+                "pX": 1.5769605227174548,
+                "pZ": 2.6422154242902227,
+                "vX0": 8.510461026526436,
+                "vY0": -143.28576899179558,
+                "vZ0": -5.929201432033429,
+                "x": 56.89,
+                "y": 167.44,
+                "x0": -0.7899125442600269,
+                "y0": 50.00023984281587,
+                "z0": 5.355454769696681,
+                "aX": -10.265801324050901
+              },
+              "breaks": {
+                "breakAngle": 36.0,
+                "breakLength": 2.4,
+                "breakY": 24.0,
+                "breakVertical": -9.8,
+                "breakVerticalInduced": 18.4,
+                "breakHorizontal": 7.2,
+                "spinRate": 2052,
+                "spinDirection": 211
+              },
+              "zone": 12,
+              "typeConfidence": 0.93,
+              "plateTime": 0.38221678104327816,
+              "extension": 6.541693969532624
+            },
+            "index": 2,
+            "playId": "6717f466-769e-3881-bd2d-f9e7553679de",
+            "pitchNumber": 3,
+            "startTime": "2026-08-22T04:38:39.850Z",
+            "endTime": "2026-08-22T04:38:43.206Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/6717f466-769e-3881-bd2d-f9e7553679de",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/6717f466-769e-3881-bd2d-f9e7553679de",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/6717f466-769e-3881-bd2d-f9e7553679de",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/6717f466-769e-3881-bd2d-f9e7553679de",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/6717f466-769e-3881-bd2d-f9e7553679de",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/6717f466-769e-3881-bd2d-f9e7553679de",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "C",
+                "description": "Called Strike"
+              },
+              "description": "Called Strike",
+              "code": "C",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 0, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "SL",
+                "description": "Slider"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 89.7,
+              "endSpeed": 81.6,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 30.10547301044955,
+                "aZ": -29.152584931151846,
+                "pfxX": -0.31980362233569615,
+                "pfxZ": 1.770707306806969,
+                "pX": -0.3132693915272853,
+                "pZ": 2.308904641726836,
+                "vX0": 2.12778716187415,
+                "vY0": -130.58396673666843,
+                "vZ0": -2.489050757096543,
+                "x": 128.94,
+                "y": 176.44,
+                "x0": -1.1007261983945906,
+                "y0": 50.005225397618,
+                "z0": 5.490420917586027,
+                "aX": -0.546814408195464
+              },
+              "breaks": {
+                "breakAngle": 0.0,
+                "breakLength": 7.2,
+                "breakY": 24.0,
+                "breakVertical": -31.4,
+                "breakVerticalInduced": 2.9,
+                "breakHorizontal": 0.0,
+                "spinRate": 2140,
+                "spinDirection": 150
+              },
+              "zone": 4,
+              "typeConfidence": 0.94,
+              "plateTime": 0.42108035289226864,
+              "extension": 6.365511522695441
+            },
+            "index": 3,
+            "playId": "173770e6-2f94-358d-b7f2-437ffa8b1b78",
+            "pitchNumber": 4,
+            "startTime": "2026-08-22T04:38:55.695Z",
+            "endTime": "2026-08-22T04:38:59.276Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/SliderPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/173770e6-2f94-358d-b7f2-437ffa8b1b78",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "description": "Batter Timeout.",
+              "event": "Batter Timeout",
+              "eventType": "batter_timeout",
+              "awayScore": 4,
+              "homeScore": 4,
+              "isScoringPlay": false,
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 1
+            },
+            "index": 4,
+            "startTime": "2026-08-22T04:39:07.133Z",
+            "endTime": "2026-08-22T04:39:21.104Z",
+            "isPitch": false,
+            "type": "action",
+            "player": {
+              "id": 804668,
+              "link": "/api/v1/people/804668"
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "F",
+                "description": "Foul"
+              },
+              "description": "Foul",
+              "code": "F",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(188, 0, 33, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "FF",
+                "description": "Four-Seam Fastball"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 2,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 97.9,
+              "endSpeed": 89.6,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 32.093558143314254,
+                "aZ": -11.748125398428447,
+                "pfxX": -5.231885648547848,
+                "pfxZ": 9.901028152902258,
+                "pX": 0.3894235138657547,
+                "pZ": 3.702357361959352,
+                "vX0": 5.439664310002671,
+                "vY0": -142.57201306132546,
+                "vZ0": -2.8665842552288434,
+                "x": 102.16,
+                "y": 138.82,
+                "x0": -0.8614574939329723,
+                "y0": 50.006015855498006,
+                "z0": 5.4600662425641255,
+                "aX": -10.797133984813357
+              },
+              "breaks": {
+                "breakAngle": 37.2,
+                "breakLength": 3.6,
+                "breakY": 24.0,
+                "breakVertical": -10.9,
+                "breakVerticalInduced": 17.5,
+                "breakHorizontal": 8.4,
+                "spinRate": 2163,
+                "spinDirection": 210
+              },
+              "zone": 12,
+              "typeConfidence": 0.92,
+              "plateTime": 0.38384555131412634,
+              "extension": 6.5774476936756106
+            },
+            "index": 5,
+            "playId": "d0803da1-7d99-36ed-9203-001f549183a7",
+            "pitchNumber": 5,
+            "startTime": "2026-08-22T04:39:21.104Z",
+            "endTime": "2026-08-22T04:39:25.325Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/FourSeamFastballPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/d0803da1-7d99-36ed-9203-001f549183a7",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/d0803da1-7d99-36ed-9203-001f549183a7",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/d0803da1-7d99-36ed-9203-001f549183a7",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/d0803da1-7d99-36ed-9203-001f549183a7",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/d0803da1-7d99-36ed-9203-001f549183a7",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/d0803da1-7d99-36ed-9203-001f549183a7",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          },
+          {
+            "details": {
+              "call": {
+                "code": "S",
+                "description": "Swinging Strike"
+              },
+              "description": "Swinging Strike",
+              "code": "S",
+              "ballColor": "rgba(170, 21, 11, 1.0)",
+              "trailColor": "rgba(0, 85, 254, 1.0)",
+              "isInPlay": false,
+              "isStrike": true,
+              "isBall": false,
+              "type": {
+                "code": "CH",
+                "description": "Changeup"
+              },
+              "isOut": false,
+              "hasReview": false
+            },
+            "count": {
+              "balls": 2,
+              "strikes": 3,
+              "outs": 1
+            },
+            "pitchData": {
+              "startSpeed": 90.3,
+              "endSpeed": 82.9,
+              "strikeZoneTop": 3.349,
+              "strikeZoneBottom": 1.69,
+              "strikeZoneWidth": 17.0,
+              "strikeZoneDepth": 8.5,
+              "coordinates": {
+                "aY": 28.44468984255291,
+                "aZ": -33.335366174893316,
+                "pfxX": -6.8899399641534425,
+                "pfxZ": -0.6689331010687409,
+                "pX": 0.7446314303046171,
+                "pZ": 1.5644990474013227,
+                "vX0": 6.24329451359098,
+                "vY0": -131.3654802339967,
+                "vZ0": -3.603712174136378,
+                "x": 88.62,
+                "y": 196.54,
+                "x0": -0.770379302180456,
+                "y0": 50.00081264129604,
+                "z0": 5.438414902907585,
+                "aX": -12.012204222574406
+              },
+              "breaks": {
+                "breakAngle": 18.0,
+                "breakLength": 8.4,
+                "breakY": 24.0,
+                "breakVertical": -35.4,
+                "breakVerticalInduced": -1.8,
+                "breakHorizontal": 11.0,
+                "spinRate": 1241,
+                "spinDirection": 249
+              },
+              "zone": 14,
+              "typeConfidence": 0.85,
+              "plateTime": 0.4173223412346063,
+              "extension": 6.424951261567884
+            },
+            "index": 6,
+            "playId": "27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+            "pitchNumber": 6,
+            "startTime": "2026-08-22T04:39:41.767Z",
+            "endTime": "2026-08-22T04:39:50.775Z",
+            "isPitch": true,
+            "type": "pitch",
+            "_baseballO": {
+              "atBatIndex": "65",
+              "batterId": "804668",
+              "batterActIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitcherId": "669165",
+              "isBuntAttempt": false,
+              "hasClockPair": true,
+              "matchesBuntContactSource": false,
+              "hasPitchTypeCategory": true,
+              "hasBattedTrajectoryCategory": false,
+              "pitchTypeCategoryIri": "https://baseballontology.org/ChangeupPitchTypeICE",
+              "pitchTypeReferenceSystemIri": "https://baseballontology.org/data/reference-system/mlb-game/20260822_053039/pitch-types",
+              "ballJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "ballDecisionIri": "https://baseballontology.org/data/game/823911/decision/ball/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "ballOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/ball/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "strikeJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "strikeDecisionIri": "https://baseballontology.org/data/game/823911/decision/strike/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "strikeOnFieldJudgmentIri": "https://baseballontology.org/data/game/823911/judgment/strike/27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+              "isSecondCountedFoul": false,
+              "isCountedFoulBunt": false
+            }
+          }
+        ],
+        "playEndTime": "2026-08-22T04:39:50.775Z",
+        "atBatIndex": 65,
+        "_baseballO": {
+          "outsBefore": 1,
+          "startBaseOccupancies": [],
+          "battedRunnerResolutions": [],
+          "runnerEpisodes": [
+            {
+              "atBatIndex": "65",
+              "runnerIndex": "1",
+              "resolutionKind": "reach",
+              "runnerId": "804668"
+            }
+          ],
+          "safeDecisionDestinations": [
+            {
+              "atBatIndex": "65",
+              "runnerIndex": "1",
+              "resolutionKind": "reach",
+              "runnerId": "804668",
+              "baseCode": "1B"
+            }
+          ],
+          "segmentOrigins": [],
+          "awardAdvances": [],
+          "balkAdvances": [],
+          "hasPlateAppearanceStructure": true,
+          "hasPlateAppearanceClocks": true,
+          "hasCompletedPlateAppearanceResult": true,
+          "hasReview": false,
+          "hasReviewStatus": false,
+          "hasReviewChallengerId": false,
+          "batterParticipations": [
+            {
+              "atBatIndex": "65",
+              "playerId": "804668",
+              "actIri": "https://baseballontology.org/data/game/823911/plate-appearance/65/batter-act",
+              "pitchIds": [
+                "5d9148a6-7e96-393a-a887-876d6fb3d9f3",
+                "ffdd759a-b906-3b5c-8fa0-ec7b0c51414f",
+                "6717f466-769e-3881-bd2d-f9e7553679de",
+                "173770e6-2f94-358d-b7f2-437ffa8b1b78",
+                "d0803da1-7d99-36ed-9203-001f549183a7",
+                "27dbcfbb-8cb1-3b80-8cf5-66d5a5382333"
+              ]
+            }
+          ],
+          "pitcherParticipations": [
+            {
+              "atBatIndex": "65",
+              "playerId": "669165"
+            }
+          ],
+          "terminalPitchPlayId": "27dbcfbb-8cb1-3b80-8cf5-66d5a5382333",
+          "terminalPitchIsInPlay": false,
+          "isUncaughtThirdStrike": true,
+          "uncaughtThirdStrikeEventType": "passed_ball",
+          "uncaughtThirdStrikePlayId": "27dbcfbb-8cb1-3b80-8cf5-66d5a5382333"
+        }
+      }
+    }
+  ]
+}

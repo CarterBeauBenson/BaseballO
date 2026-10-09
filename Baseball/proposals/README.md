@@ -29,6 +29,13 @@ Pending Empty Games coverage review: [EG2](mlb-game-empty-game-remaining-selecti
 groups five narrow source-selection extensions over existing patterns. It is
 not accepted and authorizes no executable changes yet.
 
+[EG3](empty-game-uncaught-strike-entry/README.md) asks whether supported
+first-base entry on an uncaught third strike counts as a binary running
+contribution for Empty Games, without batting credit or a new numeric weight.
+[EG4](mlb-game-official-pa-credit/README.md) proposes a distinct official PA
+scoring-decision pattern for substituted turns, using existing vocabulary.
+Both are under review and authorize no implementation yet.
+
 Accepted and rejected packages live in the
 [design-record archive](../archive/design-records/README.md). Their READMEs
 record the scope and evidence at the time of review; they are not live work

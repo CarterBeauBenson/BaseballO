@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-official-pa-credit",
+  "title": "EG4 distinct official PA scoring-credit decisions",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "3a08dc90b283536773cb7e05987a2636197aecdb2d3938d121791f828f29c3f2"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "3a08dc90b283536773cb7e05987a2636197aecdb2d3938d121791f828f29c3f2"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "3a08dc90b283536773cb7e05987a2636197aecdb2d3938d121791f828f29c3f2"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "9c5c4be62a09a50f4fc9170db7c06e5c7a9e90f3fb26589ff1d2f39c999d31f4"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

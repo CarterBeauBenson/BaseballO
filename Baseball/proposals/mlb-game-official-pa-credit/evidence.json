@@ -1,0 +1,1005 @@
+{
+  "notAnIngestionInput": true,
+  "source": {
+    "path": "data/raw/samples/2026-07-18/824169.json",
+    "sha256": "977175eabf976564953f859ad4f342b249d3c0c0aacbae1f8b41d65c5e3cac75"
+  },
+  "play": {
+    "result": {
+      "type": "atBat",
+      "event": "Field Error",
+      "eventType": "field_error",
+      "description": "LaMonte Wade Jr. reaches on a fielding error by third baseman Christian Encarnacion-Strand.",
+      "rbi": 0,
+      "awayScore": 1,
+      "homeScore": 0,
+      "isOut": false
+    },
+    "about": {
+      "atBatIndex": 31,
+      "halfInning": "bottom",
+      "isTopInning": false,
+      "inning": 4,
+      "startTime": "2026-07-18T21:16:45.421Z",
+      "endTime": "2026-07-18T21:20:28.173Z",
+      "isComplete": true,
+      "isScoringPlay": false,
+      "hasReview": false,
+      "hasOut": false,
+      "captivatingIndex": 0
+    },
+    "count": {
+      "balls": 1,
+      "strikes": 2,
+      "outs": 2
+    },
+    "matchup": {
+      "batter": {
+        "id": 664774,
+        "fullName": "LaMonte Wade Jr.",
+        "link": "/api/v1/people/664774"
+      },
+      "batSide": {
+        "code": "L",
+        "description": "Left"
+      },
+      "pitcher": {
+        "id": 669432,
+        "fullName": "Trevor Rogers",
+        "link": "/api/v1/people/669432"
+      },
+      "pitchHand": {
+        "code": "L",
+        "description": "Left"
+      },
+      "postOnFirst": {
+        "id": 664774,
+        "fullName": "LaMonte Wade Jr.",
+        "link": "/api/v1/people/664774"
+      },
+      "batterHotColdZones": [],
+      "pitcherHotColdZones": [],
+      "splits": {
+        "batter": "vs_LHP",
+        "pitcher": "vs_LHB",
+        "menOnBase": "Men_On"
+      }
+    },
+    "pitchIndex": [
+      1,
+      4,
+      5,
+      6,
+      7
+    ],
+    "actionIndex": [
+      2,
+      3
+    ],
+    "runnerIndex": [
+      0
+    ],
+    "runners": [
+      {
+        "movement": {
+          "originBase": null,
+          "start": null,
+          "end": "1B",
+          "outBase": null,
+          "isOut": false,
+          "outNumber": null
+        },
+        "details": {
+          "event": "Field Error",
+          "eventType": "field_error",
+          "movementReason": null,
+          "runner": {
+            "id": 664774,
+            "fullName": "LaMonte Wade Jr.",
+            "link": "/api/v1/people/664774"
+          },
+          "responsiblePitcher": null,
+          "isScoringEvent": false,
+          "rbi": false,
+          "earned": false,
+          "teamUnearned": false,
+          "playIndex": 7
+        },
+        "credits": [
+          {
+            "player": {
+              "id": 687952,
+              "link": "/api/v1/people/687952"
+            },
+            "position": {
+              "code": "5",
+              "name": "Third Base",
+              "type": "Infielder",
+              "abbreviation": "3B"
+            },
+            "credit": "f_fielding_error"
+          }
+        ]
+      }
+    ],
+    "playEvents": [
+      {
+        "details": {
+          "description": "Batter Timeout.",
+          "event": "Batter Timeout",
+          "eventType": "batter_timeout",
+          "awayScore": 1,
+          "homeScore": 0,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 0,
+          "outs": 2
+        },
+        "index": 0,
+        "startTime": "2026-07-18T21:16:28.230Z",
+        "endTime": "2026-07-18T21:16:47.692Z",
+        "isPitch": false,
+        "type": "action",
+        "player": {
+          "id": 572233,
+          "link": "/api/v1/people/572233"
+        }
+      },
+      {
+        "details": {
+          "call": {
+            "code": "S",
+            "description": "Swinging Strike"
+          },
+          "description": "Swinging Strike",
+          "code": "S",
+          "ballColor": "rgba(170, 21, 11, 1.0)",
+          "trailColor": "rgba(188, 0, 33, 1.0)",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "type": {
+            "code": "FF",
+            "description": "Four-Seam Fastball"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 1,
+          "outs": 2
+        },
+        "pitchData": {
+          "startSpeed": 94.2,
+          "endSpeed": 86.8,
+          "strikeZoneTop": 3.179,
+          "strikeZoneBottom": 1.604,
+          "strikeZoneWidth": 17.0,
+          "strikeZoneDepth": 8.5,
+          "coordinates": {
+            "aY": 27.756673606590855,
+            "aZ": -16.17023516561488,
+            "pfxX": 8.05027496843196,
+            "pfxZ": 8.401996106657258,
+            "pX": -1.0583984378360562,
+            "pZ": 1.4649904811752608,
+            "vX0": -10.685433295121893,
+            "vY0": -136.57208816455994,
+            "vZ0": -8.81154950753879,
+            "x": 157.34,
+            "y": 199.23,
+            "x0": 1.8439749514746333,
+            "y0": 50.00412993997514,
+            "z0": 5.82689548590185,
+            "aX": 15.33527957432896
+          },
+          "breaks": {
+            "breakAngle": 36.0,
+            "breakLength": 4.8,
+            "breakY": 24.0,
+            "breakVertical": -17.3,
+            "breakVerticalInduced": 13.6,
+            "breakHorizontal": -12.6,
+            "spinRate": 2529,
+            "spinDirection": 132
+          },
+          "zone": 13,
+          "typeConfidence": 2.0,
+          "plateTime": 0.399809259991017,
+          "extension": 6.916371979262644
+        },
+        "index": 1,
+        "playId": "7febb4e5-9fa3-3a27-a086-d8dcf22a4742",
+        "pitchNumber": 1,
+        "startTime": "2026-07-18T21:16:47.692Z",
+        "endTime": "2026-07-18T21:16:52.347Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "description": "Injury Delay.",
+          "event": "Game Advisory",
+          "eventType": "game_advisory",
+          "awayScore": 1,
+          "homeScore": 0,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 1,
+          "outs": 2
+        },
+        "index": 2,
+        "startTime": "2026-07-18T21:17:04.045Z",
+        "endTime": "2026-07-18T21:18:47.309Z",
+        "isPitch": false,
+        "type": "action",
+        "player": {
+          "id": 572233,
+          "link": "/api/v1/people/572233"
+        }
+      },
+      {
+        "details": {
+          "description": "Offensive Substitution: Pinch-hitter LaMonte Wade Jr. replaces Christian Walker.",
+          "event": "Offensive Substitution",
+          "eventType": "offensive_substitution",
+          "awayScore": 1,
+          "homeScore": 0,
+          "isScoringPlay": false,
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 1,
+          "outs": 2
+        },
+        "index": 3,
+        "startTime": "2026-07-18T21:18:47.309Z",
+        "endTime": "2026-07-18T21:19:15.611Z",
+        "isPitch": false,
+        "isSubstitution": true,
+        "type": "action",
+        "player": {
+          "id": 664774,
+          "link": "/api/v1/people/664774"
+        },
+        "position": {
+          "code": "11",
+          "name": "Pinch Hitter",
+          "type": "Hitter",
+          "abbreviation": "PH"
+        },
+        "battingOrder": "501",
+        "replacedPlayer": {
+          "id": 572233,
+          "link": "/api/v1/people/572233"
+        }
+      },
+      {
+        "details": {
+          "call": {
+            "code": "S",
+            "description": "Swinging Strike"
+          },
+          "description": "Swinging Strike",
+          "code": "S",
+          "ballColor": "rgba(170, 21, 11, 1.0)",
+          "trailColor": "rgba(188, 0, 33, 1.0)",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "type": {
+            "code": "FF",
+            "description": "Four-Seam Fastball"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 2,
+          "outs": 2
+        },
+        "pitchData": {
+          "startSpeed": 93.8,
+          "endSpeed": 86.2,
+          "strikeZoneTop": 3.161,
+          "strikeZoneBottom": 1.595,
+          "strikeZoneWidth": 17.0,
+          "strikeZoneDepth": 8.5,
+          "coordinates": {
+            "aY": 28.415670080252088,
+            "aZ": -15.32795117324067,
+            "pfxX": 7.961364293159975,
+            "pfxZ": 8.906586948606211,
+            "pX": -0.4910222737398478,
+            "pZ": 2.2830024248870844,
+            "vX0": -9.009822596618566,
+            "vY0": -136.29265037466595,
+            "vZ0": -6.679599308346839,
+            "x": 135.72,
+            "y": 177.14,
+            "x0": 1.8146667940269414,
+            "y0": 50.00453683300572,
+            "z0": 5.8137662770571605,
+            "aX": 15.06196541387656
+          },
+          "breaks": {
+            "breakAngle": 38.4,
+            "breakLength": 4.8,
+            "breakY": 24.0,
+            "breakVertical": -16.1,
+            "breakVerticalInduced": 15.0,
+            "breakHorizontal": -12.6,
+            "spinRate": 2537,
+            "spinDirection": 124
+          },
+          "zone": 4,
+          "typeConfidence": 2.0,
+          "plateTime": 0.4010337608925565,
+          "extension": 6.7378776176101285
+        },
+        "index": 4,
+        "playId": "cd838106-ce29-3078-bbd5-d179196d7c43",
+        "pitchNumber": 2,
+        "startTime": "2026-07-18T21:19:15.611Z",
+        "endTime": "2026-07-18T21:19:20.785Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "F",
+            "description": "Foul"
+          },
+          "description": "Foul",
+          "code": "F",
+          "ballColor": "rgba(170, 21, 11, 1.0)",
+          "trailColor": "rgba(188, 0, 33, 1.0)",
+          "isInPlay": false,
+          "isStrike": true,
+          "isBall": false,
+          "type": {
+            "code": "FF",
+            "description": "Four-Seam Fastball"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 0,
+          "strikes": 2,
+          "outs": 2
+        },
+        "pitchData": {
+          "startSpeed": 93.5,
+          "endSpeed": 85.7,
+          "strikeZoneTop": 3.161,
+          "strikeZoneBottom": 1.595,
+          "strikeZoneWidth": 17.0,
+          "strikeZoneDepth": 8.5,
+          "coordinates": {
+            "aY": 28.634005286755595,
+            "aZ": -16.212058329055942,
+            "pfxX": 7.216655724836173,
+            "pfxZ": 8.493463004687777,
+            "pX": -0.2800559232250906,
+            "pZ": 3.1698397005070666,
+            "vX0": -8.250994169080359,
+            "vY0": -135.92618362105657,
+            "vZ0": -4.284346455653136,
+            "x": 127.68,
+            "y": 153.19,
+            "x0": 1.8511988138826023,
+            "y0": 50.00175457592204,
+            "z0": 5.885544617579112,
+            "aX": 13.560258230885323
+          },
+          "breaks": {
+            "breakAngle": 34.8,
+            "breakLength": 4.8,
+            "breakY": 24.0,
+            "breakVertical": -16.6,
+            "breakVerticalInduced": 14.6,
+            "breakHorizontal": -11.4,
+            "spinRate": 2530,
+            "spinDirection": 129
+          },
+          "zone": 1,
+          "typeConfidence": 2.0,
+          "plateTime": 0.40232531636111446,
+          "extension": 6.735235966624164
+        },
+        "index": 5,
+        "playId": "ff3d0d48-096a-3d81-bc50-a9d6013f1337",
+        "pitchNumber": 3,
+        "startTime": "2026-07-18T21:19:30.805Z",
+        "endTime": "2026-07-18T21:19:36.810Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "B",
+            "description": "Ball"
+          },
+          "description": "Ball",
+          "code": "B",
+          "ballColor": "rgba(39, 161, 39, 1.0)",
+          "trailColor": "rgba(50, 50, 50, 1.0)",
+          "isInPlay": false,
+          "isStrike": false,
+          "isBall": true,
+          "type": {
+            "code": "ST",
+            "description": "Sweeper"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 2,
+          "outs": 2
+        },
+        "pitchData": {
+          "startSpeed": 77.3,
+          "endSpeed": 71.9,
+          "strikeZoneTop": 3.161,
+          "strikeZoneBottom": 1.595,
+          "strikeZoneWidth": 17.0,
+          "strikeZoneDepth": 8.5,
+          "coordinates": {
+            "aY": 19.473431571477505,
+            "aZ": -26.254368148083127,
+            "pfxX": -4.870180440904122,
+            "pfxZ": 4.605071567790489,
+            "pX": -1.6258669516809956,
+            "pZ": 1.0771259131285666,
+            "vX0": -6.4790322164176155,
+            "vY0": -112.37692170634583,
+            "vZ0": -5.003516309600666,
+            "x": 178.97,
+            "y": 209.7,
+            "x0": 1.9220992934367545,
+            "y0": 50.002829138432915,
+            "z0": 5.98494785392186,
+            "aX": -6.256019483834369
+          },
+          "breaks": {
+            "breakAngle": 14.4,
+            "breakLength": 8.4,
+            "breakY": 24.0,
+            "breakVertical": -38.3,
+            "breakVerticalInduced": 7.4,
+            "breakHorizontal": 10.4,
+            "spinRate": 2095,
+            "spinDirection": 286
+          },
+          "zone": 13,
+          "typeConfidence": 2.0,
+          "plateTime": 0.48654785074725115,
+          "extension": 6.891658838832371
+        },
+        "index": 6,
+        "playId": "955cab76-2895-3a3a-8121-d4d765593deb",
+        "pitchNumber": 4,
+        "startTime": "2026-07-18T21:20:01.081Z",
+        "endTime": "2026-07-18T21:20:05.601Z",
+        "isPitch": true,
+        "type": "pitch"
+      },
+      {
+        "details": {
+          "call": {
+            "code": "D",
+            "description": "In play, no out"
+          },
+          "description": "In play, no out",
+          "code": "D",
+          "ballColor": "rgba(26, 86, 190, 1.0)",
+          "trailColor": "rgba(188, 0, 33, 1.0)",
+          "isInPlay": true,
+          "isStrike": false,
+          "isBall": false,
+          "type": {
+            "code": "FF",
+            "description": "Four-Seam Fastball"
+          },
+          "isOut": false,
+          "hasReview": false
+        },
+        "count": {
+          "balls": 1,
+          "strikes": 2,
+          "outs": 2
+        },
+        "pitchData": {
+          "startSpeed": 94.1,
+          "endSpeed": 85.3,
+          "strikeZoneTop": 3.161,
+          "strikeZoneBottom": 1.595,
+          "strikeZoneWidth": 17.0,
+          "strikeZoneDepth": 8.5,
+          "coordinates": {
+            "aY": 32.59741165527242,
+            "aZ": -13.547663279484487,
+            "pfxX": 9.840534972831634,
+            "pfxZ": 9.962813190301876,
+            "pX": -0.6125711637628962,
+            "pZ": 1.8232663081240583,
+            "vX0": -9.848193392931778,
+            "vY0": -136.49385891490837,
+            "vZ0": -8.10544609484359,
+            "x": 140.35,
+            "y": 189.55,
+            "x0": 1.7796195499998062,
+            "y0": 50.00432828607386,
+            "z0": 5.782896206118608,
+            "aX": 18.40083194326217
+          },
+          "breaks": {
+            "breakAngle": 45.6,
+            "breakLength": 4.8,
+            "breakY": 24.0,
+            "breakVertical": -15.0,
+            "breakVerticalInduced": 16.2,
+            "breakHorizontal": -15.5,
+            "spinRate": 2484,
+            "spinDirection": 127
+          },
+          "zone": 7,
+          "typeConfidence": 2.0,
+          "plateTime": 0.40269560412439454,
+          "extension": 6.6875788414368476
+        },
+        "hitData": {
+          "launchSpeed": 98.5,
+          "launchAngle": 3.0,
+          "totalDistance": 93.0,
+          "trajectory": "ground_ball",
+          "hardness": "medium",
+          "location": "5",
+          "coordinates": {
+            "coordX": 108.41,
+            "coordY": 166.28
+          }
+        },
+        "index": 7,
+        "playId": "a1c07bd3-e270-3f5a-9b5c-9985124af2cc",
+        "pitchNumber": 5,
+        "startTime": "2026-07-18T21:20:17.976Z",
+        "endTime": "2026-07-18T21:20:28.173Z",
+        "isPitch": true,
+        "type": "pitch"
+      }
+    ],
+    "playEndTime": "2026-07-18T21:20:28.173Z",
+    "atBatIndex": 31
+  },
+  "players": [
+    {
+      "person": {
+        "id": 664774,
+        "fullName": "LaMonte Wade Jr.",
+        "link": "/api/v1/people/664774"
+      },
+      "jerseyNumber": "31",
+      "position": {
+        "code": "3",
+        "name": "First Base",
+        "type": "Infielder",
+        "abbreviation": "1B"
+      },
+      "status": {
+        "code": "A",
+        "description": "Active"
+      },
+      "parentTeamId": 117,
+      "battingOrder": "501",
+      "stats": {
+        "batting": {
+          "note": "a-",
+          "summary": "0-3 | BB",
+          "gamesPlayed": 1,
+          "flyOuts": 0,
+          "groundOuts": 3,
+          "airOuts": 0,
+          "runs": 0,
+          "doubles": 0,
+          "triples": 0,
+          "homeRuns": 0,
+          "strikeOuts": 0,
+          "baseOnBalls": 1,
+          "intentionalWalks": 0,
+          "hits": 0,
+          "hitByPitch": 0,
+          "atBats": 3,
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "groundIntoDoublePlay": 0,
+          "groundIntoTriplePlay": 0,
+          "plateAppearances": 4,
+          "totalBases": 0,
+          "rbi": 0,
+          "leftOnBase": 2,
+          "sacBunts": 0,
+          "sacFlies": 0,
+          "catchersInterference": 0,
+          "pickoffs": 0,
+          "atBatsPerHomeRun": "-.--",
+          "popOuts": 0,
+          "lineOuts": 0
+        },
+        "pitching": {},
+        "fielding": {
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "assists": 0,
+          "putOuts": 5,
+          "errors": 0,
+          "chances": 5,
+          "fielding": ".000",
+          "passedBall": 0,
+          "pickoffs": 0
+        }
+      },
+      "seasonStats": {
+        "batting": {
+          "gamesPlayed": 12,
+          "flyOuts": 3,
+          "groundOuts": 8,
+          "airOuts": 9,
+          "runs": 6,
+          "doubles": 2,
+          "triples": 0,
+          "homeRuns": 2,
+          "strikeOuts": 11,
+          "baseOnBalls": 6,
+          "intentionalWalks": 0,
+          "hits": 8,
+          "hitByPitch": 0,
+          "avg": ".222",
+          "atBats": 36,
+          "obp": ".333",
+          "slg": ".444",
+          "ops": ".777",
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "groundIntoDoublePlay": 0,
+          "groundIntoTriplePlay": 0,
+          "plateAppearances": 42,
+          "totalBases": 16,
+          "rbi": 8,
+          "leftOnBase": 13,
+          "sacBunts": 0,
+          "sacFlies": 0,
+          "babip": ".261",
+          "groundOutsToAirouts": "0.89",
+          "catchersInterference": 0,
+          "pickoffs": 0,
+          "atBatsPerHomeRun": "18.00",
+          "popOuts": 1,
+          "lineOuts": 5
+        },
+        "pitching": {
+          "gamesPlayed": 0,
+          "gamesStarted": 0,
+          "flyOuts": 0,
+          "groundOuts": 0,
+          "airOuts": 0,
+          "runs": 0,
+          "doubles": 0,
+          "triples": 0,
+          "homeRuns": 0,
+          "strikeOuts": 0,
+          "baseOnBalls": 0,
+          "intentionalWalks": 0,
+          "hits": 0,
+          "hitByPitch": 0,
+          "atBats": 0,
+          "obp": ".000",
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "numberOfPitches": 0,
+          "era": "-.--",
+          "inningsPitched": "0.0",
+          "wins": 0,
+          "losses": 0,
+          "saves": 0,
+          "saveOpportunities": 0,
+          "holds": 0,
+          "blownSaves": 0,
+          "earnedRuns": 0,
+          "whip": "-",
+          "battersFaced": 0,
+          "outs": 0,
+          "gamesPitched": 0,
+          "completeGames": 0,
+          "shutouts": 0,
+          "balls": 0,
+          "strikes": 0,
+          "strikePercentage": "-.--",
+          "hitBatsmen": 0,
+          "balks": 0,
+          "wildPitches": 0,
+          "pickoffs": 0,
+          "groundOutsToAirouts": "-.--",
+          "rbi": 0,
+          "winPercentage": ".---",
+          "pitchesPerInning": "-.--",
+          "gamesFinished": 0,
+          "strikeoutWalkRatio": "-.--",
+          "strikeoutsPer9Inn": "-.--",
+          "walksPer9Inn": "-.--",
+          "hitsPer9Inn": "-.--",
+          "runsScoredPer9": "-.--",
+          "homeRunsPer9": "-.--",
+          "inheritedRunners": 0,
+          "inheritedRunnersScored": 0,
+          "catchersInterference": 0,
+          "sacBunts": 0,
+          "sacFlies": 0,
+          "passedBall": 0,
+          "popOuts": 0,
+          "lineOuts": 0
+        },
+        "fielding": {
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "assists": 0,
+          "putOuts": 18,
+          "errors": 0,
+          "chances": 18,
+          "fielding": "1.000",
+          "passedBall": 0,
+          "pickoffs": 0
+        }
+      },
+      "gameStatus": {
+        "isCurrentBatter": false,
+        "isCurrentPitcher": false,
+        "isOnBench": false,
+        "isSubstitute": true
+      },
+      "allPositions": [
+        {
+          "code": "11",
+          "name": "Pinch Hitter",
+          "type": "Hitter",
+          "abbreviation": "PH"
+        },
+        {
+          "code": "3",
+          "name": "First Base",
+          "type": "Infielder",
+          "abbreviation": "1B"
+        }
+      ]
+    },
+    {
+      "person": {
+        "id": 572233,
+        "fullName": "Christian Walker",
+        "link": "/api/v1/people/572233"
+      },
+      "jerseyNumber": "8",
+      "position": {
+        "code": "3",
+        "name": "First Base",
+        "type": "Infielder",
+        "abbreviation": "1B"
+      },
+      "status": {
+        "code": "A",
+        "description": "Active"
+      },
+      "parentTeamId": 117,
+      "battingOrder": "500",
+      "stats": {
+        "batting": {
+          "summary": "0-1 | K",
+          "gamesPlayed": 1,
+          "flyOuts": 0,
+          "groundOuts": 0,
+          "airOuts": 0,
+          "runs": 0,
+          "doubles": 0,
+          "triples": 0,
+          "homeRuns": 0,
+          "strikeOuts": 1,
+          "baseOnBalls": 0,
+          "intentionalWalks": 0,
+          "hits": 0,
+          "hitByPitch": 0,
+          "atBats": 1,
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "groundIntoDoublePlay": 0,
+          "groundIntoTriplePlay": 0,
+          "plateAppearances": 1,
+          "totalBases": 0,
+          "rbi": 0,
+          "leftOnBase": 2,
+          "sacBunts": 0,
+          "sacFlies": 0,
+          "catchersInterference": 0,
+          "pickoffs": 0,
+          "atBatsPerHomeRun": "-.--",
+          "popOuts": 0,
+          "lineOuts": 0
+        },
+        "pitching": {},
+        "fielding": {
+          "gamesStarted": 1,
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "assists": 0,
+          "putOuts": 2,
+          "errors": 0,
+          "chances": 2,
+          "fielding": ".000",
+          "passedBall": 0,
+          "pickoffs": 0
+        }
+      },
+      "seasonStats": {
+        "batting": {
+          "gamesPlayed": 98,
+          "flyOuts": 53,
+          "groundOuts": 87,
+          "airOuts": 99,
+          "runs": 50,
+          "doubles": 19,
+          "triples": 1,
+          "homeRuns": 20,
+          "strikeOuts": 94,
+          "baseOnBalls": 33,
+          "intentionalWalks": 2,
+          "hits": 85,
+          "hitByPitch": 8,
+          "avg": ".234",
+          "atBats": 364,
+          "obp": ".310",
+          "slg": ".456",
+          "ops": ".766",
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "groundIntoDoublePlay": 11,
+          "groundIntoTriplePlay": 0,
+          "plateAppearances": 406,
+          "totalBases": 166,
+          "rbi": 58,
+          "leftOnBase": 203,
+          "sacBunts": 0,
+          "sacFlies": 1,
+          "babip": ".259",
+          "groundOutsToAirouts": "0.88",
+          "catchersInterference": 0,
+          "pickoffs": 0,
+          "atBatsPerHomeRun": "18.20",
+          "popOuts": 22,
+          "lineOuts": 24
+        },
+        "pitching": {
+          "gamesPlayed": 0,
+          "gamesStarted": 0,
+          "flyOuts": 0,
+          "groundOuts": 0,
+          "airOuts": 0,
+          "runs": 0,
+          "doubles": 0,
+          "triples": 0,
+          "homeRuns": 0,
+          "strikeOuts": 0,
+          "baseOnBalls": 0,
+          "intentionalWalks": 0,
+          "hits": 0,
+          "hitByPitch": 0,
+          "atBats": 0,
+          "obp": ".000",
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "numberOfPitches": 0,
+          "era": "-.--",
+          "inningsPitched": "0.0",
+          "wins": 0,
+          "losses": 0,
+          "saves": 0,
+          "saveOpportunities": 0,
+          "holds": 0,
+          "blownSaves": 0,
+          "earnedRuns": 0,
+          "whip": "-",
+          "battersFaced": 0,
+          "outs": 0,
+          "gamesPitched": 0,
+          "completeGames": 0,
+          "shutouts": 0,
+          "balls": 0,
+          "strikes": 0,
+          "strikePercentage": "-.--",
+          "hitBatsmen": 0,
+          "balks": 0,
+          "wildPitches": 0,
+          "pickoffs": 0,
+          "groundOutsToAirouts": "-.--",
+          "rbi": 0,
+          "winPercentage": ".---",
+          "pitchesPerInning": "-.--",
+          "gamesFinished": 0,
+          "strikeoutWalkRatio": "-.--",
+          "strikeoutsPer9Inn": "-.--",
+          "walksPer9Inn": "-.--",
+          "hitsPer9Inn": "-.--",
+          "runsScoredPer9": "-.--",
+          "homeRunsPer9": "-.--",
+          "inheritedRunners": 0,
+          "inheritedRunnersScored": 0,
+          "catchersInterference": 0,
+          "sacBunts": 0,
+          "sacFlies": 0,
+          "passedBall": 0,
+          "popOuts": 0,
+          "lineOuts": 0
+        },
+        "fielding": {
+          "gamesStarted": 1,
+          "caughtStealing": 0,
+          "stolenBases": 0,
+          "stolenBasePercentage": ".---",
+          "caughtStealingPercentage": ".---",
+          "assists": 65,
+          "putOuts": 614,
+          "errors": 0,
+          "chances": 679,
+          "fielding": "1.000",
+          "passedBall": 0,
+          "pickoffs": 0
+        }
+      },
+      "gameStatus": {
+        "isCurrentBatter": false,
+        "isCurrentPitcher": false,
+        "isOnBench": false,
+        "isSubstitute": false
+      },
+      "allPositions": [
+        {
+          "code": "3",
+          "name": "First Base",
+          "type": "Infielder",
+          "abbreviation": "1B"
+        }
+      ]
+    }
+  ]
+}
