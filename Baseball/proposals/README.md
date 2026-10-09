@@ -25,6 +25,10 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Accepted decisions and implementation status
 
+Pending Empty Games coverage review: [EG2](mlb-game-empty-game-remaining-selections/README.md)
+groups five narrow source-selection extensions over existing patterns. It is
+not accepted and authorizes no executable changes yet.
+
 Accepted and rejected packages live in the
 [design-record archive](../archive/design-records/README.md). Their READMEs
 record the scope and evidence at the time of review; they are not live work
