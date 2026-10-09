@@ -52,6 +52,37 @@ class TargetedCompletion(unittest.TestCase):
         self.assertIsNone(E.project_census('runnerResolutionAdmission',updated,selected))
         self.assertNotIn('FILTER NOT EXISTS { <'+target['act']+'> a base:StealAttemptAct }',shape)
 
+    def test_history_dependency_pa_keeps_all_required_d2_types_only(self):
+        # The selected player's history reaches PA 68, where another runner
+        # has a D2 act. Full PA conformance needs its type, not a new history.
+        key=E.C.CONTEXT_KEY;game='823412';player='https://baseballontology.org/data/player/800325'
+        def source_play(pa,batter,indices,d2):
+            return dict(atBatIndex=pa,matchup=dict(batter=dict(id=batter)),
+                runners=[{key:dict(runnerIndex=i)} for i in indices],
+                **{key:dict(batterParticipations=[],defensiveIndifferenceActs=d2)})
+        independent=dict(atBatIndex='68',runnerIndex='0',runnerId='592885')
+        unrelated=dict(atBatIndex='70',runnerIndex='0',runnerId='592885')
+        document=dict(gamePk=int(game),liveData=dict(plays=dict(allPlays=[
+            source_play(69,800325,['0'],[]),source_play(68,111111,['0','1'],[independent]),
+            source_play(70,111111,['0'],[unrelated])])),**{key:dict(compoundDoublePlayParts=[])})
+        episodes=[dict(atBatIndex='69',runnerIndex='0'),dict(atBatIndex='68',runnerIndex='1')]
+        selection=dict(episodes=episodes,context={key:{},'liveData':dict(plays=dict(allPlays=[
+            {key:dict(runnerEpisodes=[episode])} for episode in episodes]))})
+        census=dict(game='https://baseballontology.org/data/game/'+game,sourceSha256='fixture',resolutions=[])
+        with patch.object(E,'approved_case',return_value=dict(excludedPlayerGames=[dict(player=player)])), \
+                patch.object(E,'prepare',return_value=document), \
+                patch.object(E.R.P.R,'census',return_value=census), \
+                patch.object(E.R.P,'shape_text',return_value=('',[dict(plateAppearance=census['game']+'/plate-appearance/69',status='pending')])), \
+                patch.object(E.R,'select_case',return_value=selection), \
+                patch.object(E.CONTACT,'census',return_value={}):
+            result=E.select(b'fixture',game,[player])
+        self.assertEqual(result['independent'],[independent])
+        self.assertEqual(result['episodes'],episodes)
+        dependency=next(p for p in result['context']['liveData']['plays']['allPlays']
+            if p[key]['runnerEpisodes'][0]['atBatIndex']=='68')
+        self.assertEqual([r[key]['runnerIndex'] for r in dependency['runners']],['1'])
+        self.assertEqual(dependency[key]['defensiveIndifferenceActs'],[independent])
+
     def test_only_approved_selectors_change_and_unaffected_proofs_remain_usable(self):
         bridge=E.E.read(E.E.COMPATIBILITY_PATH)['reviewedWalkIndependentRunning']
         before=subprocess.check_output(['git','show',bridge['baselineCommit']+':Baseball/scripts/pipeline/prepare-rml-context.py'])

@@ -126,8 +126,11 @@ def select(raw,game_pk,players):
         rows=[r for r in original[C.CONTEXT_KEY].get('balkAdvances',[])
             if (pa,r['runnerIndex']) in episode_keys]
         play[C.CONTEXT_KEY]['balkAdvances']=rows;balks.extend(rows)
-        rows=[r for r in original[C.CONTEXT_KEY].get('defensiveIndifferenceActs',[])
-            if (pa,r['runnerIndex']) in episode_keys]
+        # A selected history may continue in a later PA. Its existing complete
+        # resolution check includes every runner there, so retain the approved
+        # D2 type dependencies for that PA too. Only the type overlay expands;
+        # runner facts and histories remain limited to the selected episodes.
+        rows=original[C.CONTEXT_KEY].get('defensiveIndifferenceActs',[])
         play[C.CONTEXT_KEY]['defensiveIndifferenceActs']=rows;independent.extend(rows)
     selected['context']['liveData']['plays']['allPlays']=list(scoped.values())
     parts=[p for p in document[C.CONTEXT_KEY].get('compoundDoublePlayParts',[]) if p['atBatIndex'] in pas]
