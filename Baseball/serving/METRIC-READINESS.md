@@ -69,6 +69,12 @@ The remaining source/meaning boundaries are explicit:
   while preserving the previous census and source provenance. The existing
   worker retries failed cases on its new implementation fingerprint. Thirteen
   focused selector, mapper, SHACL, retry and compatibility checks pass.
+  By 00:59 UTC, the corrected worker had completed D2 in 822769, 822793 and
+  822894, adding one type triple per game with no current-version failures.
+  W5 also completed in 822724 and 822809, adding five triples each. Eight older
+  failed checkpoints still awaited the corrected worker's retry at that read.
+  These six promotions must flow through admission and Dashboard SQL before
+  claiming new displayed player totals. Implementation is published as `52b6882`.
 - Three selected PAs (823247/21, 823426/91 and 824664/4) use `forced_balk`.
   BK1 explicitly excludes that code pending separate source selection review.
 - Wild-pitch/passed-ball advances from HOME to first on uncaught third strikes
