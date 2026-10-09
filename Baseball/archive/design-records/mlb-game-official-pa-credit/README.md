@@ -1,5 +1,15 @@
 # EG4: official PA credit as a distinct scoring decision
 
+**Accepted October 9, 2026.** User reply: "Approve EG4 official PA credit".
+The reviewed scope below is accepted, including generic future-game handling,
+targeted additive repair through the existing NiFi owner, analytical integration
+and the scoped semantic pin updates needed for implementation. No new ontology
+classes or object properties, full rebuild, or unrelated RDF replacement.
+
+The following is the proposal text accepted by that decision; its former
+review-status and future-tense language are historical. Implementation status
+belongs in the active roadmap and metric readiness record.
+
 Status: **under review**, October 8, 2026. This package proposes a graph pattern
 using existing vocabulary. It creates no ontology class or object property.
 

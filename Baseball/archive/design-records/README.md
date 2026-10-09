@@ -11,6 +11,12 @@ it. Use [`../../ROADMAP.md`](../../ROADMAP.md), the active subsystem READMEs,
 and machine-readable contracts for current behavior. The list below highlights
 important records but is not intended to enumerate every archived package.
 
+- [EG2](mlb-game-empty-game-remaining-selections/README.md),
+  [EG3](empty-game-uncaught-strike-entry/README.md),
+  [EG4](mlb-game-official-pa-credit/README.md), and
+  [EG5](mlb-game-secondary-error-attribution/README.md), accepted October 9, 2026:
+  targeted Empty Games selection, running-entry and scoring-credit repairs.
+
 - [W4](mlb-game-automatic-ball-walk-award/README.md), accepted October 6, 2026:
   automatic fourth-ball walk completion through the existing adjudication pattern.
 

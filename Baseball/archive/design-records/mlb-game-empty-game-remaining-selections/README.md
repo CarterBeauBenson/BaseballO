@@ -1,5 +1,15 @@
 # EG2: five remaining selections over existing game patterns
 
+**Accepted October 9, 2026.** User reply: "Approve EG2 targeted fixes".
+The reviewed scope below is accepted, including generic future-game handling,
+targeted additive repair through the existing NiFi owner, analytical integration
+and the scoped semantic pin updates needed for implementation. No new ontology
+classes or object properties, full rebuild, or unrelated RDF replacement.
+
+The following is the proposal text accepted by that decision; its former
+review-status and future-tense language are historical. Implementation status
+belongs in the active roadmap and metric readiness record.
+
 Status: **under review**, October 8, 2026. No implementation or approval is
 implied by this package. These are mapping-coverage repairs in the existing
 MLB Game lane, not new sources. No ontology class or property is proposed.

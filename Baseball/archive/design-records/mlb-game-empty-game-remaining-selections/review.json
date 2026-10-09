@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-empty-game-remaining-selections",
+  "title": "EG2 remaining contact, strikeout, HBP and disengagement selections",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "ce107192acb436dc5605ddc1f82d44e4715bdd5c8ac85a8302bc419936d1b89c"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "ce107192acb436dc5605ddc1f82d44e4715bdd5c8ac85a8302bc419936d1b89c"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "ce107192acb436dc5605ddc1f82d44e4715bdd5c8ac85a8302bc419936d1b89c"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "26ed8c5f341c1881b118f523377b8bc1a08a7cf57a125fa43dd0d820106fcb89"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-09",
+    "rationale": "User explicitly replied \"Approve EG2 targeted fixes\" to the named EG2 package. Accept the complete reviewed scope and its ordinary implementation through the existing source and serving owners. Preserve unrelated RDF; no new classes, object properties or full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}

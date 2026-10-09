@@ -25,19 +25,10 @@ their rejection rationale so they cannot be accidentally revived.
 
 ## Accepted decisions and implementation status
 
-Pending Empty Games coverage review: [EG2](mlb-game-empty-game-remaining-selections/README.md)
-groups five narrow source-selection extensions over existing patterns. It is
-not accepted and authorizes no executable changes yet.
-
-[EG3](empty-game-uncaught-strike-entry/README.md) asks whether supported
-first-base entry on an uncaught third strike counts as a binary running
-contribution for Empty Games, without batting credit or a new numeric weight.
-[EG4](mlb-game-official-pa-credit/README.md) proposes a distinct official PA
-scoring-decision pattern for substituted turns, using existing vocabulary.
-Both are under review and authorize no implementation yet.
-[EG5](mlb-game-secondary-error-attribution/README.md) separates secondary
-error classification from independently supported running and scoring credit.
-Its error-only running boundary and binary RBI-credit fallback also await review.
+EG2-EG5 were explicitly accepted on October 9 and moved to the
+[design-record archive](../archive/design-records/README.md). The
+[active roadmap](../ROADMAP.md#empty-games-complete-population-execution-plan)
+tracks their implementation; they no longer await review.
 
 Accepted and rejected packages live in the
 [design-record archive](../archive/design-records/README.md). Their READMEs

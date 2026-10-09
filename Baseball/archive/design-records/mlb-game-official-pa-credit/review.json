@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-official-pa-credit",
+  "title": "EG4 distinct official PA scoring-credit decisions",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "f95f2fb8a51025f3d9901dd67b5f318d773250f19f656325658f4f22cebb9fae"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "f95f2fb8a51025f3d9901dd67b5f318d773250f19f656325658f4f22cebb9fae"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "f95f2fb8a51025f3d9901dd67b5f318d773250f19f656325658f4f22cebb9fae"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "9c5c4be62a09a50f4fc9170db7c06e5c7a9e90f3fb26589ff1d2f39c999d31f4"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-09",
+    "rationale": "User explicitly replied \"Approve EG4 official PA credit\" to the named EG4 package. Accept the complete reviewed scope and its ordinary implementation through the existing source and serving owners. Preserve unrelated RDF; no new classes, object properties or full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}

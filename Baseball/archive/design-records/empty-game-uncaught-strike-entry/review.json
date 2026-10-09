@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "empty-game-uncaught-strike-entry",
+  "title": "EG3 binary independent-running entry for Empty Games",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "33c283f9c43784d53defe82c6f02a95ff95c420ff7f9855c7ec1634503a07629"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "33c283f9c43784d53defe82c6f02a95ff95c420ff7f9855c7ec1634503a07629"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "33c283f9c43784d53defe82c6f02a95ff95c420ff7f9855c7ec1634503a07629"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "25633784cb94c52564769ff03974a919efb685f5ba74b2cbbb7f2bc45147db6e"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-09",
+    "rationale": "User explicitly replied \"Approve EG3 running entry\" to the named EG3 package. Accept the complete reviewed scope and its ordinary implementation through the existing source and serving owners. Preserve unrelated RDF; no new classes, object properties or full rebuild.",
+    "authorizedArtifacts": []
+  }
+}

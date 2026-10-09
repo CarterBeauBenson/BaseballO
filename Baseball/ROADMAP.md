@@ -132,7 +132,16 @@ pattern repair scope has been examined: 316 candidate games no longer contain
 their original exclusions; 139 still do, and none currently has an unapplied
 approved selector. This does not authorize rerunning those 139 games or treating
 them as complete. Fix retained-reader dependencies independently; the prepared
-EG2-EG5 source/meaning decisions remain pending their named review.
+EG2-EG5 source/meaning decisions were explicitly accepted on October 9;
+implementation is now authorized through the existing owners.
+
+**Approved implementation sequence (October 9):** EG3 binary running entry;
+EG2 generic selection repairs; EG4 official PA decisions; EG5 secondary error
+and RBI decisions. Add focused regressions for each shared pattern, refresh
+only its semantic pins, and publish the implementation. The existing EG1 owner
+reopens matching unresolved player-games on its implementation fingerprint;
+NiFi validates and promotes additions, then refreshes the affected offensive
+products. Keep independent publication active and preserve all unrelated RDF.
 
 | Order | Work and existing owner | Exit evidence |
 | --- | --- | --- |
@@ -164,11 +173,11 @@ Current remainder, grouped by cause:
 | SQL attribution and proof compatibility | Published fixes preserve admitted PA scopes, known positives across complete safe paths, and accepted exclusions in interference and substituted turns | NiFi refreshes affected retained products; verify the exact remaining player-games in published SQL. Do not repeat their source work. |
 | Defensive indifference | 82 unresolved selected PAs contained these advances; [D2](archive/design-records/mlb-game-defensive-indifference-running/README.md) is accepted and implemented | NiFi applies targeted type additions and refreshes derived products. Verify the resulting player coverage; this diagnostic PA count is not a promised player gain. |
 | Walks after reconciled reviews | [W5](archive/design-records/mlb-game-walk-after-reconciled-review/README.md) is accepted and implemented; 822714 received ten missing triples without removals | NiFi reopens matching still-excluded cases, completes admission and refreshes SQL. Confirm those players in the next publication. |
-| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | Prepared EG2c and EG4 await named acceptance. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
-| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Prepared EG2e selects only explicit disengagement violations using the existing balk pattern; awaiting acceptance. |
-| Uncaught third strikes with WP/PB entry | Structured attribution exists, but first-base entry credit remains distinct from the occupied-base running weights | Prepared EG3 awaits acceptance for binary running credit only, without a batting benefit or scalar weight. |
-| 822688, PA 67 | The sacrifice fly has a runner-level RBI credit for Conine; other error advances have no RBI credit | Prepared EG5b proposes a distinct scoring decision and binary credit under the existing result exclusions. It awaits acceptance; the RDF and SQL cannot yet substitute a source flag for that pattern. |
-| Remaining error/contact/award paths | Source witnesses distinguish pickoff/throwing errors, interrupted contact plays and reviewed HBP awards | EG2a/d and EG5 are prepared for named review. Existing accepted repairs remain with NiFi; avoid blanket reruns of successful EG1 cases. |
+| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | EG2c and EG4 accepted October 9; implement official-credit and compound selection. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
+| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Prepared EG2e selects only explicit disengagement violations using the existing balk pattern; accepted October 9; implementation pending. |
+| Uncaught third strikes with WP/PB entry | Structured attribution exists, but first-base entry credit remains distinct from the occupied-base running weights | EG3 accepted October 9 for binary running credit only, without a batting benefit or scalar weight. |
+| 822688, PA 67 | The sacrifice fly has a runner-level RBI credit for Conine; other error advances have no RBI credit | Prepared EG5b proposes a distinct scoring decision and binary credit under the existing result exclusions. Accepted October 9; implement the graph pattern before the SQL reader can use it. |
+| Remaining error/contact/award paths | Source witnesses distinguish pickoff/throwing errors, interrupted contact plays and reviewed HBP awards | EG2a/d and EG5 accepted October 9; implement generic selectors and judgments. Existing accepted repairs remain with NiFi; avoid blanket reruns of successful EG1 cases. |
 
 If an exact remaining case needs new semantics or falls outside named source
 approval, prepare that concrete decision while continuing independent work.

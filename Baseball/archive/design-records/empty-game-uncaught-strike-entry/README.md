@@ -1,5 +1,15 @@
 # EG3: first-base entry after an uncaught third strike
 
+**Accepted October 9, 2026.** User reply: "Approve EG3 running entry".
+The reviewed scope below is accepted, including generic future-game handling,
+targeted additive repair through the existing NiFi owner, analytical integration
+and the scoped semantic pin updates needed for implementation. No new ontology
+classes or object properties, full rebuild, or unrelated RDF replacement.
+
+The following is the proposal text accepted by that decision; its former
+review-status and future-tense language are historical. Implementation status
+belongs in the active roadmap and metric readiness record.
+
 Status: **under review**, October 8, 2026. This is a metric decision over
 existing RDF, not permission for a new mapping, class, relation or rebuild.
 

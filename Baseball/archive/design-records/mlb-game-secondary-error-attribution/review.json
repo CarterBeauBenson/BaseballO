@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-secondary-error-attribution",
+  "title": "EG5 separate secondary errors and supported scoring credit",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "db626fc4df0b2ee1b0b2c012ef0a0a04077ecc8b26b2ac836ecec0042913dc53"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "db626fc4df0b2ee1b0b2c012ef0a0a04077ecc8b26b2ac836ecec0042913dc53"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "db626fc4df0b2ee1b0b2c012ef0a0a04077ecc8b26b2ac836ecec0042913dc53"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "69590dd613aea2ef4a2de0ed52a4f132d6fd2ea3f3a4ebf4f96d7cd79330bf54"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-09",
+    "rationale": "User explicitly replied \"Approve EG5 attribution fixes\" to the named EG5 package. Accept the complete reviewed scope and its ordinary implementation through the existing source and serving owners. Preserve unrelated RDF; no new classes, object properties or full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}

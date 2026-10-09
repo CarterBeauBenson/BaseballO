@@ -93,17 +93,18 @@ existing graph/query products and refreshes affected derived results; these
 reader fixes do not reacquire games or rebuild RDF. Keep an already running
 immutable build intact; later changes enter its successor.
 
-Named remaining reviews are [EG2](../proposals/mlb-game-empty-game-remaining-selections/README.md)
+Named remaining reviews are [EG2](../archive/design-records/mlb-game-empty-game-remaining-selections/README.md)
 (five existing-pattern source-selection extensions),
-[EG3](../proposals/empty-game-uncaught-strike-entry/README.md)
+[EG3](../archive/design-records/empty-game-uncaught-strike-entry/README.md)
 (binary first-base running entry),
-[EG4](../proposals/mlb-game-official-pa-credit/README.md)
+[EG4](../archive/design-records/mlb-game-official-pa-credit/README.md)
 (distinct official PA credit for substituted turns), and
-[EG5](../proposals/mlb-game-secondary-error-attribution/README.md)
+[EG5](../archive/design-records/mlb-game-secondary-error-attribution/README.md)
 (secondary error classification and separately credited scoring contribution).
-All remain under review. They create no ontology terms or object properties;
-source changes would be additive and bounded after named acceptance. Do not
-implement them or declare every remaining case closed from a successful test.
+All four were explicitly accepted on October 9. Implement the generic selectors,
+existing-term credit patterns, scoped conformance checks and metric projections;
+NiFi owns the bounded additions and derived refresh. Acceptance does not make
+the remaining cases complete; published player counts remain the exit evidence.
 
 ## Earlier October 8 repair and publication handoff
 
