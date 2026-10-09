@@ -437,6 +437,23 @@ class DashboardMaterializer(unittest.TestCase):
         self.assertEqual(D.build(self.args)['changedGames'],0)
         self.assertEqual(self.fetched,[])
 
+    def test_interference_only_running_gap_refreshes_retained_progress(self):
+        from test_batting_progress_players import fixture,bindings,G1,GAME,P1,BASE,BFO,RDF,URIRef
+        data=fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        g.remove((URIRef(pa+'/result'),RDF.type,BASE.SingleProcess))
+        g.add((URIRef(pa+'/result'),RDF.type,BASE.InterferenceProcess))
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/resolution')))
+        self.bindings['101']=bindings(data,[G1]);D.build(self.args)
+        with closing(sqlite3.connect(self.working())) as db,db:
+            expected,=D.METRICS.read_results(db,G1,'empty-game-rate')
+            legacy=copy.deepcopy(expected)
+            row=next(p for p in legacy['progressInputs']['plateAppearances'] if p['plateAppearance']==pa)
+            row['unresolvedRunningPositivePlayers']=[str(P1)]
+            row['independentPositiveGaps']=['UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION']
+            D.METRICS.store_result(db,G1,'empty-game-rate','game-scope',legacy)
+            self.assertTrue(D.refresh_empty_certainty(db,G1))
+            self.assertEqual(D.METRICS.read_results(db,G1,'empty-game-rate'),[expected])
+
     def test_paq_catalog_upgrade_removes_obsolete_order_gap_without_recalculation(self):
         old,new=D.PAQ_CATALOG_CALCULATIONS
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)

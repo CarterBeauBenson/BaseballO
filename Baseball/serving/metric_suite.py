@@ -2193,7 +2193,7 @@ def batting_progress_evidence(rows):
         positive_channels=set();independent_episodes=[];independent_gaps=[];independent_positive_gaps=[]
         unattributed_positive=[];contact_paths={}
         unsupported_outs=set();positive_runners=set()
-        self_positive=False;coalesced=[]
+        self_positive=False;coalesced=[];excluded_interference_entry=False
         for resolution,candidates in resolutions.items():
             if len({tuple(r.get(f) for f in fields) for r in candidates})!=1:
                 reasons.append('CONFLICTING_SEGMENT_STATE');continue
@@ -2223,7 +2223,18 @@ def batting_progress_evidence(rows):
             if len(supports)>1:
                 reasons.append('UNRESOLVED_PROGRESS_ATTRIBUTION');continue
             if positive and not supports:
-                unattributed_positive.append(row)
+                if ('https://baseballontology.org/InterferenceProcess' in types
+                        and policies()['catcherInterferenceAlonePreventsEmptyGame'] is False
+                        and runner==player and start==0 and end==1
+                        and sum(any(r.get('runner')==player for r in group)
+                                for group in resolutions.values())==1):
+                    # The accepted interference-only exclusion also rules out
+                    # relabeling this same first-base entry as runner credit.
+                    # It establishes no channel or credit for an extra advance.
+                    excluded_interference_entry=True
+                    independent_gaps.append('UNRESOLVED_RUNNING_EPISODE_ATTRIBUTION')
+                else:
+                    unattributed_positive.append(row)
             if supports:
                 channel,support=supports[0]
                 channels[(runner,channel,support)].append((row,positive))
@@ -2304,6 +2315,8 @@ def batting_progress_evidence(rows):
                 if (self_positive and player in single) or other & single:certain.add(player)
                 certain.update(r['player'] for r in independent if r['player'] in single)
             possible={player,*runner_ids}
+            if excluded_interference_entry and None not in runner_ids:
+                possible.discard(player)
             if (None not in runner_ids and set(reasons) <= {
                     'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}):
                 # A runner with only outs or held-base observations cannot gain

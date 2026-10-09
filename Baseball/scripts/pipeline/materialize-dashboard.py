@@ -103,7 +103,8 @@ SAFE_PREFIX_CALCULATIONS = (EMPTY_CERTAINTY_CALCULATIONS[1],
 # runner's unresolved path. Refresh only retained progress inputs that can differ.
 ISOLATED_PROGRESS_CALCULATIONS = (SAFE_PREFIX_CALCULATIONS[1],
     '67e3ead06fac32cdc31b7297881d24384ae5d86a4cbfecf239f58ba975478a09',
-    '9b12fdc366c9e2961a652d86a657c7f68ccbf9bc213f1ff5cb709f01adafd8bc')
+    '9b12fdc366c9e2961a652d86a657c7f68ccbf9bc213f1ff5cb709f01adafd8bc',
+    'c63db0e59d19bd4901498bbf6ab3c5fab9c3a57735ca99dc10ca4e3b424e1dc3')
 
 
 def digest(value):
@@ -427,8 +428,9 @@ def refresh_empty_certainty(connection,graph):
     """Repair only retained progress inputs; no graph query or source rerun."""
     result,=METRICS.read_results(connection,graph,'empty-game-rate')
     previous=result['progressInputs']
-    if not any(set(p.get('gaps',[])) & {'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}
-               for p in previous.get('unresolvedPlateAppearances',[])):return False
+    if not (any(set(p.get('gaps',[])) & {'UNRESOLVED_PROGRESS_ATTRIBUTION','COMPLETE_CONSEQUENCE_COALESCENCE'}
+                for p in previous.get('unresolvedPlateAppearances',[]))
+            or any(p.get('independentPositiveGaps') for p in previous.get('plateAppearances',[]))):return False
     rows=[METRICS._blocks.decode(METRICS._block_api(),text,sha) for text,sha in connection.execute(
         'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
     proof=json.loads(connection.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])

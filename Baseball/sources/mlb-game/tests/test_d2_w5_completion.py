@@ -109,8 +109,9 @@ class TargetedCompletion(unittest.TestCase):
             self.assertEqual(E.E.EXISTING_GRAPH.fingerprint(E.E,adapter),bridge['independentProofs'][family]['currentImplementationSha256'])
         for kind,module in (('players',E.E.PLAYER_PARTICIPATION),('pa',E.E.PLAYER_PARTICIPATION.PA),
                             ('c2pa',E.E.PA_RESOLUTION),('retained-batting',E.E.RETAINED_BATTING)):
-            self.assertEqual(module.fingerprint(),bridge['derivedProofs'][kind]['currentImplementationSha256'])
-            self.assertTrue(E.E.prior_versions(kind,module.fingerprint()))
+            producer=(module.PREVIOUS_LOOKUP_IMPLEMENTATION if kind=='c2pa' else module.fingerprint())
+            self.assertEqual(producer,bridge['derivedProofs'][kind]['currentImplementationSha256'])
+            self.assertTrue(E.E.prior_versions(kind,producer))
 
     def test_d2_reopens_retired_selection_only_for_current_excluded_players(self):
         case=json.loads((ROOT/'archive/design-records/mlb-game-defensive-indifference-running/evidence.json').read_text())['witnesses'][0]

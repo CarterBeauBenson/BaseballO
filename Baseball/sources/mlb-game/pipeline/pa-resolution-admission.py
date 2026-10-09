@@ -17,6 +17,7 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 SHAPE=HERE.parent/'shacl/pa-resolution-admission.ttl'
 SH=Namespace('http://www.w3.org/ns/shacl#')
 PREVIOUS_SCOPE_IMPLEMENTATION='b641f925ecda8d47e75e3cd0089b88f93b74a615ab8d63fecf7f14ca8924be4a'
+PREVIOUS_LOOKUP_IMPLEMENTATION='8f751db49c738d55889c288bc4ba07f23325d43696feb90f42003b3d6c89ef15'
 
 
 def with_reconciliation_scope(source, raw):
@@ -169,7 +170,8 @@ def load(evidence,state,promotion):
     version=fingerprint()
     # Keep this compatibility rule with its owner. Editing the shared
     # admission helper would invalidate unrelated history discovery inputs.
-    prior_versions=[*evidence.prior_versions('c2pa',version),PREVIOUS_SCOPE_IMPLEMENTATION,
+    prior_versions=[*evidence.prior_versions('c2pa',version),PREVIOUS_LOOKUP_IMPLEMENTATION,
+        *evidence.prior_versions('c2pa',PREVIOUS_LOOKUP_IMPLEMENTATION),PREVIOUS_SCOPE_IMPLEMENTATION,
         *evidence.prior_versions('c2pa',PREVIOUS_SCOPE_IMPLEMENTATION)]
     for prior in dict.fromkeys(prior_versions):
         if receipt.is_file():break
@@ -194,6 +196,8 @@ def load(evidence,state,promotion):
             (i.get('detail',{}).get('code')=='INCOMPLETE_SOURCE_PLAY' or
              i.get('detail',{}).get('code')=='INNING_RUN_TOTAL_MISMATCH' and
              i.get('detail',{}).get('reported') is None)
+            and not any(scope.get('issue')==i and scope.get('plateAppearances')
+                        for scope in source.get('reconciliationScopes',[]))
             for i in source['resolution'].get('issues',[])):
         return None
     return dict(proof,proofSha256=record['proofSha256'])

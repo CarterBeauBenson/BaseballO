@@ -139,6 +139,13 @@ class PaResolution(unittest.TestCase):
                     detail=dict(code='INCOMPLETE_SOURCE_PLAY',path='/liveData/plays/allPlays/2/about/isComplete'))]
                 write_proof(prior)
                 self.assertIsNone(P.load(E,state,promotion))
+                # A later, hash-checked prior producer already localized the
+                # issue. D2's context fingerprint must not discard its valid
+                # unaffected PA results or upgrade its withheld PA.
+                source['reconciliationScopes']=[dict(issue=source['resolution']['issues'][0],
+                    plateAppearances=[source['batting']['members'][-1]['pa']])]
+                write_proof(P.PREVIOUS_LOOKUP_IMPLEMENTATION)
+                self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.PREVIOUS_LOOKUP_IMPLEMENTATION)
                 write_proof(P.fingerprint())
                 self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.fingerprint())
 

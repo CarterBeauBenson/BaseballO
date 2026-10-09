@@ -197,6 +197,28 @@ class ProgressPlayers(unittest.TestCase):
         self.assertFalse(empty['playerPopulationComplete'])
         self.assertEqual(empty['unresolvedEmptyGames'],[dict(graph=other_graph,game=other_game,player=str(P1))])
 
+    def test_interference_entry_is_not_reclassified_as_possible_running_credit(self):
+        data=fixture();g=data.graph(G1);pa=str(GAME)+'/plate-appearance/0'
+        g.remove((URIRef(pa+'/result'),RDF.type,BASE.SingleProcess))
+        g.add((URIRef(pa+'/result'),RDF.type,BASE.InterferenceProcess))
+        g.remove((URIRef(pa+'/contact'),BFO.BFO_0000117,URIRef(pa+'/resolution')))
+        def progress():return M.batting_progress_evidence(M.normalize_bindings(bindings(data,[G1]),[G1]))
+        result=next(r for r in progress()['plateAppearances'] if r['plateAppearance']==pa)
+        self.assertEqual(result['reach'],0)
+        self.assertEqual(result['independentPositive'],[])
+        self.assertEqual(result['unresolvedRunningPositivePlayers'],[])
+        self.assertTrue(result['independentEpisodeGaps'])  # No channel is invented.
+        other=URIRef(pa+'/unknown-other')
+        movement(g,other,URIRef(str(other)+'/act'),URIRef(pa),P2,
+            origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/2'))
+        result=next(r for r in progress()['plateAppearances'] if r['plateAppearance']==pa)
+        self.assertEqual(result['unresolvedRunningPositivePlayers'],[str(P2)])
+        extra=URIRef(pa+'/extra-base')
+        movement(g,extra,URIRef(str(extra)+'/act'),URIRef(pa),P1,
+            origin=URIRef(str(GAME)+'/base/1'),destination=URIRef(str(GAME)+'/base/2'))
+        result=next(r for r in progress()['plateAppearances'] if r['plateAppearance']==pa)
+        self.assertIn(str(P1),result['unresolvedRunningPositivePlayers'])
+
     def test_certain_batter_reach_is_not_lost_to_another_runners_unknown_credit(self):
         data=fixture();g=data.graph(G1);pa=URIRef(str(GAME)+'/plate-appearance/0')
         rr=URIRef(str(pa)+'/unknown-runner')
