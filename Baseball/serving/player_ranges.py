@@ -31,6 +31,7 @@ PREVIOUS_AMBIGUOUS_PROGRESS_VERSION = 'ab2fac95e7153c1c3ddc19595463ccb1c283c722b
 PREVIOUS_EMPTY_ELIGIBILITY_VERSION = '91af6cc2428dda5b7a12091e0ee3fb4daa7c5bfbf18db2d8fff4d99638ddfe35'
 PREVIOUS_EMPTY_CACHE_VERSION = 'afc2871933b1e0351790c7314c6a4857e743104128c2a8b387c125ae6db75932'
 PREVIOUS_EMPTY_SCOPE_VERSION = '29d43818e44894f2a762e129f073b74ebc76ecd01b70eb91c4c28b5e3a07cc95'
+PREVIOUS_AMBIGUOUS_OUT_VERSION = '8424ddd239ef03d03da073ae26d398e04e20bd00eb9f40db1c339f9ac9172bdf'
 
 
 def fingerprint():
@@ -181,7 +182,7 @@ def channel_gap_players(rows, progress):
             and pa.get('player') and runners[pa['plateAppearance']] and None not in runners[pa['plateAppearance']]}
 
 
-def ambiguous_progress_players(rows, progress):
+def ambiguous_progress_players(rows, progress, *, positive_only=False):
     """Keep unknown batting credit with every observed candidate and runner.
 
     The retained RDF can identify the participants even when it cannot choose
@@ -191,13 +192,19 @@ def ambiguous_progress_players(rows, progress):
     """
     turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])
            if p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR'] and p.get('possiblePositivePlayers') is None}
-    actors=defaultdict(set);batters=set();movements=set()
+    actors=defaultdict(set);batters=set();movements=set();out_only={pa:True for pa in turns}
     for row in rows:
         if row['kind']=='plate_appearance' and row['entity'] in turns:
             pa=row['entity'];actors[pa].add(row.get('player'));batters.add(pa)
         elif row['kind']=='runner_movement' and row['plateAppearance'] in turns:
             pa=row['plateAppearance'];actors[pa].add(row.get('runner'));movements.add(pa)
-    return {pa:sorted(actors[pa]) for pa in batters & movements if actors[pa] and None not in actors[pa]}
+            out_only[pa] &= (row.get('hasOutType')=='true' and row.get('hasSafeType')=='false'
+                             and row.get('hasRunType')=='false')
+    # Unknown official batting credit cannot create a positive contribution
+    # when the admitted complete resolution population contains only outs.
+    # Keep eligibility and all nonbinary metrics unresolved for those batters.
+    return {pa:[] if positive_only and out_only[pa] else sorted(actors[pa])
+            for pa in batters & movements if actors[pa] and None not in actors[pa]}
 
 
 def resolution_census_players(rows, roster, resolution, individual):
@@ -266,10 +273,13 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         affected=pa.get('possiblePositivePlayers')
         if affected is None:
             affected=inputs.get('ambiguousProgressPlayers',{}).get(pa['plateAppearance'],roster)
+        mix_uncertain.update(affected)
+        if pa.get('possiblePositivePlayers') is None:
+            affected=inputs.get('ambiguousEmptyPositivePlayers',{}).get(pa['plateAppearance'],affected)
         affected=set(affected)
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
-        uncertain.update(affected);mix_uncertain.update(affected)
+        uncertain.update(affected)
     for pa,item in help_inputs.items():
         if item['positive'] and (admitted(proofs['resolution']) or pa in resolved):
             positive.add(item['player']);certain_positive.add(item['player'])
@@ -428,13 +438,14 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         individual_text=m._json(individual);proof_sha=m._hash(individual_text) if individual else ''
         identity=m._hash(key+version+proof_sha)
         if saved.get(graph)==identity:continue
-        if saved.get(graph) in {m._hash(key+v+proof_sha) for v in
-                (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION,PREVIOUS_EMPTY_SCOPE_VERSION)}:
+        ambiguity_upgrade=graph in ambiguity_candidates
+        if not ambiguity_upgrade and saved.get(graph) in {m._hash(key+v+proof_sha) for v in
+                (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION,PREVIOUS_EMPTY_SCOPE_VERSION,
+                 PREVIOUS_AMBIGUOUS_OUT_VERSION)}:
             # Scoped resolution candidates were removed above. Otherwise an
             # unchanged proof retains the same eligibility and classification.
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
-        ambiguity_upgrade=graph in ambiguity_candidates
         if not ambiguity_upgrade and saved.get(graph)==m._hash(key+PREVIOUS_AMBIGUOUS_PROGRESS_VERSION+proof_sha):
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
             continue
@@ -510,6 +521,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
             if needs_ambiguity:
                 inputs['ambiguousProgressPlayers']=ambiguous_progress_players(evidence,inputs['progress'])
+                inputs['ambiguousEmptyPositivePlayers']=ambiguous_progress_players(evidence,inputs['progress'],positive_only=True)
         if needs_contribution:
             inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                 runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)

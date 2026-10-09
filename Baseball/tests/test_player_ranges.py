@@ -276,23 +276,30 @@ class PlayerRanges(unittest.TestCase):
         individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
             players=[dict(player=U+str(i),status='admitted' if i==1 else 'withheld') for i in (1,2,3)])
         for case,expected in [('bounded',1),('uninformed',0),('involved',0),('missing-runner',0),
-                              ('missing-batter',0),('missing-movement',0),('unverified-census',0)]:
+                              ('missing-batter',0),('missing-movement',0),('unverified-census',0),
+                              ('out-only',1),('out-conflict',0),('out-only-unverified',0)]:
             evidence=copy.deepcopy(rows)+[dict(movement)]
             if case=='involved':evidence[-1]['runner']=U+'1'
+            if case.startswith('out-'):
+                evidence[-1].update(runner=U+'1',hasOutType='true',hasSafeType='false',hasRunType='false')
+                if case=='out-conflict':evidence[-1]['hasSafeType']='true'
             if case=='missing-runner':evidence[-1].pop('runner')
             if case=='missing-batter':evidence[-2].pop('player')
             if case=='missing-movement':evidence.pop()
             bounded=P.ambiguous_progress_players(evidence,progress)
             if case=='bounded':self.assertEqual(bounded,{'pa2':[U+'2',U+'3']})
             inputs=dict(contribution={},progress=progress,defense={})
-            if case!='uninformed':inputs['ambiguousProgressPlayers']=bounded
+            if case!='uninformed':
+                inputs['ambiguousProgressPlayers']=bounded
+                inputs['ambiguousEmptyPositivePlayers']=P.ambiguous_progress_players(evidence,progress,positive_only=True)
             _,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
-                proofs=dict(batting={},run=proof,resolution={} if case=='unverified-census' else proof,players=individual),
+                proofs=dict(batting={},run=proof,resolution={} if case in {'unverified-census','out-only-unverified'} else proof,players=individual),
                 inputs=inputs,runs={m:{} for m in P.RUNS},run_people={})
             records={(r[1],r[2]):r for r in records}
             row=records[(U+'1','empty-game-rate')]
             self.assertEqual(row[3],expected,case)
             if expected:self.assertEqual(json.loads(row[4]),dict(kind='count',count=1,eligibleGames=1))
+            if case=='out-only':self.assertEqual(records[(U+'1','contribution-path-diversity')][3],0)
             for player in (U+'2',U+'3'):
                 self.assertEqual(records[(player,'empty-game-rate')][3],0,case)
                 self.assertEqual(records[(player,'offensive-reach')][3],0,case)
@@ -304,7 +311,7 @@ class PlayerRanges(unittest.TestCase):
         for i in (1,2):
             graph=G+str(i)
             db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',
-                       (M._hash('source-'+str(i)+P.PREVIOUS_AMBIGUOUS_PROGRESS_VERSION),graph))
+                       (M._hash('source-'+str(i)+P.PREVIOUS_AMBIGUOUS_OUT_VERSION),graph))
             state=M._json(dict(unresolvedPlateAppearances=[] if i==1 else [
                 dict(plateAppearance='pa2',gaps=['AMBIGUOUS_BATTING_CONTRIBUTOR'])]))
             db.execute('INSERT INTO metric_suite_input_state VALUES (?,?,?,?)',(graph,'progress',state,M._hash(state)))
@@ -314,7 +321,7 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(read.call_args.args[2],[G+'2'])
         partitions=dict(db.execute('SELECT * FROM dashboard_player_partition'))
         self.assertEqual(partitions[G+'1'],M._hash('source-1'+P.fingerprint()))
-        self.assertEqual(partitions[G+'2'],M._hash('source-2'+P.PREVIOUS_AMBIGUOUS_PROGRESS_VERSION))
+        self.assertEqual(partitions[G+'2'],M._hash('source-2'+P.PREVIOUS_AMBIGUOUS_OUT_VERSION))
 
     def test_one_incomplete_game_excludes_whole_player_not_the_other_player(self):
         db=self.db()

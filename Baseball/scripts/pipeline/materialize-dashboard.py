@@ -408,7 +408,8 @@ def reuse_game(connection, graph, saved, promotion, dimension, admissions, calcu
             partition=connection.execute('SELECT input_sha256 FROM dashboard_player_partition WHERE graph_iri=?',(graph,)).fetchone()
             individual=connection.execute('SELECT proof_sha256 FROM dashboard_player_admission WHERE graph_iri=?',(graph,)).fetchone()
             proof_sha=individual[0] if individual else ''
-            for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_EMPTY_SCOPE_VERSION,
+            for version in (PLAYER_RANGES.fingerprint(),PLAYER_RANGES.PREVIOUS_AMBIGUOUS_OUT_VERSION,
+                            PLAYER_RANGES.PREVIOUS_EMPTY_SCOPE_VERSION,
                             PLAYER_RANGES.PREVIOUS_EMPTY_CACHE_VERSION,
                             PLAYER_RANGES.PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PLAYER_RANGES.PREVIOUS_AMBIGUOUS_PROGRESS_VERSION,
                             PLAYER_RANGES.PREVIOUS_VERSION,
