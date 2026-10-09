@@ -97,6 +97,14 @@ class EmptyGameAddition(unittest.TestCase):
                 E.W.atomic(state/'serving/dashboard-current.json',dict(pointer,buildId='20261010'))
                 self.assertEqual(E.next_game(state)['gamePk'],'4')
                 self.assertEqual(plan.call_count,2)
+                def damaged(state,case,previous,players):
+                    if case['gamePk']=='3':raise ValueError('retained source hash mismatch')
+                    return matches(state,case,previous,players)
+                with patch.object(E,'selection_repair_families',side_effect=damaged):
+                    E.W.atomic(state/'serving/dashboard-current.json',dict(pointer,buildId='20261011'))
+                    self.assertEqual(E.next_game(state)['gamePk'],'4')
+                stored=E.W.read(state/'pipeline/control/mlb-game/empty-game-repair-plan.json')
+                self.assertTrue(any(r['gamePk']=='3' and r['reason']=='selection-error' for r in stored['held']))
 
     def test_shared_balk_identity_keeps_both_runners_and_final_batting_result(self):
         play=copy.deepcopy(self.play)

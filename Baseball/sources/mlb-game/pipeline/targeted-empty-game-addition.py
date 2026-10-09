@@ -403,15 +403,18 @@ def repair_plan(state,publication,version,excluded=None):
             game_pk=case['gamePk']
             if game_pk in excluded:continue
             path=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
-            previous=W.read(path) if path.is_file() else {}
-            players=outstanding(state,case,db)
+            try:
+                previous=W.read(path) if path.is_file() else {}
+                players=outstanding(state,case,db)
+                families=selection_repair_families(state,case,previous,players) if players else []
+                current_case=dict(case,excludedPlayerGames=[p for p in case['excludedPlayerGames'] if p['player'] in (players or [])])
+                if players and automatic_walk_retry(state,current_case,previous):families.append('W4-automatic-walk')
+            except Exception as error:
+                held.append(dict(gamePk=game_pk,reason='selection-error',error=str(error)));continue
             if players is None:
                 held.append(dict(gamePk=game_pk,reason='waiting-for-reader'));continue
             if not players:
                 resolved.append(game_pk);continue
-            families=selection_repair_families(state,case,previous,players)
-            current_case=dict(case,excludedPlayerGames=[p for p in case['excludedPlayerGames'] if p['player'] in players])
-            if automatic_walk_retry(state,current_case,previous):families.append('W4-automatic-walk')
             if previous.get('status') in SUCCESS and not families:
                 held.append(dict(gamePk=game_pk,players=players,reason='no-unapplied-approved-selection'));continue
             if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
