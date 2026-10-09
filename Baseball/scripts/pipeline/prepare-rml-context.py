@@ -177,10 +177,8 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
     """B2 source selection, never a graph-conformance or score calculation."""
     if not histories or histories.get('sourceConsistency') != 'consistent':
         return False
-    if play.get('about', {}).get('hasReview') is not False or play.get('reviewDetails'):
-        review = accounted_runner_history_reviews(play)
-        if review['issues'] or review.get('accountedFieldReview', {}).get('eventIndex') != terminal_index:
-            return False
+    review = accounted_runner_history_reviews(play)
+    if review['issues']:return False
     events, rows = play.get('playEvents', []), play.get('runners', [])
     if [e.get('index') for e in events] != list(range(len(events))):
         return False
@@ -197,9 +195,30 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
                          and event.get('isPitch') is False and not selected)
         if independent:
             prefix_indexes.add(event['index'])
-        if (event.get('reviewDetails') or details.get('hasReview') is True or event.get('isSubstitution') is True
+        reviewed=event['index'] in review['events'] or review.get('accountedFieldReview',{}).get('eventIndex')==event['index']
+        replacement=False
+        if before_contact and event.get('isSubstitution') is True:
+            prefix=events[:event['index']]
+            neutral=(event.get('isPitch') is False and details.get('eventType')=='offensive_substitution'
+                and event.get('count',{}).get('balls')==0 and event.get('count',{}).get('strikes')==0
+                and not selected and not any(e.get('isPitch') is True for e in prefix)
+                and not any(r.get('details',{}).get('playIndex',terminal_index)<event['index'] for r in rows))
+            if neutral and event.get('position',{}).get('abbreviation')=='PH':
+                try:actual=batter_participation_context(play,'1',source_consistent=True)['participations']
+                except (ValueError,KeyError):actual=[]
+                replacement=len(actual)==1 and actual[0]['playerId']==str(event.get('player',{}).get('id'))
+            elif neutral and event.get('position',{}).get('abbreviation')=='PR':
+                incoming=str(event.get('player',{}).get('id'));outgoing=str(event.get('replacedPlayer',{}).get('id'))
+                def witness(h,field):
+                    w=h.get(field,{})
+                    return str(w.get('atBatIndex'))==at_bat_index and w.get('eventIndex')==event['index']
+                begun=[h for h in histories.get('histories',[]) if h.get('runnerId')==incoming and witness(h,'entryWitness')]
+                ended=[h for h in histories.get('histories',[]) if h.get('runnerId')==outgoing and witness(h,'terminationWitness')]
+                replacement=(len(begun)==len(ended)==1 and begun[0].get('entryAnchor')==ended[0].get('terminationAnchor'))
+        if (((event.get('reviewDetails') or details.get('hasReview') is True) and not reviewed)
+                or event.get('isSubstitution') is True and not replacement
                 or (event.get('isPitch') is not True and details.get('eventType') not in {'batter_timeout', 'mound_visit'}
-                    and not independent and not empty_attempt)):
+                    and not independent and not empty_attempt and not replacement and not reviewed)):
             return False
     allowed = {play.get('result', {}).get('eventType'), 'other_out'}
     membership = defaultdict(list)
@@ -256,8 +275,10 @@ def compound_double_play_parts(play: dict) -> list[dict]:
     about, result = play.get('about', {}), play.get('result', {})
     events, runners = play.get('playEvents', []), play.get('runners', [])
     if (result.get('eventType') != 'strikeout_double_play' or about.get('isComplete') is not True
-            or about.get('hasReview') is not False or play.get('reviewDetails') or not events):
+            or not events):
         return []
+    reviews=accounted_runner_count_reviews(play)
+    if reviews['issues']:return []
     terminal = events[-1]
     before, after = terminal.get('count', {}).get('outs'), play.get('count', {}).get('outs')
     if (terminal.get('isPitch') is not True or terminal.get('type') != 'pitch'
@@ -267,8 +288,8 @@ def compound_double_play_parts(play: dict) -> list[dict]:
             or terminal.get('details', {}).get('isInPlay') is not False
             or terminal.get('details', {}).get('isStrike') is not True
             or type(before) is not int or before not in (0, 1) or after != before + 2
-            or terminal.get('reviewDetails') or terminal.get('details', {}).get('hasReview') is not False
-            or accounted_runner_count_reviews(play)['issues']):
+            or ((terminal.get('reviewDetails') or terminal.get('details', {}).get('hasReview') is not False)
+                and terminal.get('index') not in reviews['events'])):
         return []
     outs = [(i, row) for i, row in enumerate(runners) if row.get('movement', {}).get('isOut') is True]
     batter = play.get('matchup', {}).get('batter', {})
@@ -293,7 +314,9 @@ def compound_double_play_parts(play: dict) -> list[dict]:
     # Bound the accepted selector to explicit K-and-caught-stealing wording.
     narrative = (re.escape(names[0]) + r' (?:strikes out (?:swinging|looking)|called out on strikes) and '
                  + re.escape(names[1]) + r' caught stealing (?:2nd|3rd|home)(?:[, .]|$)')
-    if not re.match(narrative, result.get('description', ''), flags=re.I):
+    description=result.get('description','')
+    if reviews['events']:description=REVIEW_DESCRIPTION.sub('',description,count=1).strip()
+    if not re.match(narrative, description, flags=re.I):
         return []
     if running[0]['details'].get('eventType') not in {'caught_stealing_2b', 'caught_stealing_3b', 'caught_stealing_home'}:
         return []
@@ -753,10 +776,10 @@ def nonmovement_strikeout_records(play, *, check_review=True):
                 and accounted_runner_history_reviews(play)['issues'])):
         return {}
     batter = play.get('matchup', {}).get('batter', {}).get('id')
-    if type(batter) is not int or batter <= 0 or play['matchup'].get('postOnFirst', {}).get('id') != batter:
+    if type(batter) is not int or batter <= 0:
         return {}
     records = [(i,r) for i,r in enumerate(play.get('runners', [])) if r.get('details', {}).get('runner', {}).get('id') == batter]
-    if len(records) != 2:
+    if len(records) not in (2,3):
         return {}
     empty = [(i,r) for i,r in records if r.get('details', {}).get('eventType') == 'strikeout'
              and set(r.get('movement', {})) == {'originBase','start','end','outBase','isOut','outNumber'}
@@ -768,6 +791,14 @@ def nonmovement_strikeout_records(play, *, check_review=True):
     if len(empty) != 1 or len(safe) != 1:
         return {}
     index = empty[0][1]['details'].get('playIndex')
+    continuation=[r for i,r in records if i not in {empty[0][0],safe[0][0]}]
+    if continuation:
+        row,=continuation
+        if (row.get('movement')!=dict(originBase=row.get('movement',{}).get('originBase'),start='1B',end='2B',outBase=None,isOut=False,outNumber=None)
+                or row['movement'].get('originBase') not in (None,'1B')
+                or row.get('details',{}).get('playIndex')!=index or row['details'].get('isScoringEvent') is not False):return {}
+    final='postOnSecond' if continuation else 'postOnFirst'
+    if play['matchup'].get(final,{}).get('id')!=batter:return {}
     events = [e for e in play.get('playEvents', []) if e.get('index') == index]
     if (safe[0][1]['details'].get('playIndex') != index or len(events) != 1
             or events[0].get('isPitch') is not True or events[0].get('count', {}).get('strikes') != 3
@@ -1497,11 +1528,13 @@ def balk_runner_evidence(play: dict, at_bat_index: str) -> list[dict]:
     output=[]
     for event in events:
         detail=event.get('details',{});index=event.get('index');identity=event.get('actionPlayId')
+        kind=detail.get('eventType')
+        supported=(kind=='balk' or kind=='forced_balk' and detail.get('violation',{}).get('type')=='pitcher_disengagement')
         if (event.get('isPitch') is not False or event.get('type')!='action'
-                or detail.get('eventType')!='balk' or type(index) is not int
+                or not supported or type(index) is not int
                 or not isinstance(identity,str) or not SAFE_IRI_SEGMENT.fullmatch(identity)
                 or sum(e.get('index')==index for e in events)!=1
-                or sum(e.get('actionPlayId')==identity and e.get('details',{}).get('eventType')=='balk'
+                or sum(e.get('actionPlayId')==identity and e.get('details',{}).get('eventType')==kind
                        for e in events)!=1):continue
         rows=[(i,r) for i,r in enumerate(play.get('runners',[])) if r.get('details',{}).get('playIndex')==index]
         for i,row in rows:
@@ -1509,7 +1542,7 @@ def balk_runner_evidence(play: dict, at_bat_index: str) -> list[dict]:
             destination={'1B':'2B','2B':'3B','3B':'score'}.get(m.get('start'))
             if (i not in known or type(runner) is not int or runner<=0
                     or type(d.get('playIndex')) is not int
-                    or d.get('eventType')!='balk' or m.get('isOut') is not False
+                    or d.get('eventType')!=kind or m.get('isOut') is not False
                     or destination is None or m.get('end')!=destination
                     or d.get('isScoringEvent') is not (destination=='score')
                     or sum(r.get('details',{}).get('runner',{}).get('id')==runner for _,r in rows)!=1):continue
@@ -1555,7 +1588,7 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
         if reviews['issues']:
             final_review = accounted_runner_history_reviews(play)
             if not final_review['issues'] and (final_review.get('accountedFieldReview')
-                    or result in {'walk','intent_walk'} and final_review.get('events')):
+                    or result in {'walk','intent_walk','hit_by_pitch'} and final_review.get('events')):
                 reviews = final_review
         if reviews['issues']:
             return products

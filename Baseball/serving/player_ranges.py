@@ -217,6 +217,46 @@ def ambiguous_progress_players(rows, progress, *, positive_only=False, excluded_
             for pa in batters & movements if actors[pa] and None not in actors[pa]}
 
 
+def empty_running_entries(m, rows, progress):
+    """EG3's binary running credit; existing weighted channels stay unchanged."""
+    turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])}
+    types=defaultdict(set); movements=defaultdict(list); histories=defaultdict(list); whole_rows=defaultdict(list)
+    for row in rows:
+        if row['kind']=='plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
+            types[row['entity']].add(row.get('paResultType'))
+        elif row['kind']=='runner_history':histories[(row['graph'],row['trajectory'])].append(row)
+        elif row['kind']=='runner_movement':
+            movements[row['plateAppearance']].append(row)
+            if row.get('trajectory'):whole_rows[(row['graph'],row['trajectory'])].append(row)
+    result={}
+    for pa in turns:
+        if types[pa]!={'https://baseballontology.org/StrikeoutProcess'}:continue
+        groups=defaultdict(list)
+        for row in movements[pa]:groups[row.get('runner')].append(row)
+        positive=[]
+        for runner,states in groups.items():
+            if not runner:continue
+            # Duplicate identical bindings are harmless; conflicting states for
+            # one resolution must never pass as a complete personal path.
+            unique={m._json(r):r for r in states};states=list(unique.values())
+            if len({r.get('resolution') for r in states})!=len(states):continue
+            entry=[r for r in states if r.get('batter')==runner and m.segment_origin(r)==0
+                and r.get('destinationCode')=='1B' and r.get('hasSafeType')=='true'
+                and r.get('hasOutType')=='false' and r.get('hasRunType')=='false'
+                and all(r.get(k) for k in (*m.INDEPENDENT_RUNNING_FIELDS,'record','act','episode','resolution',
+                                         'safeJudgment','safeDecision','destinationBase'))
+                and r['independentRunningType'] in {'https://baseballontology.org/WildPitchProcess',
+                                                    'https://baseballontology.org/PassedBallProcess'}
+                and not r.get('contactPlay') and not r.get('award')]
+            if len(entry)!=1:continue
+            if len(states)>1:
+                path=m.runner_progress_path(states,histories,whole_rows)
+                if path['status']!='available' or path['end'] is None or not path['positive']:continue
+            positive.append(runner)
+        if positive:result[pa]=sorted(positive)
+    return result
+
+
 def resolution_census_players(rows, roster, resolution, individual):
     """Reuse admitted PA censuses for a team's entire offensive inventory.
 
@@ -291,6 +331,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
         uncertain.update(affected)
+    for pa,players in inputs.get('emptyRunningEntries',{}).items():
+        if admitted(proofs['resolution']) or pa in resolved:
+            positive.update(players);certain_positive.update(players)
     for pa,item in help_inputs.items():
         if item['positive'] and (admitted(proofs['resolution']) or pa in resolved):
             positive.add(item['player']);certain_positive.add(item['player'])
@@ -423,7 +466,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
              (m._hash(m._json(player_admissions[graph])) if player_admissions.get(graph) else ''))]
     if 'metric_suite_input_state' in tables:
         ambiguity_candidates={r[0] for r in db.execute("SELECT graph_iri FROM metric_suite_input_state "
-            "WHERE family='progress' AND state_json LIKE '%AMBIGUOUS_BATTING_CONTRIBUTOR%'")}
+            "WHERE family='progress' AND json_array_length(state_json,'$.unresolvedPlateAppearances')>0")}
     if {'metric_suite_input_row','metric_suite_runner_resolution_admission'}<=tables:
         for offset in range(0,len(pending),400):
             group=pending[offset:offset+400];marks=','.join('?' for _ in group)
@@ -529,6 +572,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
             evidence.sort(key=m._json)
             if help_progress['unresolvedPlateAppearances']:
                 inputs['binaryHelp']=binary_help_inputs(m,evidence,help_progress)
+                inputs['emptyRunningEntries']=empty_running_entries(m,evidence,help_progress)
             if needs_channels:
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
             if needs_ambiguity:

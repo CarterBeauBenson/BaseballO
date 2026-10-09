@@ -21,9 +21,9 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 9 at 09:26 Eastern
+## Latest measured publication: October 9 at 15:17 Eastern
 
-Publication `20261009T125838Z-dashboard-859a41029327`, promoted at 13:26:27 UTC,
+Offense publication `20261009T190302Z-dashboard-offense-27ccb0b5`, promoted at 19:17:12 UTC,
 contains all 2,429 selected
 2026 regular-season games. The complete eligible player count is now **520**;
 **142 players remain incomplete**, with **153 unresolved player-games across
@@ -41,7 +41,7 @@ remainder. They have not completed the metric.
 | Ambiguous batting contributor plus attribution | 1 | 1 | 1 |
 
 Each player-game occurs in exactly one row; player/game counts overlap across
-families. These counts are unchanged from the 12:14 UTC publication and report
+families. These counts are unchanged from the 13:26 UTC publication and report
 retained analytical failures, not newly inferred source semantics. The prior
 complete inventory of 455 originally approved EG1 candidate games found that
 316 had no remaining original exclusions, while 139
@@ -55,10 +55,18 @@ shared reader correction preserves a fully reconciled contact positive despite
 another runner's unknown path; it is included in the 13:26 publication. Required
 meaning/source decisions remain EG2-EG5 below, not individual game approvals.
 
-The first independent offense build started at 13:37 UTC. Its recorded 14:00
-checkpoint contained 500 of 2,455 active games; that is build progress, not a new
-publication or additional complete players. The remaining families retain the
-previous published snapshot until their own replacements finish.
+All four families have now published independently. A live full-season request
+returned the offense snapshot above and the other families' own snapshots;
+defensive completeness does not prevent these offensive results from loading.
+
+EG2-EG5 were explicitly accepted in decision commit `39734f5` on October 9.
+EG2's five generic selectors and the existing EG1 owner's scoped retries are
+implemented, including preservation of the uncaught-strike placeholder record.
+EG3 adds binary running entry to the prepared Empty Games projection without
+changing numeric running weights or batting credit. Focused selector, runner
+entry and targeted-owner checks pass. NiFi owns the additions and publication;
+these are implementation results, not a reduction in the measured remainder.
+EG4 and EG5 implementation is next in the same approved work sequence.
 
 ## Earlier measured publication: October 8 at 23:34 Eastern
 

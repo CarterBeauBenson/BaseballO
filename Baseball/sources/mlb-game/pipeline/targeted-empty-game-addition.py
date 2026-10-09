@@ -26,6 +26,7 @@ BALK_DECISION='archive/design-records/mlb-game-balk-runner-attribution/review.js
 WALK_DECISION='archive/design-records/mlb-game-automatic-ball-walk-award/review.json'
 INDEPENDENT_DECISION='archive/design-records/mlb-game-defensive-indifference-running/review.json'
 REVIEW_WALK_DECISION='archive/design-records/mlb-game-walk-after-reconciled-review/review.json'
+SELECTION_DECISION='archive/design-records/mlb-game-empty-game-remaining-selections/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
 SUCCESS=R.SUCCESS|{'resolved-by-reader','no-supported-addition'}
 PA_MAPS=('PlateAppearanceMap','PlateAppearanceIntervalMap','BatterActMap',
@@ -38,11 +39,13 @@ RESULT_MAPS=tuple('ResultType_'+kind for kind in ('home_run','field_out','double
 RUNNER_MAPS=tuple('Runner'+kind+part+'Map' for kind in ('Out','ScoreOrigin','ScoreBase','Reach','Advance')
     for part in ('Act','Resolution','Record','Judgment','Decision','AdjudicationLinks','RecordAdjudication'))
 MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+D2.MAPS+PA_MAPS+RESULT_MAPS+RUNNER_MAPS+
-    ('ReachedBaseArtifactMap','AdvancedToBaseArtifactMap','HomePlateArtifactMap','SafeRuleMap','OutRuleMap')))
+    ('ReachedBaseArtifactMap','AdvancedToBaseArtifactMap','HomePlateArtifactMap','SafeRuleMap','OutRuleMap',
+     'UncaughtThirdStrikeProcessMap','UncaughtThirdStrikeJudgmentMap','UncaughtThirdStrikeDecisionMap',
+     'UncaughtThirdStrikeResultRecordMap','UncaughtThirdStrikePlaceholderRecordMap')))
 
 
 def approved_case(game_pk):
-    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION):
+    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION,SELECTION_DECISION):
         if W.read(ROOT/decision)['status']!='accepted':raise ValueError('EG1 selected repair is not accepted')
     case=next((g for g in W.read(INVENTORY)['games'] if g['gamePk']==game_pk),None)
     if case is None:raise ValueError('Game is outside the approved EG1 inventory')
@@ -97,7 +100,7 @@ def select(raw,game_pk,players):
     plays=document['liveData']['plays']['allPlays']
     pas={str(p['atBatIndex']) for p in plays if str(p.get('matchup',{}).get('batter',{}).get('id')) in player_ids
         or any(b['playerId'] in player_ids for b in p[C.CONTEXT_KEY].get('batterParticipations',[]))
-        or any(r['runnerId'] in player_ids for r in p[C.CONTEXT_KEY].get('defensiveIndifferenceActs',[]))}
+        or any(str(r.get('details',{}).get('runner',{}).get('id')) in player_ids for r in p.get('runners',[]))}
     if not pas:return None
     # SHACL's existing source selector distinguishes unsupported PAs. Keep them
     # as explicit gaps while repairing independent, supported PA patterns.
@@ -111,6 +114,8 @@ def select(raw,game_pk,players):
     if not pas:return dict(noSupportedAddition=True,unresolved=unsupported)
     selected=R.select_case(raw,game_pk,dict(plateAppearances=sorted(pas),allowEmptyRunnerSelection=True))
     episode_keys={(r['atBatIndex'],r['runnerIndex']) for r in selected['episodes']}
+    placeholder_keys={(r['pa'].rsplit('/',1)[-1],str(r['runnerIndex'])) for r in census.get('nonMovementRecords',[])
+                      if r['pa'].rsplit('/',1)[-1] in pas}
     scoped={str(p['atBatIndex']):p for p in plays if str(p['atBatIndex']) in pas}
     for item in selected['context']['liveData']['plays']['allPlays']:
         rows=item[C.CONTEXT_KEY]['runnerEpisodes']
@@ -122,7 +127,7 @@ def select(raw,game_pk,players):
     for pa,play in scoped.items():
         original=originals[pa]
         play['runners']=[r for r in original.get('runners',[])
-            if (pa,str(r[C.CONTEXT_KEY]['runnerIndex'])) in episode_keys]
+            if (pa,str(r[C.CONTEXT_KEY]['runnerIndex'])) in episode_keys | placeholder_keys]
         play[C.CONTEXT_KEY].update(products.get(pa,{}))
         rows=[r for r in original[C.CONTEXT_KEY].get('balkAdvances',[])
             if (pa,r['runnerIndex']) in episode_keys]
@@ -148,7 +153,12 @@ def execution_inputs(raw,game_pk,selected,context,mapping):
     W.A.subset_mapping(game_pk,mapping,MAPS)
     venue=str(selected['context']['gameData']['venue']['id'])
     if not venue.isdecimal():raise ValueError('EG1 venue identity is invalid')
-    mapping.write_text(mapping.read_text(encoding='utf-8').replace('{$.gameData.venue.id}',venue),encoding='utf-8',newline='\n')
+    text=mapping.read_text(encoding='utf-8').replace('{$.gameData.venue.id}',venue)
+    umpires={str(r.get('official',{}).get('id','')) for r in json.loads(raw).get('liveData',{}).get('boxscore',{}).get('officials',[])
+             if r.get('officialType')=='Home Plate'}
+    umpire=next(iter(umpires)) if len(umpires)==1 else ''
+    if not umpire.isdecimal():raise ValueError('EG1 home plate umpire identity is unavailable')
+    mapping.write_text(text.replace('{$.homePlateUmpire.id}',umpire),encoding='utf-8',newline='\n')
 
 
 def shapes(game_pk,selected):
@@ -247,7 +257,7 @@ def project_census(field,source,selected):
 def revalidate(*args):
     return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
-        reviewedWalkDecision=REVIEW_WALK_DECISION),
+        reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION),
         project_census=project_census)
 
 
@@ -338,7 +348,8 @@ def selection_repair_families(state,case,previous,players=None):
     if previous.get('status') not in SUCCESS:return []
     d2=previous.get('independentRunningDecision')!=INDEPENDENT_DECISION
     w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
-    if not (d2 or w5):return []
+    eg2=previous.get('emptySelectionDecision')!=SELECTION_DECISION
+    if not (d2 or w5 or eg2):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -356,14 +367,25 @@ def selection_repair_families(state,case,previous,players=None):
                 if W.sha(context)!=previous['executionContextSha256']:raise ValueError('D2/W5 retained context changed')
                 doc=W.read(context)
     plays=doc.get('liveData',{}).get('plays',{}).get('allPlays',[])
-    if not any(p.get('result',{}).get('eventType') in {'walk','intent_walk'} or
-               any(r.get('details',{}).get('eventType')=='defensive_indiff' for r in p.get('runners',[])) for p in plays):return []
     if players is None:players=outstanding(state,case)
     if not players:return []
     ids={p.rsplit('/',1)[-1] for p in players}
     families=set()
     for play in plays:
         batter=str(play.get('matchup',{}).get('batter',{}).get('id'))
+        affected=batter in ids or any(str(r.get('details',{}).get('runner',{}).get('id')) in ids for r in play.get('runners',[]))
+        if eg2 and affected:
+            result=play.get('result',{}).get('eventType');pa=str(play['atBatIndex'])
+            if result in C.BATTED_RUNNER_RESULT_TYPES and any(r.get('details',{}).get('eventType')=='other_out' for r in play.get('runners',[])):
+                if any(e.get('isSubstitution') is True or e.get('reviewDetails') or e.get('details',{}).get('hasReview') for e in play.get('playEvents',[])) or play.get('reviewDetails'):
+                    families.add('EG2a-contact-prefix')  # Execution reruns the full C1/Q4 selector on original bytes.
+            if len(C.nonmovement_strikeout_records(play)) and len([r for r in play.get('runners',[]) if str(r.get('details',{}).get('runner',{}).get('id'))==batter])==3:
+                families.add('EG2b-uncaught-continuation')
+            if C.compound_double_play_parts(play) and play.get('reviewDetails'):families.add('EG2c-reviewed-compound')
+            if result=='hit_by_pitch' and C.accounted_runner_count_reviews(play)['issues'] and not C.accounted_runner_history_reviews(play)['issues']:
+                if C.runner_metric_evidence(play,pa,'2026',document=doc)['awardAdvances']:families.add('EG2d-reviewed-hbp')
+            if any(e.get('details',{}).get('eventType')=='forced_balk' for e in play.get('playEvents',[])) and C.balk_runner_evidence(play,pa):
+                families.add('EG2e-disengagement-balk')
         if d2:
             selected=C.defensive_indifference_evidence(play)
             if selected and (batter in ids or any(r['runnerId'] in ids for r in selected)):families.add('D2-defensive-indifference')
@@ -469,7 +491,7 @@ def tick(state,game_pk,java,mapper,classpath):
             or (previous.get('implementationSha256')==version and previous.get('attempts',0)>=2)):return previous
     result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
-        reviewedWalkDecision=REVIEW_WALK_DECISION,
+        reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         players=outstanding(state,case)
@@ -483,7 +505,7 @@ def tick(state,game_pk,java,mapper,classpath):
                 selected['sourceWitness']=witness
                 result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
                     decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,automaticWalkDecision=WALK_DECISION,
-                        independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION),select=lambda raw,pk:selected,
+                        independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION),select=lambda raw,pk:selected,
                     execution_inputs=execution_inputs,revalidate=revalidate,
                     validation_scope='eg1-selected-pa-runner-patterns-and-retained-admissions')))
                 result['unresolved']=selected['unresolved']
