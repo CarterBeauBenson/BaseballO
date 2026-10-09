@@ -27,7 +27,7 @@ def prepared_version(products):
     return hashlib.sha256(Path(__file__).read_bytes()+products.fingerprint().encode()).hexdigest()
 
 
-def prepare_seasons(m, products, db, input_set):
+def prepare_seasons(m, products, db, input_set, *, metric_ids=None, family=None):
     """NiFi prepares the default season ranges once per changed publication."""
     with db:
         db.execute('CREATE TABLE IF NOT EXISTS dashboard_prepared_range ('
@@ -43,7 +43,7 @@ def prepare_seasons(m, products, db, input_set):
                          'WHERE game_set=? AND start_date=? AND end_date=?',key).fetchone()
         if saved==(input_set,version):continue
         scope=dict(gameSet=key[0],startDate=start,endDate=end)
-        result=query(m,products,db,dict(view='dashboard'),scope,use_prepared=False)
+        result=query(m,products,db,dict(view='dashboard'),scope,use_prepared=False,metric_ids=metric_ids,family=family)
         with db:
             db.execute('DELETE FROM dashboard_prepared_range WHERE game_set=? AND start_date=?',key[:2])
             db.execute('INSERT INTO dashboard_prepared_range VALUES (?,?,?,?,?,?)',
@@ -121,7 +121,7 @@ def reference_players(m, db, metric, scope, selected_graphs):
         scope='Season-relative percentiles averaged over applicable selected-period PAs; independent state cohorts for PAQ-A.')
 
 
-def player_records(db, metrics, params, people):
+def player_records(db, metrics, params, people, player_table='dashboard_player_game'):
     """Read requested products together, keeping exact range exclusions.
 
     Game-first traversal keeps each game's adjacent rows together instead of
@@ -140,7 +140,7 @@ def player_records(db, metrics, params, people):
         rows=db.execute(f'SELECT p.metric_id,p.player,COUNT(r.player),MAX(r.player IS NULL),'
             "json_group_array(DISTINCT CASE WHEN p.complete=0 THEN COALESCE(p.reason,'INCOMPLETE_PLAYER_RECORD') END) "
             f'FROM game_dimension g CROSS JOIN dashboard_player_metric p INDEXED BY {index} ON p.graph_iri=g.graph_iri '
-            'LEFT JOIN dashboard_player_game r ON r.graph_iri=p.graph_iri AND r.player=p.player '
+            f'LEFT JOIN {player_table} r ON r.graph_iri=p.graph_iri AND r.player=p.player '
             f'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? AND p.metric_id IN ({marks}) '
             'GROUP BY p.metric_id,p.player',(*params,*products))
         for metric,player,count,unexpected,reasons in rows:
@@ -187,9 +187,10 @@ def player_records(db, metrics, params, people):
     return products
 
 
-def query(m, products, db, request, scope, *, use_prepared=True):
+def query(m, products, db, request, scope, *, use_prepared=True, metric_ids=None, family=None):
     """Read small player/game products; never reconstruct graph or PA history."""
-    ids=m.requested_metric_ids(request);params=(scope['gameSet'],scope['startDate'],scope['endDate'])
+    ids=m.requested_metric_ids(request) if metric_ids is None else list(metric_ids)
+    params=(scope['gameSet'],scope['startDate'],scope['endDate'])
     if use_prepared and db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='dashboard_prepared_range'").fetchone():
         row=db.execute('SELECT payload FROM dashboard_prepared_range WHERE game_set=? AND start_date=? AND end_date=? '
             'AND query_sha256=? AND input_set_sha256=(SELECT input_set_sha256 FROM dashboard_build)',
@@ -212,11 +213,22 @@ def query(m, products, db, request, scope, *, use_prepared=True):
     version=products.fingerprint()
     individual=dict(db.execute('SELECT a.graph_iri,a.proof_sha256 FROM dashboard_player_admission a '
         'JOIN game_dimension g USING(graph_iri) WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params))
-    if any(saved.get(g)!=m._hash(key+version+individual.get(g,'')) for g,key in expected.items()):
-        raise m.EvidenceError('Selected player products need NiFi preparation')
+    if family and family!='offense':
+        expected=dict(db.execute('SELECT c.graph_iri,c.input_sha256 FROM dashboard_family_checkpoint c '
+            'JOIN game_dimension g USING(graph_iri) WHERE c.family=? AND g.game_set=? AND g.official_date BETWEEN ? AND ?',
+            (family,*params)))
+        saved=dict(db.execute('SELECT p.graph_iri,p.input_sha256 FROM dashboard_family_player_partition p '
+            'JOIN game_dimension g USING(graph_iri) WHERE p.family=? AND g.game_set=? AND g.official_date BETWEEN ? AND ?',
+            (family,*params)))
+        valid=set(expected)==set(graphs) and all(saved.get(g)==m._hash(key+version) for g,key in expected.items())
+    else:valid=set(expected)==set(graphs) and all(saved.get(g)==m._hash(key+version+individual.get(g,'')) for g,key in expected.items())
+    if not valid:raise m.EvidenceError('Selected player products need NiFi preparation')
+    if family not in (None,'offense','defense','combined','other'):raise m.EvidenceError('Unknown metric family')
+    player_table=(f"(SELECT * FROM dashboard_family_player_game WHERE family='{family}')"
+                  if family and family!='offense' else 'dashboard_player_game')
     missing_rosters=[dict(graph=graph,gamePk=graph.rsplit('/',1)[-1],date=day)
         for graph,day in db.execute('SELECT g.graph_iri,g.official_date FROM game_dimension g '
-            'LEFT JOIN dashboard_player_game p USING(graph_iri) '
+            f'LEFT JOIN {player_table} p USING(graph_iri) '
             'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ? GROUP BY g.graph_iri '
             'HAVING MAX(COALESCE(p.roster_complete,0))=0 ORDER BY g.official_date,g.graph_iri',params)]
     participation_coverage=dict(games=len(graphs),verifiedGames=len(graphs)-len(missing_rosters),
@@ -224,13 +236,13 @@ def query(m, products, db, request, scope, *, use_prepared=True):
     people=defaultdict(lambda:dict(pa=0,paKnown=True,games=set(),graphs=set(),roster=True))
     roster_graphs=set()
     participation=() if missing_rosters else db.execute('SELECT p.graph_iri,p.player,p.plate_appearances,p.roster_complete '
-            'FROM dashboard_player_game p JOIN game_dimension g USING(graph_iri) '
+            f'FROM {player_table} p JOIN game_dimension g USING(graph_iri) '
             'WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?',params)
     for graph,player,pa,roster in participation:
         p=people[player];p['pa']+=pa or 0;p['paKnown'] &= pa is not None
         if roster:roster_graphs.add(graph)
         p['games'].add(graph);p['graphs'].add(graph);p['roster'] &= bool(roster)
-    prepared=player_records(db,[metric for metric in ids if metric in products.PREPARED],params,people) \
+    prepared=player_records(db,[metric for metric in ids if metric in products.PREPARED],params,people,player_table) \
         if schedule['complete'] and roster_graphs==set(graphs) else {}
     metrics=[]
     for metric in ids:

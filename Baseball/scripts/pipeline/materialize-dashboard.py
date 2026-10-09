@@ -17,6 +17,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+from types import SimpleNamespace
 import sqlite3
 import sys
 import time
@@ -617,7 +618,7 @@ READER_EXCLUDED_TABLES=frozenset({
     'metric_suite_shell','metric_suite_reference_rank','metric_suite_reference','dashboard_reference'})
 
 
-def publish_snapshot(database, published, checkpoint=None):
+def publish_snapshot(database, published, checkpoint=None, *, metric_ids=None, family=None):
     """Copy prepared reader products; keep rebuild inputs in the working DB.
 
     The dashboard now reads prepared player/game and reference-player products.
@@ -639,7 +640,13 @@ def publish_snapshot(database, published, checkpoint=None):
             for name,_ in tables:
                 if checkpoint:checkpoint(publicationStep='copy-table',publicationTable=name)
                 quoted='"'+name.replace('"','""')+'"'
-                destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted}')
+                columns={row[1] for row in destination.execute(f'PRAGMA main.table_info({quoted})')}
+                if metric_ids is not None and 'metric_id' in columns:
+                    marks=','.join('?' for _ in metric_ids)
+                    destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted} WHERE metric_id IN ({marks})',sorted(metric_ids))
+                elif family and name.startswith('dashboard_family_'):
+                    destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted} WHERE family=?',(family,))
+                else:destination.execute(f'INSERT INTO main.{quoted} SELECT * FROM prepared_source.{quoted}')
             if checkpoint:checkpoint(publicationStep='copy-indexes',publicationTable=None)
             for kind,name,owner,sql in schema:
                 if kind=='index' and owner not in excluded:destination.execute(sql)
@@ -692,6 +699,9 @@ def build(args):
         work.mkdir(parents=True, exist_ok=True)
     with writer_lock(work/'writer.lock'), ADMISSION_HASHES.artifact_hash_cache(
             work/('admission-artifact-hashes-'+sys.implementation.cache_tag+'.json'),RELEASE.atomic):
+        if getattr(args,'family',None):
+            owner=module(ROOT/'serving/family_build.py','dashboard_family_build')
+            return owner.build(SimpleNamespace(**globals()),args,state,serving,work)
         return build_locked(args, state, serving, work)
 
 
@@ -1002,6 +1012,8 @@ def main():
     parser.add_argument('--endpoint',default='http://127.0.0.1:3031/baseball-dev/query')
     parser.add_argument('--timeout',type=int,default=120)
     parser.add_argument('--workers',type=int,choices=(1,2),default=2)
+    parser.add_argument('--family',choices=('auto','offense','defense','combined','other'),default='auto',
+                        help='One independent family per NiFi tick; auto rotates pending work with bounded retries')
     # Per-game locks and recapture handle ongoing promotions. A global quiet
     # window starves SQL while the independent repair lanes keep progressing.
     parser.add_argument('--quiet-seconds',type=int,default=0)

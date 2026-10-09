@@ -6,6 +6,15 @@ import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
 import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, dashboardCoverageLabel, metricCardPresentation, metricVisible, resultScopeLabel, unresolvedRunRows } from '../metrics.js';
+import { freshnessLabel } from '../metrics.js';
+
+test('independent family freshness survives presentation and distinguishes retained results', () => {
+  const freshness = {family:'defense',status:'retained',publishedAtUtc:'2026-10-09T12:00:00Z'};
+  assert.match(freshnessLabel(freshness), /^Retained results:/);
+  assert.match(freshnessLabel({...freshness,status:'published'}), /^Data checked:/);
+  assert.match(freshnessLabel({status:'pending'}), /Waiting/);
+  assert.deepEqual(publicMetricResult({metricId:'resolution-depth',freshness}).freshness,freshness);
+});
 
 test('unresolved runs keep their identities and explain the actual evidence problem', () => {
   const evidence = { graph: 'https://w3id.org/baseball/graph/game/566279',

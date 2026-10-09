@@ -15,6 +15,12 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
+The October 9 offense/defense isolation change separates build failures and
+publication freshness. It does not change the measured counts below. NiFi's
+`serving/dashboard/progress-<family>.json` records each family's execution;
+`serving/dashboard-current.json` contains the independently published snapshots.
+The UI reads those prepared snapshots and labels retained results explicitly.
+
 ## Latest measured publication: October 9 at 08:14 Eastern
 
 Publication `20261009T115501Z-dashboard-ca88e5e8ee4f` contains all 2,429 selected

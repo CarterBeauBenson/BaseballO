@@ -6,11 +6,13 @@
   "materialization": {
     "processor": "scripts/pipeline/materialize-dashboard.py",
     "schema": "serving/dashboard-schema.sql",
-    "readOnlyWorkers": 2,
-    "partitioning": "authoritative-game-graph",
-    "checkpoint": "one-transaction-per-game",
+    "readOnlyWorkers": 1,
+    "partitioning": "metric-family-and-authoritative-game-graph",
+    "checkpoint": "one-transaction-per-family-game",
     "publication": "serving/dashboard-current.json",
     "schedule": "one-minute-change-check-with-one-waiting-flowfile",
+    "families": ["offense", "defense", "combined", "other"],
+    "familyExecution": "one-family-per-tick-round-robin-with-three-attempts-per-input-notification",
     "dependencies": ["mlb-game promoted graph pairs and existing admission proofs"]
   },
   "failurePolicy": {
@@ -18,7 +20,7 @@
     "authoritativeRdfUnaffected": true,
     "queryIndexRdfUnaffected": true,
     "sourceLanesUnaffected": true,
-    "priorServingPointerUnaffected": true,
+    "priorFamilyProductsUnaffected": true,
     "uiAdmissionUnaffected": true
   }
 }

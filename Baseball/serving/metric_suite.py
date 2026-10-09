@@ -3131,17 +3131,21 @@ def read_results(connection, graph, metric_id):
 
 def game_products(rows, graph, *, batting_admission=None, scoring_run_admission=None,
                   runner_resolution_admission=None, pitch_count_admission=None,
-                  runner_boundary_admission=None, defensive_admission=None):
+                  runner_boundary_admission=None, defensive_admission=None, metric_ids=None, player_admission=None):
     """Pure calculation over normalized evidence and already validated inputs."""
-    defense = defensive_game_inputs(rows, graph=graph, admission=defensive_admission or {})
+    selected = set(metric_ids) if metric_ids is not None else {e['id'] for e in catalog()['metrics']}
+    defense = defensive_game_inputs(rows, graph=graph, admission=defensive_admission or {}) if selected & {'resolution-depth','paq-2.1'} else None
     contribution_inputs = contribution_game_inputs(rows, graph=graph, batting_admission=batting_admission or {},
-        runner_resolution_admission=runner_resolution_admission or {}, runner_boundary_admission=runner_boundary_admission or {})
+        runner_resolution_admission=runner_resolution_admission or {}, runner_boundary_admission=runner_boundary_admission or {},
+        player_admission=player_admission) if selected & {'tfs','paq-2.1'} else None
     recovery_inputs = recovery_game_inputs(rows, graph=graph,
-        batting_admission=batting_admission or {}, pitch_count_admission=pitch_count_admission or {})
-    joined_paq21 = paq21_game_inputs(contribution_inputs, recovery_inputs, defense)
+        batting_admission=batting_admission or {}, pitch_count_admission=pitch_count_admission or {},
+        player_admission=player_admission) if selected & {'recovery-quality','paq-2.1'} else None
+    joined_paq21 = paq21_game_inputs(contribution_inputs, recovery_inputs, defense) if 'paq-2.1' in selected else None
     evaluation = _EvidenceEvaluation(rows, 1)
     results = {}
     for entry in catalog()['metrics']:
+        if entry['id'] not in selected: continue
         result = live_result(entry['id'], rows, graph_count=1, _evaluation=evaluation)
         if entry['id'] == 'resolution-depth': result['defensiveInputs'] = defense
         if entry['id'] == 'paq-2.1': result['paq21Inputs'] = joined_paq21
@@ -3154,56 +3158,53 @@ def game_products(rows, graph, *, batting_admission=None, scoring_run_admission=
 
 def materialize_game(connection, graph, bindings, *, batting_admission=None, scoring_run_admission=None,
                      runner_resolution_admission=None, pitch_count_admission=None, runner_boundary_admission=None,
-                     defensive_admission=None, product_cache=None):
-    rows = normalize_bindings(bindings, [graph])
-    connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
-    connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=?', (graph,))
+                     defensive_admission=None, product_cache=None, metric_ids=None, normalized_rows=None,
+                     player_admission=None, replace_evidence=True):
+    rows = normalize_bindings(bindings, [graph]) if normalized_rows is None else normalized_rows
+    if replace_evidence:connection.execute('DELETE FROM metric_suite_evidence WHERE graph_iri=?', (graph,))
+    selected = set(metric_ids) if metric_ids is not None else {e['id'] for e in catalog()['metrics']}
+    for metric in selected:
+        connection.execute('DELETE FROM metric_suite_result WHERE graph_iri=? AND metric_id=?', (graph,metric))
     # Caller is the NiFi materializer, which validates promotion-bound proof
     # provenance. HTTP callers have no path to submit these admission inputs.
-    proof_text = _json(batting_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_admission VALUES (?,?,?)',
-                       (graph, proof_text, _hash(proof_text)))
-    run_proof_text = _json(scoring_run_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_run_admission VALUES (?,?,?)',
-                       (graph, run_proof_text, _hash(run_proof_text)))
-    resolution_proof_text = _json(runner_resolution_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_runner_resolution_admission VALUES (?,?,?)',
-                       (graph, resolution_proof_text, _hash(resolution_proof_text)))
-    count_proof_text = _json(pitch_count_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_count_admission VALUES (?,?,?)',
-                       (graph, count_proof_text, _hash(count_proof_text)))
-    boundary_proof_text = _json(runner_boundary_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_boundary_admission VALUES (?,?,?)',
-                       (graph, boundary_proof_text, _hash(boundary_proof_text)))
-    defensive_proof_text = _json(defensive_admission or {'status':'withheld'})
-    connection.execute('INSERT OR REPLACE INTO metric_suite_defensive_admission VALUES (?,?,?)',
-                       (graph, defensive_proof_text, _hash(defensive_proof_text)))
+    for proof,table in [(batting_admission,'metric_suite_admission'),
+            (scoring_run_admission,'metric_suite_run_admission'),
+            (runner_resolution_admission,'metric_suite_runner_resolution_admission'),
+            (pitch_count_admission,'metric_suite_count_admission'),
+            (runner_boundary_admission,'metric_suite_boundary_admission'),
+            (defensive_admission,'metric_suite_defensive_admission')]:
+        if metric_ids is not None and proof is None:continue
+        text=_json(proof or {'status':'withheld'})
+        connection.execute(f'INSERT OR REPLACE INTO {table} VALUES (?,?,?)',(graph,text,_hash(text)))
     admissions = dict(batting_admission=batting_admission, scoring_run_admission=scoring_run_admission,
         runner_resolution_admission=runner_resolution_admission, pitch_count_admission=pitch_count_admission,
         runner_boundary_admission=runner_boundary_admission, defensive_admission=defensive_admission)
     def compute():
-        return game_products(rows, graph, **admissions)
+        return game_products(rows, graph, **admissions, metric_ids=selected, player_admission=player_admission)
     products = (product_cache.calculate(graph=graph, rows=rows, admissions=admissions, compute=compute)
                 if product_cache is not None else compute())
-    if set(products) != {entry['id'] for entry in catalog()['metrics']}:
+    if set(products) != selected:
         raise EvidenceError('Metric product inventory mismatch')
-    for row in rows:
-        text = _json(row)
-        connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
+    if replace_evidence:
+        for row in rows:
+            text = _json(row)
+            connection.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)', (graph, _hash(text), text))
     for entry in catalog()['metrics']:
+        if entry['id'] not in selected: continue
         result = products[entry['id']]
         store_result(connection, graph, entry['id'], 'game-scope', result)
         # Verify exact serialized result, not rounded display values. Per-game
         # proofs do not admit incomplete season percentiles.
         if read_results(connection, graph, entry['id']) != [result]:
             raise EvidenceError('Metric SQL equivalence failed: ' + entry['id'])
-    _blocks.store_game(_block_api(),connection,graph,rows)
+    if replace_evidence:_blocks.store_game(_block_api(),connection,graph,rows)
     _blocks.read_scope(_block_api(),connection,[graph])
     for metric_id,(family,key,_) in _blocks.INPUTS.items():
+        if metric_id not in selected: continue
         retained=_blocks.read_inputs(_block_api(),connection,family,[graph])[graph]
         if retained != products[metric_id][key]:
             raise EvidenceError('Metric building block equivalence failed: '+family)
-    return {'metrics': len(catalog()['metrics']), 'evidenceRows': len(rows), 'exactRoundTrip': True,
+    return {'metrics': len(selected), 'evidenceRows': len(rows), 'exactRoundTrip': True,
             'buildingBlocksRoundTrip':True}
 
 

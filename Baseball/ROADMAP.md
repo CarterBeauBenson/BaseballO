@@ -20,6 +20,15 @@ validation, promotion, retry, quarantine and provenance. Cross-source work begin
 at the triple store. The dashboard's SQL owner is independent of source ingestion,
 the legacy report builder and authority SQL.
 
+On October 9 the user approved [independent offense and defense publication](archive/design-records/dashboard-offense-defense-isolation/README.md).
+The same Dashboard SQL owner now schedules offense, defense, combined metrics
+and other metrics separately, sharing the existing working store and memory
+lease. Each family publishes an immutable prepared snapshot; the dashboard
+combines those snapshots with their own freshness. A defensive exception does
+not roll back, delay, or relabel offensive results. Actual runner outcomes remain
+offensive dependencies, and this isolation does not resolve pending EG2–EG5
+decisions or count previously incomplete players as complete.
+
 Metric, performance and UI work starts from existing promoted RDF. A missing
 input is a precisely recorded gap. An approved source addition preserves unrelated
 RDF; a full RDF rebuild requires explicit authorization. The September 17 batch's

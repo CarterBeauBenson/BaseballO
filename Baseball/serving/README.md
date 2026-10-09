@@ -19,11 +19,25 @@ qualified-player results for the other.
 
 The NiFi **Dashboard SQL** group runs `materialize-dashboard.py` independently
 of the full DSQ/Explorer builder. It reads the existing promoted graphs using
-the metric evidence query and existing admission adapters. It commits each game
-to a resumable working database, reuses unchanged SQL partitions, and refreshes
-reference ranks only for affected seasons. Two bounded read workers feed one
-SQL writer. A failed game rolls back its own replacement; completed games survive
-process termination. This job performs no API acquisition, RML, or RDF writes.
+the metric evidence query and existing admission adapters. Under the
+[October 9 decision](../archive/design-records/dashboard-offense-defense-isolation/README.md),
+its default `--family auto` handles one independently publishable family per tick:
+offense, defense, combined (PAQ-2.1), or other (reviews and role breadth). All
+share the existing working database, query cache and resource lease. Each family
+has its own game checkpoints, selected metric calculations, player preparation,
+reference products and immutable publication. An offensive build never invokes
+defensive calculators or loads defensive admission. Actual runner outcomes
+remain offensive dependencies. This job performs no API acquisition, RML, or RDF
+writes.
+
+One writer handles the selected family sequentially. Unchanged RDF answers are
+shared, including exact compatible SQL evidence from the prior combined builder;
+the first family migration prepares derived results without rebuilding RDF.
+Completed game transactions survive interruption. Round-robin selection prevents
+one busy or failing family from starving the others. Each changed notification
+allows three attempts per family; source-lock contention and pending roster
+checks do not consume calculation retries. `--family defense` (or another named
+family) permits an explicit bounded retry through the same NiFi-owned component.
 
 On the local laptop, NiFi's launch budget serializes new dashboard, report and
 targeted-repair workers through the existing resource lease. Dashboard requests
@@ -45,35 +59,35 @@ bound to its original RDF and proof hashes. Subsequent promotions cannot
 invalidate unrelated completed products: the next NiFi tick catches them up.
 The publication records its captured source time and policy.
 
-If a newly added graph is awaiting its independent roster check, the dashboard
-builder rereads that game's checks after fetching changed game products. It
-updates the affected prepared SQL products against the same captured promotion.
-A default-season candidate with unverified rosters cannot replace a publication
-whose rosters are complete: the existing reader would suppress every card.
-NiFi retains the candidate's incremental work and retries after the checks finish.
-The roster check uses the prior publication's paired reader, allowing a usable
-older calculation release to remain live during an incremental upgrade. For
-unchanged SHACL reports and shapes, admission reads reuse the inventory's
-existing file-identity hash cache; changed or missing artifacts still invalidate
-their proofs. JSON proof contents continue to be read and verified normally.
+If a newly added game is awaiting its independent roster check, a family retains
+its prior usable publication and candidate checkpoints until that check finishes.
+Other families continue independently. The prior publication's paired reader
+keeps an older calculation release usable during an incremental upgrade. Existing
+admission artifact hash caching remains in use; missing or changed proof artifacts
+still invalidate their own proofs.
 
 After preparing that captured inventory and checking SQL integrity, NiFi
-publishes an immutable database under `serving/dashboard/builds/` and atomically
-replaces `serving/dashboard-current.json`. Dashboard requests use that pointer
-and its paired code release; reports continue using `serving/current.json`.
-The prior dashboard remains available while its replacement is built. A game
-that changes before its own read retains completed work for the next tick; a
-later change does not prevent publishing the captured result. The working database is never
+publishes that family's prepared tables under `serving/dashboard/builds/` and
+atomically updates its entry in `serving/dashboard-current.json`'s `families`
+object. The top-level descriptor follows offense when available. Every family
+entry pins its own data and reader release. The UI combines prepared results,
+shows each family's capture/publication time, and labels retained results when an
+update fails. A broken family read produces only that family's unavailable cards.
+An older family with a different selected game inventory remains unavailable for
+that selection; it cannot silently shorten the requested range. Shared-snapshot
+publications remain readable during the migration. The working database is never
 served. `--max-games` uses an isolated development workspace and cannot publish.
 
 Provision with `serving/dashboard-nifi/provision.ps1 -Start`. Its one-minute
 tick checks for changed promotion/schedule evidence and exits immediately when
-unchanged. Per-game locks and recapture allow progress during ongoing repairs;
+unchanged. Per-game locks and resumable checkpoints allow progress during repairs;
 the default does not require a global quiet period. The timer connection permits
 one waiting tick. Internal result/retry connections permit ten items so a queued
 result cannot deadlock the retry cycle through one-item backpressure on every
-edge. Failures retain the existing bounded retry policy. Runtime progress is in
-`serving/dashboard/progress.json`. Full report builds and source lanes are not
+edge. Family failures are recorded without failing/requeuing the whole dashboard;
+the next timer tick schedules another family before its bounded retry. Runtime
+progress is in `serving/dashboard/progress.json`, `progress-<family>.json`, and
+`family-attempts.json`. Full report builds and source lanes are not
 stopped or reconfigured by this provisioner.
 
 The required design executes SPARQL and accepted metric calculations in NiFi
@@ -117,10 +131,12 @@ source as a dependency, replaces a corrected graph's complete SQL partition,
 validates every retained RDF binding hash, and atomically promotes
 `authority/current.json`. It never changes the game serving pointer.
 
-Before the final pointer swap, the materializer retains at most three database
+For the legacy report product, the materializer retains at most three database
 files: the candidate, the prior current build, and the newest remaining
 rollback build. Compact evidence is retained. Use `--retain-builds` to raise
 the limit, never below two.
+Dashboard retention separately preserves every active family snapshot and two
+rollback snapshots. A defensive update cannot delete the active offensive file.
 
 `game_dimension.game_set` uses retained compact acquisition/schedule evidence
 and the accepted RDF season-phase classification. The builders can use the RDF

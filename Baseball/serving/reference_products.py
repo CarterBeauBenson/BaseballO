@@ -149,16 +149,20 @@ def prepare_individual_inputs(m, connection, player_admissions, seasons):
                     connection.execute('DELETE FROM dashboard_player_partition WHERE graph_iri=?',(graph,))
 
 
-def prepare(m, connection, seasons=None, checkpoint=None, player_admissions=None):
+def prepare(m, connection, seasons=None, checkpoint=None, player_admissions=None, metric_ids=None):
     initialize(connection)
     player_admissions=player_admissions or {}
     dates=connection.execute("SELECT DISTINCT season,official_date FROM game_dimension "
         "WHERE game_set='regular_season' ORDER BY season,official_date").fetchall()
     affected=set(seasons) if seasons is not None else {r[0] for r in dates}
-    prepare_individual_inputs(m,connection,player_admissions,affected)
+    selected={'paq-2','paq-a','recovery-quality','paq-2.1'} if metric_ids is None else set(metric_ids) & {'paq-2','paq-a','recovery-quality','paq-2.1'}
+    # Family builds already calculate inputs with the individual admission.
+    # The legacy combined builder still upgrades those inputs here.
+    if metric_ids is None:prepare_individual_inputs(m,connection,player_admissions,affected)
     for year in affected:
-        connection.execute('DELETE FROM dashboard_reference WHERE season=?',(year,))
-        connection.execute('DELETE FROM dashboard_reference_players WHERE season=?',(year,))
+        for metric in selected:
+            connection.execute('DELETE FROM dashboard_reference WHERE season=? AND metric_id=?',(year,metric))
+            connection.execute('DELETE FROM dashboard_reference_players WHERE season=? AND metric_id=?',(year,metric))
     output=[]
     with prepared_ranks(m,connection):
         for year,cutoff in dates:
@@ -181,6 +185,7 @@ def prepare(m, connection, seasons=None, checkpoint=None, player_admissions=None
             qualification=m.batting_qualification(rows(),graphs=graphs,admissions=admissions,date_scope=scope,
                 selected_games_complete=schedule['complete'],player_admissions=player_admissions)
             for metric_id in ('paq-2','paq-a','recovery-quality','paq-2.1'):
+                if metric_id not in selected:continue
                 args=dict(graphs=graphs,qualification=qualification,date_scope=scope,_write_reference=True,
                     player_admissions=player_admissions)
                 result=(m.paq21_players(connection,**args) if metric_id=='paq-2.1' else

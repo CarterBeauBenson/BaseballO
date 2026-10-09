@@ -12,6 +12,18 @@ NiFi owns acquisition, source validation, promotion, serving builds and retry.
 The graph remains authoritative; SQL, query caches and calculated-product
 caches are disposable derived data.
 
+Dashboard publication is independently scoped to offense, defense, combined
+metrics and other metrics. `metric_families.py` declares those operational
+dependencies; `family_build.py` runs one family per existing NiFi timer tick
+under the shared resource lease. `dashboard_family_checkpoint` retains each
+family's game identity; `dashboard_evidence_checkpoint` shares unchanged graph
+answers without repeating RDF extraction. Prepared player products and season
+references are selected by metric ownership. The pointer's `families` entries
+retain separate immutable snapshots and reader versions, which the request
+adapter combines without graph queries or scoring. See the [serving runbook](README.md)
+for retry, freshness and retention behavior. These boundaries change no metric
+meaning or source admission.
+
 Metric implementation starts at the existing graph, not at API acquisition.
 Change the affected queries, calculations, SQL products, or presentation and
 let NiFi run their applicable stages. If an input is unsupported, document

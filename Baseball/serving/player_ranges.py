@@ -241,7 +241,7 @@ def resolution_census_players(rows, roster, resolution, individual):
     return {player for player,teams in roster.items() if not teams & incomplete}
 
 
-def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
+def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_ids=None):
     """Project complete player records from already calculated game inputs."""
     game=next((r['game'] for r in rows),None)
     roster=defaultdict(set)
@@ -256,7 +256,8 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     people={p['player']:p for p in q['participation']}
     expected=defaultdict(set)
     for p in q['expectedObservations']:expected[p['player']].add(p['plateAppearance'])
-    contrib=inputs['contribution'];progress=inputs['progress'];defense=inputs['defense']
+    selected=PREPARED if metric_ids is None else PREPARED & set(metric_ids)
+    contrib=inputs['contribution'];progress=inputs['progress'];defense=inputs.get('defense',{})
     by_pa={p['plateAppearance']:p for p in contrib.get('plateAppearances',[])}
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
@@ -323,7 +324,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
             else:unknown.update(run_people.get(r['run']) or roster)
         run_values[metric]=values;run_unknown[metric]=unknown
     defensive={}
-    for metric in DEFENSE:
+    for metric in DEFENSE & selected:
         result=m.defensive_players(metric,[defense],rows,graphs=[graph],date_scope=scope,
             schedule={'complete':True},roster_admissions={graph:[proofs['batting'],proofs['run']]})
         defensive[metric]=(result.get('playerPopulationComplete') is True,
@@ -348,7 +349,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
         empty_known=(empty_eligible is not None and (player in certain_positive or
                      (player in resolution_players and progress_census
                       and (player in positive or empty_population and player not in uncertain))))
-        for metric in sorted(PREPARED):
+        for metric in sorted(selected):
             complete=False;aggregate=zero();reason='OFFICIAL_PA_POPULATION'
             if metric in RUNS:
                 complete=player not in run_unknown[metric]
@@ -400,7 +401,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people):
     return participation,records
 
 
-def prepare(m, db, checkpoint=None, player_admissions=None):
+def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
     initialize(db);version=fingerprint();changed=0;zero_pa_repairs=0
     # The player dashboard serves only these game sets. Exhibition/WBC roster
     # patterns must not participate in, or block, MLB dashboard preparation.
@@ -511,7 +512,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
             row=db.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
             proofs[kind]=m._blocks.decode(m._block_api(),*row) if row else {}
         proofs['players']=individual
-        inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in ('contribution','progress','defense')}
+        input_families=('contribution','progress','defense') if metric_ids is None or DEFENSE & set(metric_ids) else ('contribution','progress')
+        inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in input_families}
         resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]) if p['status']=='admitted'}
         help_progress=dict(unresolvedPlateAppearances=[p for p in inputs['progress'].get('unresolvedPlateAppearances',[])
             if admitted(proofs['resolution']) or p['plateAppearance'] in resolved])
@@ -548,18 +550,68 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
                 if r.get('resolution') in unresolved and r.get('runner'):
                     run_people[r['resolution']].add(r['runner'])
         people,records=project(m,graph=graph,scope=dict(gameSet=game_set,startDate=day,endDate=day),
-            rows=rows,proofs=proofs,inputs=inputs,runs=runs,run_people=run_people)
+            rows=rows,proofs=proofs,inputs=inputs,runs=runs,run_people=run_people,metric_ids=metric_ids)
         with db:
             db.execute('DELETE FROM dashboard_player_admission WHERE graph_iri=?',(graph,))
             if individual:db.execute('INSERT INTO dashboard_player_admission VALUES (?,?,?)',(graph,individual_text,proof_sha))
-            for table in ('dashboard_player_game','dashboard_player_metric'):
-                db.execute(f'DELETE FROM {table} WHERE graph_iri=?',(graph,))
+            db.execute('DELETE FROM dashboard_player_game WHERE graph_iri=?',(graph,))
+            if metric_ids is None:db.execute('DELETE FROM dashboard_player_metric WHERE graph_iri=?',(graph,))
+            else:
+                db.executemany('DELETE FROM dashboard_player_metric WHERE graph_iri=? AND metric_id=?',
+                    [(graph,metric) for metric in metric_ids])
             db.executemany('INSERT INTO dashboard_player_game VALUES (?,?,?,?,?)',people)
             db.executemany('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',records)
             db.execute('INSERT OR REPLACE INTO dashboard_player_partition VALUES (?,?)',(graph,identity))
         changed+=1
         if checkpoint and changed%100==0:checkpoint(preparedPlayerGames=changed)
     return dict(preparedGames=changed,reusedGames=len(inventory)-changed,repairedZeroPARows=zero_pa_repairs,version=version)
+
+
+def prepare_family(m, db, family, metric_ids, player_admissions, checkpoint=None):
+    """Nonoffensive projections never execute offensive scoring or histories."""
+    if family=='offense':
+        return prepare(m,db,checkpoint=checkpoint,player_admissions=player_admissions,metric_ids=metric_ids)
+    changed=0;version=fingerprint()
+    inventory=db.execute('SELECT g.graph_iri,g.official_date,g.game_set,c.input_sha256 '
+        'FROM game_dimension g JOIN dashboard_family_checkpoint c USING(graph_iri) '
+        "WHERE c.family=? AND g.game_set IN ('regular_season','all_star') ORDER BY g.graph_iri",(family,)).fetchall()
+    saved=dict(db.execute('SELECT graph_iri,input_sha256 FROM dashboard_family_player_partition WHERE family=?',(family,)))
+    for graph,day,game_set,key in inventory:
+        identity=m._hash(key+version)
+        if saved.get(graph)==identity:continue
+        rows=m._blocks.read_scope(m._block_api(),db,[graph]);proofs={}
+        for kind,table in [('batting','metric_suite_admission'),('run','metric_suite_run_admission')]:
+            row=db.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
+            proofs[kind]=m._blocks.decode(m._block_api(),*row) if row else {}
+        roster=defaultdict(set)
+        for row in rows:
+            if row['kind']=='player_team_game' and all(row.get(k) for k in ('player','team','teamRole')):
+                roster[row['player']].add(row['team'])
+        if any(len(teams)!=1 for teams in roster.values()):raise m.EvidenceError('Player has conflicting game-team exposure')
+        roster_ok=bool(roster) and (admitted(proofs['batting']) or admitted(proofs['run']) or
+            (player_admissions.get(graph) or {}).get('rosterComplete') is True)
+        records=[]
+        if family=='defense':
+            defense=m._blocks.read_inputs(m._block_api(),db,'defense',[graph])[graph]
+            for metric in sorted(DEFENSE & set(metric_ids)):
+                result=m.defensive_players(metric,[defense],rows,graphs=[graph],
+                    date_scope=dict(gameSet=game_set,startDate=day,endDate=day),schedule={'complete':True},
+                    roster_admissions={graph:[proofs['batting'],proofs['run']]})
+                complete=roster_ok and result.get('playerPopulationComplete') is True
+                values={p['player']:p['aggregate'] for p in result.get('playerResults',[])}
+                records.extend((graph,p,metric,int(complete),m._json(values.get(p,zero())),
+                    None if complete else 'DEFENSIVE_POPULATION') for p in sorted(roster))
+        with db:
+            db.execute('DELETE FROM dashboard_family_player_game WHERE family=? AND graph_iri=?',(family,graph))
+            db.executemany('INSERT INTO dashboard_family_player_game VALUES (?,?,?,?,?,?)',
+                [(family,graph,p,next(iter(teams)),None,int(roster_ok)) for p,teams in sorted(roster.items())])
+            db.executemany('DELETE FROM dashboard_player_metric WHERE graph_iri=? AND metric_id=?',
+                [(graph,metric) for metric in metric_ids])
+            db.executemany('INSERT INTO dashboard_player_metric VALUES (?,?,?,?,?,?)',records)
+            db.execute('INSERT OR REPLACE INTO dashboard_family_player_partition VALUES (?,?,?)',(family,graph,identity))
+        changed+=1
+        if checkpoint and changed%100==0:checkpoint(preparedPlayerGames=changed)
+    return dict(preparedGames=changed,reusedGames=len(inventory)-changed,version=version)
 
 
 def query(m, db, request, scope):

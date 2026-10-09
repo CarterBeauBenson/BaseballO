@@ -950,6 +950,7 @@ def dashboard_database(state_root, pointer):
 
 
 def query_dashboard(args, request, pointer):
+    if 'families' in pointer:return query_dashboard_families(args,request,pointer)
     started = time.perf_counter()
     with dashboard_database(args.state_root, pointer) as (connection, build):
         scope = resolve_scope(connection,request)
@@ -958,6 +959,81 @@ def query_dashboard(args, request, pointer):
         result['serving'] = dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',
                                  durationMs=round((time.perf_counter()-started)*1000,3))
         return result
+
+
+def query_dashboard_families(args, request, pointer):
+    """Combine immutable family products, each with its own paired reader.
+
+    No build, SPARQL, source recovery, or scoring occurs here. A broken sibling
+    yields only its own unavailable cards; valid offensive cards still return.
+    """
+    started=time.perf_counter()
+    spec=importlib.util.spec_from_file_location('dashboard_family_contract',ROOT/'serving/metric_families.py')
+    families=importlib.util.module_from_spec(spec);spec.loader.exec_module(families)
+    ids=_metric_suite.requested_metric_ids(request)
+    def paired_reader(publication):
+        root=_serving_release.resolve_pointer_release(args.state_root,publication)
+        if root and root.resolve()!=ROOT.resolve():
+            spec=importlib.util.spec_from_file_location('family_reader_'+publication['buildId'],root/'scripts/pipeline/query-serving-layer.py')
+            reader=importlib.util.module_from_spec(spec);spec.loader.exec_module(reader)
+            return reader
+        from types import SimpleNamespace
+        return SimpleNamespace(**globals())
+    # A damaged primary file does not make the other independent publications
+    # unreadable. Resolve the selection against the first readable snapshot.
+    for primary in [pointer,*pointer['families'].values()]:
+        try:
+            reader=paired_reader(primary)
+            with reader.dashboard_database(args.state_root,primary) as (db,build):
+                scope=reader.resolve_scope(db,request)
+                params=(scope['gameSet'],scope['startDate'],scope['endDate'])
+                expected={r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ?',params)}
+            break
+        except (OSError,ValueError,sqlite3.Error):continue
+    else:raise ValueError('No readable dashboard family publication')
+    output={};labels={};states={};schedule=None;participation=None
+    for family,metrics in families.FAMILIES.items():
+        selected=[metric for metric in ids if metric in metrics]
+        if not selected:continue
+        publication=pointer['families'].get(family)
+        freshness=dict(family=family,status='pending')
+        try:
+            if not publication:raise ValueError('Family has not published yet')
+            freshness.update(status='published',buildId=publication['buildId'],
+                publishedAtUtc=publication.get('promotedAtUtc'),sourceCapturedAtUtc=publication.get('sourceSnapshotCapturedAtUtc'))
+            if pointer.get('familyBuildStatus',{}).get(family,{}).get('status')=='failed':
+                freshness.update(status='retained',updateStatus='retry-pending')
+            reader=paired_reader(publication)
+            with reader.dashboard_database(args.state_root,publication) as (db,_):
+                actual={r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ?',params)}
+                if actual!=expected:raise ValueError('Family snapshot is awaiting the selected game inventory')
+                if publication.get('family'):
+                    result=reader._range_query.query(reader._metric_suite,reader._player_ranges,db,dict(view='dashboard'),scope,
+                        metric_ids=selected,family=family)
+                else:
+                    # Prior combined snapshots keep their original reader and
+                    # original timestamp until this family first publishes.
+                    result=reader._range_query.query(reader._metric_suite,reader._player_ranges,db,dict(view='dashboard'),scope)
+                    result['metrics']=[r for r in result['metrics'] if r['metricId'] in selected]
+                    freshness['status']='retained'
+                display=reader._display.read(db,scope,result)
+                for label in display.get('labels',[]):labels[(label['entity'],label.get('graph'))]=label
+                if family=='offense' or schedule is None:
+                    schedule=result.get('schedule');participation=result.get('participationCoverage')
+                for metric in result['metrics']:output[metric['metricId']]=dict(metric,freshness=dict(freshness))
+        except (OSError,ValueError,sqlite3.Error,KeyError) as error:
+            freshness.update(status='unavailable',reason=str(error))
+            for metric in selected:
+                output[metric]=dict(_metric_suite.unavailable('FAMILY_PUBLICATION_PENDING'),metricId=metric,grain='player',
+                    coverage=dict(games=len(expected),populationComplete=False),playerPopulationComplete=False,
+                    playerRecordsComplete=False,playerResults=[],playerSummaryGaps=['FAMILY_PUBLICATION_PENDING'],freshness=dict(freshness))
+        states[family]=freshness
+    return dict(execution='materialized-sql',implementationSha256=_metric_suite.fingerprint(),dateScope=scope,
+        graphCount=len(expected),schedule=schedule,participationCoverage=participation,
+        display=dict(source='prepared-sql-player-labels',labels=list(labels.values())),
+        serving=dict(buildId=build[0],corpusFingerprint=build[1],publication='dashboard',families=states,
+                     durationMs=round((time.perf_counter()-started)*1000,3)),
+        **({'metrics':[output[i] for i in ids]} if request.get('view')=='dashboard' else {'metric':output[ids[0]]}))
 
 
 def query(args: argparse.Namespace, request: dict[str, Any]) -> dict[str, Any]:

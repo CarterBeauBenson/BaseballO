@@ -26,6 +26,15 @@ export function resultHeadline(result, unit) {
   return count ? `${count} supported award consequence${count === 1 ? '' : 's'}` : 'Unavailable';
 }
 
+export function freshnessLabel(freshness) {
+  if (!freshness) return '';
+  if (freshness.status === 'unavailable' || freshness.status === 'pending') return 'Waiting for this group of metrics';
+  const instant = freshness.sourceCapturedAtUtc ?? freshness.publishedAtUtc;
+  const date = instant ? new Date(instant) : null;
+  const when = date && Number.isFinite(date.getTime()) ? date.toLocaleString() : 'earlier publication';
+  return `${freshness.status === 'retained' ? 'Retained results' : 'Data checked'}: ${when}`;
+}
+
 export function resultPresentation(payload, metric) {
   const result = payload.metric, coverage = result.coverage ?? {};
   if ((coverage.games ?? payload.graphCount) === 0) return { state: 'empty', badge: 'No games selected',
@@ -530,6 +539,8 @@ function renderList() {
       node('small', presentation?.badge ?? 'Load selected-game evidence'),
       node('small', `${scope} · ${metric.presentation.unitLabel}`));
     button.append(rankingPreview(dashboardResult, metric));
+    const freshness = freshnessLabel(result?.freshness);
+    if (freshness) button.append(node('small', freshness));
     const more = node('small', 'View all results and evidence →'); more.className = 'card-more'; button.append(more);
     button.addEventListener('click', () => {
       choose(metric); byId('metric-detail').focus({ preventScroll: true }); byId('metric-detail').scrollIntoView({ block: 'start' });
@@ -551,7 +562,7 @@ async function loadDashboard(event) {
   invalidateSelection();
   const controller = new AbortController(); dashboardRequest = controller;
   byId('load-dashboard').disabled = true;
-  byId('dashboard-status').textContent = `Reading one shared evidence selection for all ${catalog.metrics.length} metrics…`;
+  byId('dashboard-status').textContent = `Reading prepared results for all ${catalog.metrics.length} metrics…`;
   try {
     const response = await fetch('/api/metrics/dashboard', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(selectedScope()), signal: controller.signal });
@@ -613,6 +624,7 @@ function showResult(payload) {
   renderRunnerBoundaries(result.runnerBoundaryStates, payload.display?.labels);
   renderRanking(payload, selected);
   facts(byId('coverage'), [['Games', coverage.games ?? payload.graphCount ?? 0],
+    ...(result.freshness ? [['Publication', freshnessLabel(result.freshness)]] : []),
     ...(coverage.supportedAwardConsequences !== undefined ? [
       ['Supported award consequences', coverage.supportedAwardConsequences],
       ['Observed PAs without a scored award result', coverage.observedPAsWithoutSupportedAwardConsequence],
@@ -621,6 +633,7 @@ function showResult(payload) {
     ...(coverage.resolvedReviews !== undefined ? [['Resolved reviews', coverage.resolvedReviews], ['Unresolved reviews', coverage.unresolvedReviews]] : []),
     ...(coverage.supportedRuns !== undefined ? [['Complete scoring histories', coverage.supportedRuns], ['Observed runs without a result', coverage.observedRunsWithoutResult]] : [])]);
   byId('result-evidence').textContent = JSON.stringify({ coverage, components: result.components ?? {}, evidence: result.evidence ?? [],
+    freshness: result.freshness,
     runnerBoundaryStates: result.runnerBoundaryStates,
     implementation: payload.implementationSha256, corpus: payload.corpusFingerprint ?? payload.serving?.corpusFingerprint,
     dateScope: payload.dateScope, execution: payload.execution, display: payload.display }, null, 2);
