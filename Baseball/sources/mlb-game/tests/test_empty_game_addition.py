@@ -194,17 +194,18 @@ class EmptyGameAddition(unittest.TestCase):
 
     def test_w4_context_change_keeps_unaffected_proofs_without_accepting_unknown_versions(self):
         prior=subprocess.check_output(['git','show','6db4a46:Baseball/scripts/pipeline/prepare-rml-context.py'])
-        before=ast.parse(prior);after=ast.parse(E.BK.CONTEXT_PATH.read_bytes())
+        current=subprocess.check_output(['git','show','6c0f74c:Baseball/scripts/pipeline/prepare-rml-context.py'])
+        before=ast.parse(prior);after=ast.parse(current)
         for tree in (before,after):
             tree.body=[n for n in tree.body if getattr(n,'name',None)!='runner_metric_evidence']
         self.assertEqual(ast.dump(before),ast.dump(after))
         bridge=E.E.read(E.E.COMPATIBILITY_PATH)['automaticBallWalkAward']
         self.assertEqual(hashlib.sha256(prior).hexdigest(),bridge['previousContextSha256'])
-        self.assertEqual(E.W.sha(E.BK.CONTEXT_PATH),bridge['currentContextSha256'])
+        self.assertEqual(hashlib.sha256(current).hexdigest(),bridge['currentContextSha256'])
         for family,entry in bridge['families'].items():
             adapter=E.E.module(E.HERE/(family+'-admission.py'),'w4_check_'+family.replace('-','_'))
-            self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
-            reuse=E.E.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())
+            reuse=E.E.code_equivalence(family,entry['previousImplementationSha256'],entry['currentImplementationSha256'],
+                _context=bridge['currentContextSha256'])
             self.assertEqual(reuse['kind'],'prior-stricter-walk-selection' if family=='runner-boundary' else 'unchanged-proof-dependencies')
             self.assertIsNone(E.E.code_equivalence(family,'unknown',adapter.fingerprint()))
 

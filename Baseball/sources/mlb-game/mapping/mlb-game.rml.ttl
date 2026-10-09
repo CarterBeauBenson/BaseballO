@@ -3954,3 +3954,11 @@
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
   rml:iterator "$._baseballO.gameEndClocks[*]" .
+
+# D2: actual independent running; no statistical stolen-base assertion.
+<#DefensiveIndifferenceSource> a rml:LogicalSource ; rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ; rml:iterator "$.liveData.plays.allPlays[*]._baseballO.defensiveIndifferenceActs[*]" .
+
+<#DefensiveIndifferenceAttemptOverlayMap> a rr:TriplesMap ;
+  rml:logicalSource <#DefensiveIndifferenceSource> ;
+  rr:subjectMap [ rr:template "https://baseballontology.org/data/game/{$.gamePk}/runner-act/movement/{atBatIndex}/{runnerIndex}" ; rr:termType rr:IRI ; rr:class base:StealAttemptAct ] .

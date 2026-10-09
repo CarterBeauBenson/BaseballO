@@ -1,0 +1,6 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix base: <https://baseballontology.org/> .
+
+# D2 adds only this class membership. The existing runner profiles retain
+# responsibility for the act, bearer, role, episode and operative outcome.
+[] a sh:NodeShape ; sh:targetNode <__ACT__> ; sh:class base:StealAttemptAct .

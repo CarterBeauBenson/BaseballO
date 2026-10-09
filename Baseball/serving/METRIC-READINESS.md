@@ -54,8 +54,21 @@ focused checks cover that correction and incremental reuse of unrelated products
 The remaining source/meaning boundaries are explicit:
 
 - [D2](../archive/design-records/mlb-game-defensive-indifference-running/README.md) and
-  [W5](../archive/design-records/mlb-game-walk-after-reconciled-review/README.md) are prepared
-  and awaiting named approval; neither selector has been activated.
+  [W5](../archive/design-records/mlb-game-walk-after-reconciled-review/README.md) were
+  approved together on October 8 and recorded in commit `6c0f74c` before implementation.
+  Both generic selectors are implemented. EG1 reopens only matching, still-excluded
+  approved player-games. Hash-checked retained execution contexts may diagnose
+  a retry after raw retirement; actual mapping still uses a checked original
+  response. D2 adds only an existing Steal Attempt type, and W5 preserves the
+  existing walk-award pattern. No ontology terms, object properties or rebuild.
+  At October 9 00:47 UTC, NiFi completed W5's ten-triple addition to 822714 with
+  zero removals. This is promotion evidence, not a new dashboard population claim.
+  D2's first attempts exposed the older runner census's explicit negative
+  Steal Attempt expectation. The owning census now uses the exact approved D2
+  selector; additive revalidation updates only those selected act expectations
+  while preserving the previous census and source provenance. The existing
+  worker retries failed cases on its new implementation fingerprint. Thirteen
+  focused selector, mapper, SHACL, retry and compatibility checks pass.
 - Three selected PAs (823247/21, 823426/91 and 824664/4) use `forced_balk`.
   BK1 explicitly excludes that code pending separate source selection review.
 - Wild-pitch/passed-ball advances from HOME to first on uncaught third strikes
@@ -116,9 +129,8 @@ These are pending checks, not newly published player totals.
 
 Game 822714 also exposed walk awards omitted after earlier reviews that the
 existing runner reconciler already accepts. [W5](../archive/design-records/mlb-game-walk-after-reconciled-review/README.md)
-prepares the generic selector correction and bounded retry for matching EG1
-cases. Five candidate checks pass; named approval is pending and active source
-selection remains unchanged. This is separate from F9 and the SQL projection.
+was approved with D2; its generic selector and bounded matching EG1 retry are now
+implemented as described above. This is separate from F9 and the SQL projection.
 
 The live full-season API returned the existing October 6 publication in 6.28
 seconds during the build (2.04 seconds inside the SQL reader). A request profile

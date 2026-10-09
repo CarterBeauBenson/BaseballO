@@ -1451,6 +1451,36 @@ def intentional_walk_award_terminal(play: dict) -> int | None:
     return events[-1]['index']
 
 
+def defensive_indifference_evidence(play):
+    """D2: reconciled independent advancement, without a stolen-base award."""
+    if play.get('about',{}).get('isComplete') is not True:return []
+    if accounted_runner_history_reviews(play)['issues']:return []
+    index=play.get('atBatIndex');events=play.get('playEvents',[])
+    if type(index) is not int:return []
+    known={r['runnerIndex'] for r in runner_episode_evidence(play,str(index))['runnerEpisodes']}
+    selected=[];positions={'1B':1,'2B':2,'3B':3,'score':4}
+    for i,row in enumerate(play.get('runners',[])):
+        d=row.get('details',{});m=row.get('movement',{});runner=d.get('runner',{}).get('id')
+        if (d.get('eventType')!='defensive_indiff' or d.get('movementReason')!='r_defensive_indiff'
+                or str(i) not in known or type(runner) is not int or type(d.get('playIndex')) is not int
+                or m.get('isOut') is not False or m.get('start') not in {'1B','2B','3B'}
+                or positions.get(m.get('end'),0)<=positions[m['start']]
+                or d.get('rbi') is not False or type(d.get('isScoringEvent')) is not bool
+                or d['isScoringEvent']!=(m.get('end')=='score')):continue
+        matches=[e for e in events if e.get('index')==d['playIndex']]
+        if len(matches)!=1:continue
+        event=matches[0];detail=event.get('details',{})
+        if (event.get('type')!='action' or event.get('isPitch') is not False
+                or event.get('isBaseRunningPlay') is not True or event.get('isSubstitution') is True
+                or event.get('player',{}).get('id')!=runner or detail.get('eventType')!='defensive_indiff'
+                or detail.get('isInPlay') is True or detail.get('isOut') is True):continue
+        duplicates=[r for r in play['runners'] if r.get('details',{}).get('playIndex')==d['playIndex']
+                    and r.get('details',{}).get('runner',{}).get('id')==runner]
+        if len(duplicates)!=1:continue
+        selected.append(dict(atBatIndex=str(index),runnerIndex=str(i),runnerId=str(runner)))
+    return selected
+
+
 def balk_runner_evidence(play: dict, at_bat_index: str) -> list[dict]:
     """BK1: one operative nonpitch balk, joined to its explicit awarded moves.
 
@@ -1522,9 +1552,10 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
                   or any(e.get('reviewDetails') or e.get('details', {}).get('hasReview') is True for e in events))
     if has_review:
         reviews = accounted_runner_count_reviews(play)
-        if reviews['issues'] and result == 'hit_by_pitch':
+        if reviews['issues']:
             final_review = accounted_runner_history_reviews(play)
-            if final_review.get('accountedFieldReview') and not final_review['issues']:
+            if not final_review['issues'] and (final_review.get('accountedFieldReview')
+                    or result in {'walk','intent_walk'} and final_review.get('events')):
                 reviews = final_review
         if reviews['issues']:
             return products
@@ -3008,6 +3039,7 @@ def main() -> None:
             **runner_episode_evidence(play, at_bat_index),
             **runner_metric_evidence(play, at_bat_index, season, document=document),
             "balkAdvances": balk_runner_evidence(play, at_bat_index),
+            "defensiveIndifferenceActs": defensive_indifference_evidence(play),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasPlateAppearanceClocks": has_plate_appearance_structure and not clock_pair_conflicted(about),
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,

@@ -17,12 +17,15 @@ spec=importlib.util.spec_from_file_location('eg1_runner',HERE/'targeted-runner-a
 R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 W=R.W;ROOT=R.ROOT;C=R.CONTEXT
 BK=W.module(HERE/'balk-runner-attribution.py','eg1_balk')
+D2=W.module(HERE/'defensive-indifference-running.py','eg1_indifference')
 E=W.module(HERE/'admission-evidence.py','eg1_evidence')
 K=W.module(HERE/'targeted-compound-addition.py','eg1_compound')
 CONTACT=W.module(HERE/'contact-continuation-admission.py','eg1_contact')
 DECISION='archive/design-records/mlb-game-empty-game-completion/review.json'
 BALK_DECISION='archive/design-records/mlb-game-balk-runner-attribution/review.json'
 WALK_DECISION='archive/design-records/mlb-game-automatic-ball-walk-award/review.json'
+INDEPENDENT_DECISION='archive/design-records/mlb-game-defensive-indifference-running/review.json'
+REVIEW_WALK_DECISION='archive/design-records/mlb-game-walk-after-reconciled-review/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
 SUCCESS=R.SUCCESS|{'resolved-by-reader','no-supported-addition'}
 PA_MAPS=('PlateAppearanceMap','PlateAppearanceIntervalMap','BatterActMap',
@@ -34,13 +37,13 @@ RESULT_MAPS=tuple('ResultType_'+kind for kind in ('home_run','field_out','double
     'sac_bunt','field_error','hit_by_pitch','balk','interference'))
 RUNNER_MAPS=tuple('Runner'+kind+part+'Map' for kind in ('Out','ScoreOrigin','ScoreBase','Reach','Advance')
     for part in ('Act','Resolution','Record','Judgment','Decision','AdjudicationLinks','RecordAdjudication'))
-MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+PA_MAPS+RESULT_MAPS+RUNNER_MAPS+
+MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+D2.MAPS+PA_MAPS+RESULT_MAPS+RUNNER_MAPS+
     ('ReachedBaseArtifactMap','AdvancedToBaseArtifactMap','HomePlateArtifactMap','SafeRuleMap','OutRuleMap')))
 
 
 def approved_case(game_pk):
-    for decision in (DECISION,BALK_DECISION,WALK_DECISION):
-        if W.read(ROOT/decision)['status']!='accepted':raise ValueError('EG1/BK1/W4 is not accepted')
+    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION):
+        if W.read(ROOT/decision)['status']!='accepted':raise ValueError('EG1 selected repair is not accepted')
     case=next((g for g in W.read(INVENTORY)['games'] if g['gamePk']==game_pk),None)
     if case is None:raise ValueError('Game is outside the approved EG1 inventory')
     return case
@@ -92,7 +95,8 @@ def select(raw,game_pk,players):
     player_ids={p.rsplit('/',1)[-1] for p in players}
     plays=document['liveData']['plays']['allPlays']
     pas={str(p['atBatIndex']) for p in plays if str(p.get('matchup',{}).get('batter',{}).get('id')) in player_ids
-        or any(b['playerId'] in player_ids for b in p[C.CONTEXT_KEY].get('batterParticipations',[]))}
+        or any(b['playerId'] in player_ids for b in p[C.CONTEXT_KEY].get('batterParticipations',[]))
+        or any(r['runnerId'] in player_ids for r in p[C.CONTEXT_KEY].get('defensiveIndifferenceActs',[]))}
     if not pas:return None
     # SHACL's existing source selector distinguishes unsupported PAs. Keep them
     # as explicit gaps while repairing independent, supported PA patterns.
@@ -113,7 +117,7 @@ def select(raw,game_pk,players):
     products={rows[0]['atBatIndex']:p[C.CONTEXT_KEY] for p in selected['context']['liveData']['plays']['allPlays']
         if (rows:=p[C.CONTEXT_KEY]['runnerEpisodes'])}
     originals={str(p['atBatIndex']):p for p in plays}
-    balks=[]
+    balks=[];independent=[]
     for pa,play in scoped.items():
         original=originals[pa]
         play['runners']=[r for r in original.get('runners',[])
@@ -122,10 +126,13 @@ def select(raw,game_pk,players):
         rows=[r for r in original[C.CONTEXT_KEY].get('balkAdvances',[])
             if (pa,r['runnerIndex']) in episode_keys]
         play[C.CONTEXT_KEY]['balkAdvances']=rows;balks.extend(rows)
+        rows=[r for r in original[C.CONTEXT_KEY].get('defensiveIndifferenceActs',[])
+            if (pa,r['runnerIndex']) in episode_keys]
+        play[C.CONTEXT_KEY]['defensiveIndifferenceActs']=rows;independent.extend(rows)
     selected['context']['liveData']['plays']['allPlays']=list(scoped.values())
     parts=[p for p in document[C.CONTEXT_KEY].get('compoundDoublePlayParts',[]) if p['atBatIndex'] in pas]
     selected['context'][C.CONTEXT_KEY]['compoundDoublePlayParts']=parts
-    selected.update(balks=balks,plateAppearances=sorted(pas),unresolved=unsupported,players=players,
+    selected.update(balks=balks,independent=independent,plateAppearances=sorted(pas),unresolved=unsupported,players=players,
         contactCensus=CONTACT.census(raw,game_pk))
     return selected
 
@@ -141,7 +148,8 @@ def execution_inputs(raw,game_pk,selected,context,mapping):
 
 
 def shapes(game_pk,selected):
-    parts=[R.shapes(game_pk,selected),BK.shapes(game_pk,selected['balks'])]
+    parts=[R.shapes(game_pk,selected),BK.shapes(game_pk,selected['balks']),
+        D2.shapes(game_pk,selected.get('independent',[]))]
     game='https://baseballontology.org/data/game/'+game_pk
     compounds=selected['context'][C.CONTEXT_KEY]['compoundDoublePlayParts']
     for pa in {p['atBatIndex'] for p in compounds}:
@@ -161,6 +169,16 @@ def project_census(field,source,selected):
     updated=copy.deepcopy(source)
     provenance=dict(decision=DECISION,sourceWitness=selected['sourceWitness'],
         projectionImplementationSha256=W.sha(Path(__file__)))
+    if field=='runnerResolutionAdmission':
+        acts={source['game']+'/runner-act/movement/'+r['atBatIndex']+'/'+r['runnerIndex']
+              for r in selected.get('independent',[])}
+        changed=[]
+        for row in updated['resolutions']:
+            if row['act'] in acts and not row.get('stealAttempt'):
+                row['stealAttempt']=True;changed.append(row['act'])
+        if not changed:return None
+        provenance.update(independentRunningDecision=INDEPENDENT_DECISION,updatedActTypes=sorted(changed))
+        return updated,R.P.R.shape_text(updated),provenance
     if field=='runnerHistoryAdmission':
         previous={h['lifetimeKey'] for h in source['history']['histories']}
         additions=[h for h in selected['history']['histories'] if h['lifetimeKey'] not in previous]
@@ -224,11 +242,12 @@ def project_census(field,source,selected):
 
 def revalidate(*args):
     return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,
-        automaticWalkDecision=WALK_DECISION),
+        automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
+        reviewedWalkDecision=REVIEW_WALK_DECISION),
         project_census=project_census)
 
 
-def acquire(state,game_pk):
+def acquire(state,game_pk,*,reopen=False):
     approved_case(game_pk)
     directory=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-eg1'
     source=directory/'input.json';manifest=directory/'acquisition.json'
@@ -241,7 +260,12 @@ def acquire(state,game_pk):
     marker=W.read(max(marker_root.glob('*.json'),key=lambda p:W.read(p)['promotedAtUtc']))
     witness=E.retained_raw_witness(state,dict(gamePk=game_pk,rawSha256=marker['rawSha256']))
     if witness:return witness
-    if manifest.is_file():raise ValueError('EG1 successful input was retired; do not reacquire it implicitly')
+    if manifest.is_file():
+        if not reopen:raise ValueError('EG1 successful input was retired; do not reacquire it implicitly')
+        # D2/W5 permit recovery only after their exact successful-case retry
+        # predicate matches. Preserve the earlier source receipt unchanged.
+        archive=manifest.with_name('acquisition-'+W.sha(manifest)+'.json')
+        if not archive.exists():archive.write_bytes(manifest.read_bytes())
     url=f'https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live'
     with urllib.request.urlopen(urllib.request.Request(url,headers={'Accept':'application/json'}),timeout=60) as response:raw=response.read()
     if str(json.loads(raw).get('gamePk'))!=game_pk:raise ValueError('EG1 acquired game differs')
@@ -275,6 +299,7 @@ def retire_input(state,result):
 
 def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+Path(BK.__file__).read_bytes()+BK.SHAPE.read_bytes()
+        +Path(D2.__file__).read_bytes()+D2.SHAPE.read_bytes()
         +R.fingerprint().encode()+INVENTORY.read_bytes()).hexdigest()
 
 
@@ -300,6 +325,60 @@ def automatic_walk_retry(state,case,previous):
         document=doc)['awardAdvances'] for p in candidates)
 
 
+def selection_repair_retry(state,case,previous):
+    """D2/W5: exact new selection plus a still-excluded approved player.
+
+    A retained selection can diagnose D2 after raw retirement, but is never an
+    ingestion input. The repair uses an independently checked original response.
+    """
+    if previous.get('status') not in SUCCESS:return False
+    d2=previous.get('independentRunningDecision')!=INDEPENDENT_DECISION
+    w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
+    if not (d2 or w5):return False
+    manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
+    witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
+             or (W.read(manifest) if manifest.is_file() else {}))
+    source=Path(witness.get('path',''));raw=None
+    if source.is_file():
+        if W.sha(source)!=witness['sha256']:raise ValueError('D2/W5 retained source changed')
+        raw=source.read_bytes();doc=json.loads(raw)
+    else:
+        doc=previous.get('selected',{}).get('context',{})
+        if not doc and previous.get('deltaPath') and previous.get('executionContextSha256'):
+            context=Path(previous['deltaPath']).parent/'game-context.json'
+            owner=(state/'pipeline/evidence/mlb-game'/case['gamePk']).resolve()
+            if not context.resolve().is_relative_to(owner):raise ValueError('D2/W5 context is outside its game owner')
+            if context.is_file():
+                if W.sha(context)!=previous['executionContextSha256']:raise ValueError('D2/W5 retained context changed')
+                doc=W.read(context)
+    plays=doc.get('liveData',{}).get('plays',{}).get('allPlays',[])
+    if not any(p.get('result',{}).get('eventType') in {'walk','intent_walk'} or
+               any(r.get('details',{}).get('eventType')=='defensive_indiff' for r in p.get('runners',[])) for p in plays):return False
+    players=outstanding(state,case)
+    if not players:return False
+    ids={p.rsplit('/',1)[-1] for p in players}
+    for play in plays:
+        batter=str(play.get('matchup',{}).get('batter',{}).get('id'))
+        if d2:
+            selected=C.defensive_indifference_evidence(play)
+            if selected and (batter in ids or any(r['runnerId'] in ids for r in selected)):return True
+        if (w5 and batter in ids
+                and play.get('result',{}).get('eventType') in {'walk','intent_walk'}
+                and C.accounted_runner_count_reviews(play)['issues']):
+            if C.accounted_runner_history_reviews(play)['issues']:continue
+            if raw is not None:doc[C.CONTEXT_KEY]={'runnerHistoryReconciliation':C.personal_runner_histories(raw)}
+            season=doc.get('gameData',{}).get('game',{}).get('season')
+            if season is None:
+                pointer=W.read(state/'serving/dashboard-current.json')
+                with closing(sqlite3.connect(Path(pointer['databasePath']).as_uri()+'?mode=ro&immutable=1',uri=True)) as db:
+                    dimension=db.execute('SELECT season FROM game_dimension WHERE game_pk=?',(case['gamePk'],)).fetchone()
+                if not dimension:continue
+                season=dimension[0]  # Diagnostic only; execution rereads the original source season.
+            if C.runner_metric_evidence(play,str(play['atBatIndex']),str(season),
+                    document=doc)['awardAdvances']:return True
+    return False
+
+
 def next_game(state):
     version=fingerprint()
     for number,case in enumerate(W.read(INVENTORY)['games']):
@@ -307,7 +386,8 @@ def next_game(state):
         if not W.A.SCOPE.active(state,game_pk):continue
         path=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
         previous=W.read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS and not automatic_walk_retry(state,case,previous):continue
+        if previous.get('status') in SUCCESS and not (
+                selection_repair_retry(state,case,previous) or automatic_walk_retry(state,case,previous)):continue
         if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
             if number==0:return None  # First promoted game proves the additive route.
             continue
@@ -324,23 +404,26 @@ def tick(state,game_pk,java,mapper,classpath):
     if not W.A.SCOPE.active(state,game_pk):return dict(gamePk=game_pk,status='outside-active-scope')
     path=state/'pipeline/control/mlb-game/empty-game-addition'/(game_pk+'.json')
     previous=W.read(path) if path.is_file() else {};version=fingerprint()
-    if ((previous.get('status') in SUCCESS and not automatic_walk_retry(state,case,previous))
+    reopening=selection_repair_retry(state,case,previous)
+    if ((previous.get('status') in SUCCESS and not (reopening or automatic_walk_retry(state,case,previous)))
             or (previous.get('implementationSha256')==version and previous.get('attempts',0)>=2)):return previous
     result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
-        automaticWalkDecision=WALK_DECISION,
+        automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
+        reviewedWalkDecision=REVIEW_WALK_DECISION,
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         players=outstanding(state,case)
         if players is None:return dict(gamePk=game_pk,status='waiting-for-reader')
         if not players:result.update(status='resolved-by-reader')
         else:
-            witness=acquire(state,game_pk);selected=select(Path(witness['path']).read_bytes(),game_pk,players)
+            witness=acquire(state,game_pk,reopen=reopening);selected=select(Path(witness['path']).read_bytes(),game_pk,players)
             if selected is None or selected.get('noSupportedAddition'):
                 result.update(status='no-supported-addition',selected=selected,sourceWitness=witness)
             else:
                 selected['sourceWitness']=witness
                 result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
-                    decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,automaticWalkDecision=WALK_DECISION),select=lambda raw,pk:selected,
+                    decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,automaticWalkDecision=WALK_DECISION,
+                        independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION),select=lambda raw,pk:selected,
                     execution_inputs=execution_inputs,revalidate=revalidate,
                     validation_scope='eg1-selected-pa-runner-patterns-and-retained-admissions')))
                 result['unresolved']=selected['unresolved']

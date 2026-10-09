@@ -741,14 +741,15 @@
     {
       "id": "43-stolen-base",
       "title": "Stolen base and caught stealing",
-      "summary": "A neutral steal-attempt act may support a distinct stolen-base process and adjudication; caught stealing retains the attempt without asserting success.",
+      "summary": "A neutral steal-attempt act may support a distinct stolen-base process and adjudication; caught stealing retains the attempt without asserting success. Positively reconciled defensive-indifference running realizes the existing Steal Attempt pattern without a statistical stolen-base award.",
       "maps": [
         "StolenBaseAttemptOverlayMap",
         "StolenBaseProcessMap",
         "StolenBaseJudgmentMap",
         "StolenBaseDecisionMap",
         "StolenBaseRecordMap",
-        "CaughtStealingAttemptOverlayMap"
+        "CaughtStealingAttemptOverlayMap",
+        "DefensiveIndifferenceAttemptOverlayMap"
       ]
     },
     {

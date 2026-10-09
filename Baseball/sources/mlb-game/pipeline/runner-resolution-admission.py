@@ -45,6 +45,7 @@ def census(raw, game_pk):
     for play in doc['liveData']['plays']['allPlays']:
         pa = str(play['atBatIndex'])
         empty_records = nonmovement_strikeout_records(play)
+        independent={r['runnerIndex'] for r in CONTEXT.defensive_indifference_evidence(play)}
         for index, row in enumerate(play['runners']):
             if index in empty_records:
                 nonmovements.append(dict(pa=game+'/plate-appearance/'+pa,runnerIndex=index,
@@ -65,7 +66,7 @@ def census(raw, game_pk):
                 episode=game+'/runner-episode/'+suffix,pa=game+'/plate-appearance/'+pa,
                 player=B.BASE+'data/player/'+B.identity(row['details']['runner']['id']),
                 outcome='OutProcess' if out else 'RunProcess' if end=='score' else 'SafeProcess',
-                stealAttempt=row['details'].get('eventType') in STEAL_TYPES,
+                stealAttempt=row['details'].get('eventType') in STEAL_TYPES or str(index) in independent,
                 origin=start,
                 destination=end if not out and end!='score' else None))
     return dict(gamePk=game_pk,game=game,sourceSha256=B.sha(raw),sourceRevision=source['sourceRevision'],
