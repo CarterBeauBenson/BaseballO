@@ -32,6 +32,7 @@ PREVIOUS_EMPTY_ELIGIBILITY_VERSION = '91af6cc2428dda5b7a12091e0ee3fb4daa7c5bfbf1
 PREVIOUS_EMPTY_CACHE_VERSION = 'afc2871933b1e0351790c7314c6a4857e743104128c2a8b387c125ae6db75932'
 PREVIOUS_EMPTY_SCOPE_VERSION = '29d43818e44894f2a762e129f073b74ebc76ecd01b70eb91c4c28b5e3a07cc95'
 PREVIOUS_AMBIGUOUS_OUT_VERSION = '8424ddd239ef03d03da073ae26d398e04e20bd00eb9f40db1c339f9ac9172bdf'
+PREVIOUS_AMBIGUOUS_ERROR_VERSION = '7769850a6c7343d4f4daf69d072f2fd809427e331611eae165d334c9736893eb'
 
 
 def fingerprint():
@@ -182,7 +183,7 @@ def channel_gap_players(rows, progress):
             and pa.get('player') and runners[pa['plateAppearance']] and None not in runners[pa['plateAppearance']]}
 
 
-def ambiguous_progress_players(rows, progress, *, positive_only=False):
+def ambiguous_progress_players(rows, progress, *, positive_only=False, excluded_result_types=()):
     """Keep unknown batting credit with every observed candidate and runner.
 
     The retained RDF can identify the participants even when it cannot choose
@@ -192,18 +193,27 @@ def ambiguous_progress_players(rows, progress, *, positive_only=False):
     """
     turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])
            if p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR'] and p.get('possiblePositivePlayers') is None}
-    actors=defaultdict(set);batters=set();movements=set();out_only={pa:True for pa in turns}
+    actors=defaultdict(set);runners=defaultdict(set);result_types=defaultdict(set)
+    batters=set();movements=set();out_only={pa:True for pa in turns}
     for row in rows:
         if row['kind']=='plate_appearance' and row['entity'] in turns:
             pa=row['entity'];actors[pa].add(row.get('player'));batters.add(pa)
+            if row.get('recognizedBattingResult') in ('true','1'):
+                result_types[pa].add(row.get('paResultType'))
         elif row['kind']=='runner_movement' and row['plateAppearance'] in turns:
             pa=row['plateAppearance'];actors[pa].add(row.get('runner'));movements.add(pa)
+            runners[pa].add(row.get('runner'))
             out_only[pa] &= (row.get('hasOutType')=='true' and row.get('hasSafeType')=='false'
                              and row.get('hasRunType')=='false')
     # Unknown official batting credit cannot create a positive contribution
     # when the admitted complete resolution population contains only outs.
     # Keep eligibility and all nonbinary metrics unresolved for those batters.
-    return {pa:[] if positive_only and out_only[pa] else sorted(actors[pa])
+    # The settled Error/FC/interference exclusion applies to every batting
+    # contributor, even if official PA credit is ambiguous. Keep running
+    # uncertainty with the actual runners and leave other metrics unchanged.
+    return {pa:[] if positive_only and out_only[pa] else sorted(
+                runners[pa] if positive_only and len(result_types[pa])==1
+                and result_types[pa]<=set(excluded_result_types) else actors[pa])
             for pa in batters & movements if actors[pa] and None not in actors[pa]}
 
 
@@ -441,7 +451,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
         ambiguity_upgrade=graph in ambiguity_candidates
         if not ambiguity_upgrade and saved.get(graph) in {m._hash(key+v+proof_sha) for v in
                 (PREVIOUS_EMPTY_ELIGIBILITY_VERSION,PREVIOUS_EMPTY_CACHE_VERSION,PREVIOUS_EMPTY_SCOPE_VERSION,
-                 PREVIOUS_AMBIGUOUS_OUT_VERSION)}:
+                 PREVIOUS_AMBIGUOUS_OUT_VERSION,PREVIOUS_AMBIGUOUS_ERROR_VERSION)}:
             # Scoped resolution candidates were removed above. Otherwise an
             # unchanged proof retains the same eligibility and classification.
             with db:db.execute('UPDATE dashboard_player_partition SET input_sha256=? WHERE graph_iri=?',(identity,graph))
@@ -521,7 +531,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None):
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
             if needs_ambiguity:
                 inputs['ambiguousProgressPlayers']=ambiguous_progress_players(evidence,inputs['progress'])
-                inputs['ambiguousEmptyPositivePlayers']=ambiguous_progress_players(evidence,inputs['progress'],positive_only=True)
+                inputs['ambiguousEmptyPositivePlayers']=ambiguous_progress_players(evidence,inputs['progress'],positive_only=True,
+                    excluded_result_types=m.policies()['batterProgressExcludedResultTypes'])
         if needs_contribution:
             inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                 runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)

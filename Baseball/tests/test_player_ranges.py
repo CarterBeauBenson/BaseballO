@@ -277,12 +277,20 @@ class PlayerRanges(unittest.TestCase):
             players=[dict(player=U+str(i),status='admitted' if i==1 else 'withheld') for i in (1,2,3)])
         for case,expected in [('bounded',1),('uninformed',0),('involved',0),('missing-runner',0),
                               ('missing-batter',0),('missing-movement',0),('unverified-census',0),
-                              ('out-only',1),('out-conflict',0),('out-only-unverified',0)]:
+                              ('out-only',1),('out-conflict',0),('out-only-unverified',0),
+                              ('excluded-batting',1),('excluded-batting-conflict',0),
+                              ('excluded-batting-runner',0),('excluded-batting-unverified',0)]:
             evidence=copy.deepcopy(rows)+[dict(movement)]
             if case=='involved':evidence[-1]['runner']=U+'1'
             if case.startswith('out-'):
                 evidence[-1].update(runner=U+'1',hasOutType='true',hasSafeType='false',hasRunType='false')
                 if case=='out-conflict':evidence[-1]['hasSafeType']='true'
+            if case.startswith('excluded-batting'):
+                evidence.append(dict(rows[-1],player=U+'1'))
+                for row in evidence:
+                    if row.get('entity')=='pa2':row['paResultType']='https://baseballontology.org/ErrorProcess'
+                if case=='excluded-batting-conflict':evidence[-1]['paResultType']='https://baseballontology.org/SingleProcess'
+                if case=='excluded-batting-runner':evidence[-2]['runner']=U+'1'
             if case=='missing-runner':evidence[-1].pop('runner')
             if case=='missing-batter':evidence[-2].pop('player')
             if case=='missing-movement':evidence.pop()
@@ -291,15 +299,16 @@ class PlayerRanges(unittest.TestCase):
             inputs=dict(contribution={},progress=progress,defense={})
             if case!='uninformed':
                 inputs['ambiguousProgressPlayers']=bounded
-                inputs['ambiguousEmptyPositivePlayers']=P.ambiguous_progress_players(evidence,progress,positive_only=True)
+                inputs['ambiguousEmptyPositivePlayers']=P.ambiguous_progress_players(evidence,progress,positive_only=True,
+                    excluded_result_types=M.policies()['batterProgressExcludedResultTypes'])
             _,records=P.project(M,graph=graph,scope=SCOPE,rows=rows,
-                proofs=dict(batting={},run=proof,resolution={} if case in {'unverified-census','out-only-unverified'} else proof,players=individual),
+                proofs=dict(batting={},run=proof,resolution={} if case in {'unverified-census','out-only-unverified','excluded-batting-unverified'} else proof,players=individual),
                 inputs=inputs,runs={m:{} for m in P.RUNS},run_people={})
             records={(r[1],r[2]):r for r in records}
             row=records[(U+'1','empty-game-rate')]
             self.assertEqual(row[3],expected,case)
             if expected:self.assertEqual(json.loads(row[4]),dict(kind='count',count=1,eligibleGames=1))
-            if case=='out-only':self.assertEqual(records[(U+'1','contribution-path-diversity')][3],0)
+            if case in {'out-only','excluded-batting'}:self.assertEqual(records[(U+'1','contribution-path-diversity')][3],0)
             for player in (U+'2',U+'3'):
                 self.assertEqual(records[(player,'empty-game-rate')][3],0,case)
                 self.assertEqual(records[(player,'offensive-reach')][3],0,case)
