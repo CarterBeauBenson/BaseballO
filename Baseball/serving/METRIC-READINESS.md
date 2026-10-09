@@ -15,7 +15,52 @@ the 486 retained spring/exhibition games no longer enter build dependencies.
 Their data and historical diagnoses remain stored. This scope reduction does
 not establish completeness for the remaining metric populations.
 
-## October 8 repair and publication handoff
+## Latest measured publication: October 8 at 23:34 Eastern
+
+Publication `20261009T031504Z-dashboard-d44e487fd373`, promoted October 9 at
+03:34:30 UTC, contains all 2,429 selected 2026 regular-season games. Empty Games
+has **444 complete eligible players and 218 incomplete players**. Its remaining
+**263 player-game records** comprise 255 classification and eight eligibility
+records. This is not zero and the metric is not finished. Repair receipts and
+code commits are not substitutes for these published counts.
+
+The following corrections are published to `dev`; later builds must carry
+them into the displayed population before claiming their coverage gains:
+
+- `5490a71`: include approved D2 type dependencies for all required resolutions
+  in an already selected PA. Game 823412's previously failed addition completed
+  at 03:35 UTC with two added triples and no removals.
+- `fea7902`: retain compatible prior per-PA reconciliation scopes and enforce
+  the already accepted interference-only Empty Game exclusion. The retained
+  proofs admit 79/81 PAs in 824295 and 50/51 in 824807; the three unresolved PAs
+  remain withheld. A producer change does not erase those supported scopes.
+- `71562e1`: complete all-out substituted turns cannot manufacture positive
+  contribution uncertainty. Official PA credit and other metrics stay separate.
+- `769be83`: a known independent running positive survives a complete all-safe
+  continuation with an unattributed step. Outs, incomplete paths and conflicting
+  endpoints remain unresolved. No unknown step gains credit.
+- `adb3e3e`: apply accepted Error/FC/interference batting exclusions to every
+  candidate batter in a substituted turn; retain separate running uncertainty
+  only for its actual runners. This assigns no official PA credit.
+
+Focused reader and incremental migration checks passed. NiFi consumes the
+existing graph/query products and refreshes affected derived results; these
+reader fixes do not reacquire games or rebuild RDF. Keep an already running
+immutable build intact; later changes enter its successor.
+
+Named remaining reviews are [EG2](../proposals/mlb-game-empty-game-remaining-selections/README.md)
+(five existing-pattern source-selection extensions),
+[EG3](../proposals/empty-game-uncaught-strike-entry/README.md)
+(binary first-base running entry),
+[EG4](../proposals/mlb-game-official-pa-credit/README.md)
+(distinct official PA credit for substituted turns), and
+[EG5](../proposals/mlb-game-secondary-error-attribution/README.md)
+(secondary error classification and separately credited scoring contribution).
+All remain under review. They create no ontology terms or object properties;
+source changes would be additive and bounded after named acceptance. Do not
+implement them or declare every remaining case closed from a successful test.
+
+## Earlier October 8 repair and publication handoff
 
 Publication `20261008T225046Z-dashboard-44df5fc6d217`, promoted at 23:07 UTC,
 contains all 2,429 selected regular-season games. Empty Games has 435 complete

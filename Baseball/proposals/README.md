@@ -35,6 +35,9 @@ contribution for Empty Games, without batting credit or a new numeric weight.
 [EG4](mlb-game-official-pa-credit/README.md) proposes a distinct official PA
 scoring-decision pattern for substituted turns, using existing vocabulary.
 Both are under review and authorize no implementation yet.
+[EG5](mlb-game-secondary-error-attribution/README.md) separates secondary
+error classification from independently supported running and scoring credit.
+Its error-only running boundary and binary RBI-credit fallback also await review.
 
 Accepted and rejected packages live in the
 [design-record archive](../archive/design-records/README.md). Their READMEs

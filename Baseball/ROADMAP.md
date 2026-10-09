@@ -40,9 +40,9 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
 | Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
-| NiFi repairs, October 8 | EG1: 100 complete, 239 already present, 114 resolved by the reader, two without a supported addition; zero failed executions | A successful repair receipt does not establish complete metric attribution |
-| Dashboard build, October 8 at 23:07 UTC | `20261008T225046Z-dashboard-44df5fc6d217` published | Subsequent SQL attribution corrections will enter an incremental publication |
-| Published dashboard, October 8 at 19:07 Eastern | 435 complete Empty Games players, 227 excluded; 287 unresolved player-games: eight eligibility and 279 classification | Replaces the October 6 baseline of 281 players and 879 unresolved player-games |
+| NiFi repairs, October 9 at 03:35 UTC | Game 823412's D2 dependency repair completed with two added triples | A successful repair receipt does not establish complete metric attribution |
+| Dashboard build, October 9 at 03:34 UTC | `20261009T031504Z-dashboard-d44e487fd373` published | Subsequent reader corrections enter an incremental publication |
+| Published dashboard, October 8 at 23:34 Eastern | 444 complete Empty Games players, 218 incomplete; 263 unresolved player-games: eight eligibility and 255 classification | Replaces the October 6 baseline of 281 players and 879 unresolved player-games; zero is still the finish line |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable
@@ -124,21 +124,22 @@ productive batches; it is not held until the whole repair-status report clears.
 The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
 at a publication or recorded failure, not by continuously polling healthy work.
 
-The 23:07 UTC publication includes the scoped PA correction. Subsequent SQL
-changes isolate supported positives and unrelated runners' uncertainty. NiFi
-can refresh these from retained bindings without source work or unrelated
-metric recalculation. Keep a running snapshot intact and collect later changes
-in its next incremental publication; a code commit is not delivered coverage.
+The latest measured publication and subsequent fixes are recorded in
+[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-8-at-2334-eastern).
+NiFi refreshes these reader corrections from retained bindings without source
+work or unrelated metric recalculation. Keep a running snapshot intact and
+collect later changes in its next incremental publication; a code commit is
+not delivered coverage.
 
 Current remainder, grouped by cause:
 
 | Case | Current diagnosis | Next action and closure condition |
 | --- | --- | --- |
-| SQL attribution | An unresolved path erased supported positives or contaminated a different player's known-zero contribution | Publish the scoped progress corrections through Dashboard SQL; verify the exact remaining player-games. |
+| SQL attribution and proof compatibility | Published fixes preserve admitted PA scopes, known positives across complete safe paths, and accepted exclusions in interference and substituted turns | NiFi refreshes affected retained products; verify the exact remaining player-games in published SQL. Do not repeat their source work. |
 | Defensive indifference | 82 unresolved selected PAs contained these advances; [D2](archive/design-records/mlb-game-defensive-indifference-running/README.md) is accepted and implemented | NiFi applies targeted type additions and refreshes derived products. Verify the resulting player coverage; this diagnostic PA count is not a promised player gain. |
 | Walks after reconciled reviews | [W5](archive/design-records/mlb-game-walk-after-reconciled-review/README.md) is accepted and implemented; 822714 received ten missing triples without removals | NiFi reopens matching still-excluded cases, completes admission and refreshes SQL. Confirm those players in the next publication. |
-| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | Resolve the exact compound selector and official-credit rules. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
-| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Review the exact source selection separately; reuse existing vocabulary if supported. |
+| Eight eligibility records | 822729/609280 has an unselected reviewed compound result; seven other identities involve substituted batting participation | Prepared EG2c and EG4 await named acceptance. Preserve actual participation; do not assign earlier acts to the replacement. Identities are in metric readiness. |
+| Three `forced_balk` PAs | BK1 explicitly excludes this source code | Prepared EG2e selects only explicit disengagement violations using the existing balk pattern; awaiting acceptance. |
 | Uncaught third strikes with WP/PB entry | Structured attribution exists, but the accepted running weights cover advances from occupied bases | Resolve first-base entry credit without inventing a batting benefit or scalar weight. |
 | 822688, PA 67 | Sacrifice-fly/RBI narrative and safe runner rows labeled as errors leave contribution ownership unresolved | Inspect current graph and retained evidence under accepted attribution rules. Repair a supported query/mapping omission if one exists; a result label alone is not a new attribution link. If a new modeling decision is genuinely needed, present the exact alternatives and affected player to the user. |
 | Remaining error/contact/award paths | Missing ownership or complete consequence links still affect some classifications | Follow the actual retained graph and source witnesses; execute authorized engineering repairs and present only genuinely new source/meaning decisions. Avoid blanket reruns of successful EG1 cases. |

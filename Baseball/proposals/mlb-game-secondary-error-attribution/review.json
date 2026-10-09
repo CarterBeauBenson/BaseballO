@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-secondary-error-attribution",
+  "title": "EG5 separate secondary errors and supported scoring credit",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "543d701ddf4c2c0ace79b3b9344d95a683eacfe93ca15cbd2c03bd26e2097dfd"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "543d701ddf4c2c0ace79b3b9344d95a683eacfe93ca15cbd2c03bd26e2097dfd"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "543d701ddf4c2c0ace79b3b9344d95a683eacfe93ca15cbd2c03bd26e2097dfd"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "69590dd613aea2ef4a2de0ed52a4f132d6fd2ea3f3a4ebf4f96d7cd79330bf54"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
