@@ -1,0 +1,56 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-defensive-indifference-running",
+  "title": "D2 actual independent running under defensive indifference",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "4cb36def142f330822d402ba4867ed952cf793e88b4353fd3cbbe6eb80502d15"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "4cb36def142f330822d402ba4867ed952cf793e88b4353fd3cbbe6eb80502d15"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "4cb36def142f330822d402ba4867ed952cf793e88b4353fd3cbbe6eb80502d15"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "4cb36def142f330822d402ba4867ed952cf793e88b4353fd3cbbe6eb80502d15"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "49b648eb18e7b887a4136826945f2b441d3ac96a5339ca2fbfebe659a70f3d43"
+      },
+      {
+        "path": "check.py",
+        "sha256": "c2bfe1357f177673cc95b7105fdafc4ad5e1dc8ab0824ae3bea2e15d56607b7b"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-08",
+    "rationale": "User reply: \"approve\", directly answering the named D2 and W5 approval request. Classify only positively reconciled defensive-indifference running acts as the existing StealAttemptAct, without a statistical stolen-base award. Implement the reviewed generic selector, targeted EG1 additions and scoped semantic pins. W5 was approved in the same reply. No new ontology classes, object properties, full rebuild or unrelated RDF replacement.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json"
+    ]
+  }
+}

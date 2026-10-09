@@ -1,6 +1,7 @@
 # W5: preserve a walk award after an independently reconciled review
 
-Status: **under review**. No executable selector or semantic pin is changed.
+Status: **accepted** by Carter Beau Benson on October 8, 2026. The user replied
+**"approve"** to the named D2/W5 request. Record and publish this decision before implementation.
 
 Game 822714 has two excluded Empty Game records. Endy Rodriguez's PA 11 ends
 in ball four after a completed stolen-base tag review. Dylan Crews's PA 66

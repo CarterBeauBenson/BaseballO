@@ -53,8 +53,8 @@ focused checks cover that correction and incremental reuse of unrelated products
 
 The remaining source/meaning boundaries are explicit:
 
-- [D2](../proposals/mlb-game-defensive-indifference-running/README.md) and
-  [W5](../proposals/mlb-game-walk-after-reconciled-review/README.md) are prepared
+- [D2](../archive/design-records/mlb-game-defensive-indifference-running/README.md) and
+  [W5](../archive/design-records/mlb-game-walk-after-reconciled-review/README.md) are prepared
   and awaiting named approval; neither selector has been activated.
 - Three selected PAs (823247/21, 823426/91 and 824664/4) use `forced_balk`.
   BK1 explicitly excludes that code pending separate source selection review.
@@ -115,7 +115,7 @@ affected checks and subsequent SQL refresh.
 These are pending checks, not newly published player totals.
 
 Game 822714 also exposed walk awards omitted after earlier reviews that the
-existing runner reconciler already accepts. [W5](../proposals/mlb-game-walk-after-reconciled-review/README.md)
+existing runner reconciler already accepts. [W5](../archive/design-records/mlb-game-walk-after-reconciled-review/README.md)
 prepares the generic selector correction and bounded retry for matching EG1
 cases. Five candidate checks pass; named approval is pending and active source
 selection remains unchanged. This is separate from F9 and the SQL projection.
@@ -475,7 +475,7 @@ schedule snapshot at 19:10, after that publication. The next incremental SQL
 publication must import that snapshot and the later game evidence; the check
 must not be bypassed or the old publication described as current.
 
-A separate September 16–27 HTTP check covers 159 games with a complete schedule
+A separate September 16â€“27 HTTP check covers 159 games with a complete schedule
 and all 159 rosters. It returns **11/19 populated cards**, including 119 Offensive
 Reach players, 140 Help Without Advancing players, 396 Empty Games counts,
 246 Scoring History Length players and 170 Run Contributors players. Player

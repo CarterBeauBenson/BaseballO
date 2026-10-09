@@ -1,6 +1,7 @@
 # D2: actual independent running during defensive indifference
 
-Status: **under review**. No active mapping, metric policy or semantic pin changes.
+Status: **accepted** by Carter Beau Benson on October 8, 2026. The user replied
+**"approve"** to the named D2/W5 request. Record and publish this decision before implementation.
 
 The October 8 Empty Games remainder contains 82 selected PAs with a defensive-
 indifference advance. The running act, runner, start, Safe/Run outcome and

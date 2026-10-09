@@ -6,7 +6,7 @@ from pathlib import Path
 import unittest
 
 HERE=Path(__file__).resolve().parent
-ROOT=HERE.parents[1]
+ROOT=next(p for p in HERE.parents if (p/'scripts/pipeline/prepare-rml-context.py').is_file())
 spec=importlib.util.spec_from_file_location('d2_context',ROOT/'scripts/pipeline/prepare-rml-context.py')
 C=importlib.util.module_from_spec(spec);spec.loader.exec_module(C)
 

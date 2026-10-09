@@ -1,0 +1,57 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-walk-after-reconciled-review",
+  "title": "W5 walk awards after independently reconciled reviews",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "23332e28d8c4016f5634814b9fea965e02d5bcaa37a1c4ca8b97554c7dc56701"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "23332e28d8c4016f5634814b9fea965e02d5bcaa37a1c4ca8b97554c7dc56701"
+      },
+      {
+        "path": "evidence.json",
+        "sha256": "e7d4fecba1aceb6c72880444de27dda129edf4d1152e50d48c1b33a96847be0d"
+      },
+      {
+        "path": "selection.patch",
+        "sha256": "fd8d9a9c891ebe93bb0270fe75a4d8a411588801b90d96e3d803800ae18c877f"
+      },
+      {
+        "path": "check.py",
+        "sha256": "df29db218614d2418737ecdfc63ab9cfedaa04c18efdcfcf08fbc09535835e9c"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "23332e28d8c4016f5634814b9fea965e02d5bcaa37a1c4ca8b97554c7dc56701"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "23332e28d8c4016f5634814b9fea965e02d5bcaa37a1c4ca8b97554c7dc56701"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-08",
+    "rationale": "User reply: \"approve\", directly answering the named D2 and W5 approval request. Reuse the existing accepted review reconciliation for otherwise supported walk awards; preserve all other award checks. Implement the generic selector, targeted EG1 additions and scoped semantic pins. D2 was approved in the same reply. No new ontology classes, object properties, full rebuild or unrelated RDF replacement.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json"
+    ]
+  }
+}
