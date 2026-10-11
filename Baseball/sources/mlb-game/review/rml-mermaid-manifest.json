@@ -944,7 +944,8 @@
         "SecondaryErrorProcessMap",
         "SecondaryErrorJudgmentMap",
         "SecondaryErrorDecisionMap",
-        "SecondaryErrorRecordMap"
+        "SecondaryErrorRecordMap",
+        "SecondaryErrorContactRecordMap"
       ]
     }
   ]

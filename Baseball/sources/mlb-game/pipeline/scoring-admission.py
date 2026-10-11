@@ -12,7 +12,8 @@ S = B.SCORING
 SHAPE = HERE.parent/'shacl/official-scoring.ttl'
 MAPS = tuple(name+part+'Map' for name in ('OfficialPA', 'RBICredit')
              for part in ('Judgment', 'Decision', 'Record', 'Rule'))+tuple(
-                 'SecondaryError'+part+'Map' for part in ('Process', 'Judgment', 'Decision', 'Record'))+('ErrorRuleMap',)
+                 'SecondaryError'+part+'Map' for part in ('Process', 'Judgment', 'Decision', 'Record'))+(
+                     'SecondaryErrorContactRecordMap', 'ErrorRuleMap')
 
 
 def select(raw, game_pk):

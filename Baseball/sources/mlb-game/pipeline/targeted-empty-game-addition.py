@@ -346,6 +346,7 @@ def fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()+Path(BK.__file__).read_bytes()+BK.SHAPE.read_bytes()
         +Path(D2.__file__).read_bytes()+D2.SHAPE.read_bytes()
         +Path(SCORING.__file__).read_bytes()+SCORING.SHAPE.read_bytes()
+        +(HERE.parent/'shacl/authoritative.ttl').read_bytes()
         +SCORING.B.fingerprint().encode()
         +R.fingerprint().encode()+INVENTORY.read_bytes()).hexdigest()
 

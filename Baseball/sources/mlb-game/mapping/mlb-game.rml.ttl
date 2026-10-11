@@ -4023,5 +4023,12 @@
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "error" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "judgment" ; rr:termType rr:IRI ] ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "decision" ; rr:termType rr:IRI ] ] ;
-  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "resolution" ; rr:termType rr:IRI ] ] ;
+  rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "resolution" ; rr:termType rr:IRI ] ] .
+
+# Optional contact context must not make an independent error fail strict RML.
+<#SecondaryErrorContactSource> a rml:LogicalSource ; rml:source "game-context.json" ;
+  rml:referenceFormulation ql:JSONPath ; rml:iterator "$._baseballO.secondaryErrors[?(@.contactPlay)]" .
+
+<#SecondaryErrorContactRecordMap> a rr:TriplesMap ; rml:logicalSource <#SecondaryErrorContactSource> ;
+  rr:subjectMap [ rml:reference "record" ; rr:termType rr:IRI ] ;
   rr:predicateObjectMap [ rr:predicate cco:ont00001808 ; rr:objectMap [ rml:reference "contactPlay" ; rr:termType rr:IRI ] ] .

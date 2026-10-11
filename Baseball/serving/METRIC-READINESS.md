@@ -21,32 +21,43 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 9 at 15:17 Eastern
+## Latest measured publication: October 10 at 21:38 Eastern
 
-Offense publication `20261009T190302Z-dashboard-offense-27ccb0b5`, promoted at 19:17:12 UTC,
+Offense publication `20261011T012429Z-dashboard-offense-73c4c8a2`, promoted at October 11 01:38:53 UTC,
 contains all 2,429 selected
-2026 regular-season games. The complete eligible player count is now **520**;
-**142 players remain incomplete**, with **153 unresolved player-games across
-139 games**. The shared corrections below have reduced the previous 218-player
-remainder. They have not completed the metric.
+2026 regular-season games. The complete eligible player count is now **551**;
+**111 players remain incomplete**, with **116 unresolved player-games across
+109 games**. This is 31 more complete players than the October 9 publication.
+The population contains 662 distinct hitters; players who appeared for multiple
+teams count once. Empty Games has no appearance minimum. These gains have not
+completed the metric.
 
 | Retained diagnostic family | Player-games | Distinct players | Games |
 | --- | ---: | ---: | ---: |
-| Progress attribution | 88 | 84 | 87 |
-| Progress attribution plus path coalescence | 32 | 32 | 31 |
-| Runner resolution census | 11 | 11 | 5 |
-| Offensive eligibility | 8 | 8 | 8 |
+| Progress attribution | 70 | 68 | 69 |
+| Progress attribution plus path coalescence | 24 | 24 | 23 |
+| Runner resolution census | 1 | 1 | 1 |
+| Offensive eligibility | 7 | 7 | 7 |
 | Independent-running attribution | 8 | 8 | 8 |
 | Ambiguous batting contributor | 5 | 5 | 4 |
 | Ambiguous batting contributor plus attribution | 1 | 1 | 1 |
 
 Each player-game occurs in exactly one row; player/game counts overlap across
-families. These counts are unchanged from the 13:26 UTC publication and report
-retained analytical failures, not newly inferred source semantics. The prior
-complete inventory of 455 originally approved EG1 candidate games found that
-316 had no remaining original exclusions, while 139
-remained held before the newly accepted EG2/EG4/EG5 selectors were implemented. Successful repair receipts
-therefore no longer masquerade as remaining mapping jobs or metric completion.
+families. These are retained analytical failures, not new semantic decisions.
+Of the 455 originally approved EG1 candidate games, 346 now have no remaining
+original exclusions and 109 remain held. Successful repair receipts do not
+establish metric completion.
+
+The recorded failures share two implementation defects: 49 strict RML executions
+read absent optional `contactPlay` fields, and 30 authoritative SHACL reports
+reject the accepted PA/RBI decision's two subjects. The correction selects
+contact-record links only when the field exists and adds a precise EG4/EG5
+decision branch requiring the matching scoring rule, Person, PA/run, judgment
+and source record. Other decisions retain their existing constraints. Strict
+RML and conformance regressions cover present/absent contact context and invalid
+scoring pairs. NiFi retries the affected failed additions under the changed
+implementation; successful unrelated repairs and existing RDF remain intact.
+The publication above predates these two corrections.
 
 NiFi now maintains the whole grouped remainder and approved family work list
 through its existing owners. Repeated source discovery is cached per publication
@@ -75,8 +86,8 @@ an eligible batter's binary positive without a numeric advance or running credit
 The same EG1 owner reopens only matching still-incomplete selections and projects
 only their changed admission obligations. Ordinary future ingestion uses the same
 patterns. Focused source/RML/SHACL/SPARQL and prepared-reader regressions pass.
-The measured 520/142 population above predates these additions; NiFi publication
-must demonstrate the resulting coverage before this milestone can close.
+The measured 551/111 population includes some of these additions; NiFi publication
+must demonstrate complete coverage before this milestone can close.
 
 ## Earlier measured publication: October 8 at 23:34 Eastern
 

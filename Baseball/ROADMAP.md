@@ -48,10 +48,10 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
-| Promoted RDF | 2,454 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
-| NiFi repairs, October 9 at 03:35 UTC | Game 823412's D2 dependency repair completed with two added triples | A successful repair receipt does not establish complete metric attribution |
-| Dashboard build, October 9 at 19:17 UTC | `20261009T190302Z-dashboard-offense-27ccb0b5` published | All four families now have independent publications |
-| Published dashboard, October 9 at 15:17 Eastern | 520 complete Empty Games players, 142 incomplete; 153 unresolved player-games across 139 games | Unchanged from the 12:14 UTC publication; zero is still the finish line |
+| Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
+| NiFi repair failures, October 10 | 49 missing optional contact fields; 30 scoring decisions rejected by the older authoritative shape | Correct the shared RML/SHACL causes within accepted EG4/EG5 scope; retry only affected additions |
+| Dashboard build, October 11 at 01:38 UTC | `20261011T012429Z-dashboard-offense-73c4c8a2` published | All four families have independent publications |
+| Published dashboard, October 10 at 21:38 Eastern | 551 complete Empty Games players, 111 incomplete; 116 unresolved player-games across 109 games | 31 more complete players; zero incomplete is still the finish line |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable

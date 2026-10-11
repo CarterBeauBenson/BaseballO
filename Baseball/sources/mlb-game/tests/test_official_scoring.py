@@ -3,10 +3,15 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
+import tempfile
 import unittest
 from pyshacl import validate
 from rdflib import Dataset, Graph, Namespace, RDF, URIRef
 from test_batting_admission import fixture, ROOT, BASE, CCO, OBO
+sys.path.insert(0,str(ROOT/'tests'))
+from test_rmlmapper_iterator_compatibility import installed_tools
 
 spec=importlib.util.spec_from_file_location('official_scoring_test',ROOT/'sources/mlb-game/pipeline/scoring-admission.py')
 S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
@@ -14,28 +19,27 @@ P=S.B.module(ROOT/'sources/mlb-game/pipeline/player-participation-admission.py',
 
 
 def mapped(selected):
-    """Execute the selected flat reference/constant RML expressions in memory."""
+    """Use NiFi's strict RML engine, including its missing-field behavior."""
     mapping=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
-    rr=Namespace('http://www.w3.org/ns/r2rml#');rml=Namespace('http://semweb.mmlab.be/ns/rml#')
-    graph=Graph()
-    def term(node,row):
-        value=mapping.value(node,rr.constant)
-        if value is not None:return value
-        ref=mapping.value(node,rml.reference)
-        if ref is not None and str(ref) in row:return URIRef(row[str(ref)])
-        return None
+    rml=Namespace('http://semweb.mmlab.be/ns/rml#');subset=Graph()
     for name in S.MAPS:
         node=URIRef('https://baseballontology.org/mapping/mlb-direct#'+name)
-        source=mapping.value(node,rml.logicalSource);iterator=str(mapping.value(source,rml.iterator))
-        rows=[{}] if name=='ErrorRuleMap' else selected.get(iterator.split('.')[2].split('[')[0],[])
-        sm=mapping.value(node,rr.subjectMap)
-        for row in rows:
-            subject=term(sm,row)
-            for kind in mapping.objects(sm,rr['class']):graph.add((subject,RDF.type,kind))
-            for pom in mapping.objects(node,rr.predicateObjectMap):
-                value=term(mapping.value(pom,rr.objectMap),row)
-                if value is not None:graph.add((subject,mapping.value(pom,rr.predicate),value))
-    return graph
+        subset+=mapping.cbd(node)
+        subset+=mapping.cbd(mapping.value(node,rml.logicalSource))
+    java,mapper=installed_tools()
+    with tempfile.TemporaryDirectory(prefix='baseballo-scoring-rml-') as temporary:
+        directory=Path(temporary)
+        document={'_baseballO':dict(officialPACredits=[],rbiCredits=[],secondaryErrors=[])}
+        document['_baseballO'].update(selected)
+        for filename in ('game.json','game-context.json'):
+            (directory/filename).write_text(json.dumps(document),encoding='utf-8')
+        path=directory/'scoring.rml.ttl';subset.serialize(destination=path,format='turtle')
+        output=directory/'scoring.ttl'
+        result=subprocess.run([str(java),'-Xmx256m','-jar',str(mapper),'-m',str(path),'-o',str(output),
+            '-s','turtle','-b','https://baseballontology.org/mapping/mlb-direct','--strict'],
+            cwd=directory,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=60)
+        if result.returncode:raise AssertionError(result.stdout+'\n'+result.stderr)
+        return Graph().parse(output)
 
 
 class OfficialScoring(unittest.TestCase):
@@ -137,6 +141,39 @@ class OfficialScoring(unittest.TestCase):
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(e.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())['kind'],entry['reuseKind'])
             self.assertIsNone(e.code_equivalence(family,'unknown',adapter.fingerprint()))
+
+    def test_authoritative_decisions_accept_only_supported_scoring_pairs(self):
+        W=S.B.module(ROOT/'sources/mlb-game/pipeline/targeted-award-addition.py','scoring_authoritative_test')
+        census=S.B.census(self.raw,'824169')
+        selected=dict(officialPACredits=S.S.pa_rows(census),rbiCredits=S.S.rbi_rows(self.document,census,lambda p:True))
+        graph=mapped(selected);decisions=set()
+        for family,kind in [('officialPACredits',BASE.PlateAppearance),('rbiCredits',BASE.RunProcess)]:
+            for row in selected[family]:
+                graph.add((URIRef(row['subject']),RDF.type,kind))
+                graph.add((URIRef(row['player']),RDF.type,CCO.ont00001262))
+                decisions.add(URIRef(row['decision']))
+        shapes=W.authoritative_scope(graph,decisions)
+        self.assertTrue(validate(graph,shacl_graph=shapes,advanced=True)[0])
+        for family,rule in [('officialPACredits',S.S.PA_RULE),('rbiCredits',S.S.RBI_RULE)]:
+            row=selected[family][0];decision=URIRef(row['decision']);judgment=URIRef(row['judgment'])
+            mutations=[
+                ('remove', (URIRef(row['record']),CCO.ont00001808,decision)),
+                ('remove', (judgment,CCO.ont00001921,URIRef(rule))),
+                ('remove', (URIRef(row['player']),RDF.type,CCO.ont00001262)),
+                ('add', (decision,CCO.ont00001808,URIRef('urn:extra-person'))),
+                ('add', (judgment,CCO.ont00001986,URIRef('urn:other-decision'))),
+            ]
+            for action,triple in mutations:
+                with self.subTest(family=family,action=action,triple=triple):
+                    changed=Graph()+graph
+                    getattr(changed,action)(triple)
+                    self.assertFalse(validate(changed,shacl_graph=shapes,advanced=True)[0])
+        ordinary=URIRef('urn:ordinary-decision');plain=Graph()
+        plain.add((ordinary,RDF.type,BASE.BaseballDecisionICE));plain.add((ordinary,CCO.ont00001808,URIRef('urn:subject')))
+        shapes=W.authoritative_scope(plain,{ordinary})
+        self.assertTrue(validate(plain,shacl_graph=shapes,advanced=True)[0])
+        plain.add((ordinary,CCO.ont00001808,URIRef('urn:extra-subject')))
+        self.assertFalse(validate(plain,shacl_graph=shapes,advanced=True)[0])
 
 
 if __name__=='__main__':unittest.main()

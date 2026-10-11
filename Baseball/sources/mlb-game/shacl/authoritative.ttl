@@ -929,6 +929,7 @@ shape:DecisionShape a sh:NodeShape ;
     sh:targetClass base:BaseballDecisionICE, base:SafeDecisionICE ; sh:nodeKind sh:IRI ;
     sh:or (
       [ sh:property [ sh:path cco:ont00001808 ; sh:minCount 1 ; sh:maxCount 1 ; sh:nodeKind sh:IRI ] ]
+      [ sh:node shape:OfficialScoringDecisionShape ]
       [ sh:class base:SafeDecisionICE ;
         sh:property [ sh:path cco:ont00001808 ; sh:minCount 2 ; sh:maxCount 2 ; sh:nodeKind sh:IRI ;
           sh:or ( [ sh:class base:SafeProcess ] [ sh:class base:Base ] ) ] ;
@@ -938,6 +939,41 @@ shape:DecisionShape a sh:NodeShape ;
         sh:property [ sh:path [ sh:inversePath cco:ont00001986 ] ;
           sh:qualifiedValueShape [ sh:node shape:RunnerPlacementJudgmentShape ] ; sh:qualifiedMinCount 1 ; sh:qualifiedMaxCount 1 ] ]
     ) .
+
+# EG4/EG5 credit concerns both the credited Person and one PA or counted run.
+# This branch does not admit arbitrary extra subjects on other decisions.
+shape:OfficialScoringDecisionShape a sh:NodeShape ;
+    sh:class base:BaseballDecisionICE ;
+    sh:property [ sh:path cco:ont00001808 ; sh:minCount 2 ; sh:maxCount 2 ; sh:nodeKind sh:IRI ] ;
+    sh:sparql [
+      sh:message "Official scoring credit must identify exactly one Person and its PA or run through the matching scoring rule, judgment and record."@en ;
+      sh:select """
+        PREFIX base: <https://baseballontology.org/>
+        PREFIX cco: <https://www.commoncoreontologies.org/>
+        SELECT $this WHERE {
+          FILTER NOT EXISTS {
+            { BIND(<https://baseballontology.org/data/rule/official-pa-assignment> AS ?rule)
+              BIND(base:PlateAppearance AS ?kind) }
+            UNION
+            { BIND(<https://baseballontology.org/data/rule/rbi-assignment> AS ?rule)
+              BIND(base:RunProcess AS ?kind) }
+            ?judgment a base:ScoringJudgmentAct ; cco:ont00001921 ?rule ; cco:ont00001986 $this .
+            ?rule a base:BaseballRule .
+            $this cco:ont00001808 ?subject, ?person .
+            ?subject a ?kind . ?person a cco:ont00001262 .
+            FILTER(?subject != ?person)
+            ?record a base:BaseballEventRecord ; cco:ont00001808 ?judgment, $this .
+            FILTER NOT EXISTS { ?judgment cco:ont00001986 ?extra . FILTER(?extra != $this) }
+            FILTER NOT EXISTS { ?judgment cco:ont00001921 ?extraRule . FILTER(?extraRule != ?rule) }
+            FILTER NOT EXISTS {
+              ?other a base:ScoringJudgmentAct ; cco:ont00001921 ?rule ; cco:ont00001986 ?otherDecision .
+              ?otherDecision cco:ont00001808 ?subject .
+              FILTER(?other != ?judgment || ?otherDecision != $this)
+            }
+          }
+        }
+      """
+    ] .
 
 shape:AdjudicatedProcessShape
     a sh:NodeShape ;
