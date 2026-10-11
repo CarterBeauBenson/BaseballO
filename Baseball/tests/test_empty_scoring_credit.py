@@ -109,5 +109,24 @@ class EmptyScoringCredit(unittest.TestCase):
             self.assertEqual(records[0][3],expected)
             self.assertEqual(json.loads(records[0][4])['count'],1)
 
+    def test_awarded_batter_positive_does_not_assign_the_other_batters_contribution(self):
+        first=self.terminal_path()[1]
+        first.update(award='walk',awardRule='walk-rule')
+        other=dict(first,batter=U+'2');other.pop('metricOrigin')
+        rows=[dict(self.turn(),paResultType=BASE+'WalkProcess'),
+              dict(self.turn(),player=U+'2',act='bat2',paResultType=BASE+'WalkProcess'),first,other]
+        self.assertEqual(self.read(rows),dict(positivePlayers=[U+'1'],possiblePositivePlayers=[U+'2']))
+        # Official eligibility does not move the actual award to someone else.
+        for r in rows[:2]:r.update(creditedPlayer=U+'2',creditJudgment='cj',creditDecision='cd',creditRecord='cr')
+        self.assertEqual(self.read(rows)['positivePlayers'],[U+'1'])
+        broken=copy.deepcopy(rows);broken[-1]['resolution']='conflicting-resolution'
+        self.assertEqual(self.read(broken)['positivePlayers'],[])
+        broken=copy.deepcopy(rows);broken[-1]['safeDecision']='conflicting-decision'
+        self.assertEqual(self.read(broken)['positivePlayers'],[])
+        out=self.terminal_path()[2];rows.append(out)
+        self.assertEqual(self.read(rows)['positivePlayers'],[])  # incomplete C1 path
+        rows.extend(self.terminal_path()[3:])
+        self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
+
 
 if __name__=='__main__':unittest.main()

@@ -21,13 +21,13 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 11 at 12:15 Eastern
+## Latest measured publication: October 11 at 16:25 Eastern
 
-Offense publication `20261011T160120Z-dashboard-offense-0cefa1a7`, promoted at October 11 16:15:41 UTC,
+Offense publication `20261011T201105Z-dashboard-offense-30b0c6c7`, promoted at October 11 20:25:15 UTC,
 contains all 2,429 selected
 2026 regular-season games. The complete eligible player count is now **614**;
 **48 players remain incomplete**, with **51 unresolved player-games across
-48 games**. This is 63 more complete players than the preceding publication.
+48 games**. This retains the 63-player improvement first published at 12:15 Eastern.
 The population contains 662 distinct hitters; players who appeared for multiple
 teams count once. Empty Games has no appearance minimum. These gains have not
 completed the metric.
@@ -66,6 +66,16 @@ neither receives invented credit. A separate retry-scanner correction skips
 runner-only dependency fragments when selecting full-PA EG2 witnesses. Both
 corrections have focused regression coverage and await NiFi publication; the
 614/48 figures above do not include their expected gain.
+
+For substituted turns, a further binary reader correction recognizes the actual
+recipient of a supported home-to-first award. It collapses only exact repeated
+resolution bindings caused by joining both actual batters; conflicting facts
+remain unresolved. This does not transfer acts or statistical credit, and the
+earlier batter's possible contribution remains unknown. A complete later-out
+path still consumes the advance. The retained answers resolve three additional
+player-games, bringing the pending reader gain to nine; 42 retained player-game
+holds remain after that projection. These diagnostic counts are not published
+dashboard results.
 
 The remaining official-PA eligibility hold, 823565/667670, has a separate B1
 defect: defensive switches before a zero-count pinch hitter in PA 59 blocked

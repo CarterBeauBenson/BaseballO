@@ -289,6 +289,21 @@ def empty_scoring_inputs(m, rows, progress):
         if None in groups:continue
         for runner,states in groups.items():
             states=list({m._json(r):r for r in states}.values())
+            # The query binds every actual batter in a substituted turn. A
+            # home-to-first award consequently repeats the same physical
+            # resolution, with origin zero only on its recipient's binding.
+            # Collapse only that exact join duplicate; keep conflicting facts.
+            resolutions=defaultdict(list)
+            for row in states:resolutions[row['resolution']].append(row)
+            states=[]
+            for duplicates in resolutions.values():
+                own=[r for r in duplicates if r.get('batter')==runner and runner in actors[pa]
+                     and r.get('metricOrigin')=='0' and m.segment_origin(r)==0
+                     and r.get('destinationCode')=='1B' and r.get('award') and r.get('awardRule')]
+                physical=lambda r:{k:v for k,v in r.items() if k not in {'batter','metricOrigin'}}
+                if len(own)==1 and all(physical(r)==physical(own[0]) and r.get('metricOrigin') in (None,'0') for r in duplicates):
+                    states.append(own[0])
+                else:states.extend(duplicates)
             if len({r['resolution'] for r in states})!=len(states):
                 possible.update(batting|{runner});continue
             if len(states)>1:
@@ -312,6 +327,9 @@ def empty_scoring_inputs(m, rows, progress):
                 if sum((contact,award,running))>1:
                     possible.update(batting|{runner});continue
                 if running:positive.add(runner)
+                elif award and start==0 and end==1 and runner in batting and row.get('batter')==runner:
+                    positive.add(runner)
+                    possible.update(batting-{runner})
                 elif contact or award:
                     if len(batting)==1:positive.update(batting)
                     else:possible.update(batting)
