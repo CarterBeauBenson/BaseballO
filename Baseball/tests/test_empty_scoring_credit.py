@@ -1,6 +1,8 @@
 """Official eligibility and binary scoring credit preserve actual actors."""
 import copy
+import json
 import unittest
+from unittest.mock import patch
 from test_player_ranges import M, P, G, U, SCOPE
 
 BASE='https://baseballontology.org/'
@@ -67,6 +69,45 @@ class EmptyScoringCredit(unittest.TestCase):
             self.assertEqual(self.read(rows)['positivePlayers'],[])
         rows[0]['paResultType']=BASE+'SacrificeFlyProcess';run['hasRunType']='false';run['hasOutType']='true'
         self.assertEqual(self.read(rows)['positivePlayers'],[])
+
+    def terminal_path(self):
+        first=self.error()
+        first.update(runner=U+'1',metricOrigin='0',destinationBase='first',destinationCode='1B')
+        for field in ('originDesignation','originBase','originCode','secondaryError','errorJudgment','errorDecision'):
+            first.pop(field)
+        out=dict(first,act='out-act',episode='out-episode',resolution='out-resolution',
+            originDesignation='origin',originBase='first',originCode='1B',
+            hasSafeType='false',hasOutType='true')
+        return [self.turn(),first,out,*[dict(kind='runner_history',graph=G+'1',game='game',player=U+'1',
+            trajectory='whole',trajectoryHalf='half',trajectoryInterval='interval',episode=e)
+            for e in ('episode','out-episode')]]
+
+    def test_unattributed_advance_is_consumed_only_by_a_complete_terminal_path(self):
+        rows=self.terminal_path()
+        self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
+        self.assertEqual(self.read(rows[:-1])['possiblePositivePlayers'],[U+'1'])
+        rows[2].update(hasSafeType='true',hasOutType='false',destinationBase='second',destinationCode='2B')
+        self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[U+'1']))
+        self.assertEqual(P.empty_scoring_inputs(M,[self.turn()],dict(
+            unresolvedPlateAppearances=[dict(plateAppearance='pa')])),{})
+
+    def test_completed_batting_row_can_clear_only_its_admitted_running_gap(self):
+        rows=self.terminal_path()
+        rows.append(dict(kind='player_team_game',graph=G+'1',game='game',player=U+'1',team='team',teamRole='role'))
+        progress=dict(plateAppearances=[dict(plateAppearance='pa',player=U+'1',officialResult=True,
+            reach=0,batterPositive=False,otherPositivePlayers=[],independentPositive=[],positiveChannels=[],
+            independentEpisodes=[],independentEpisodeGaps=['UNKNOWN_CHANNEL'],independentPositiveGaps=['UNKNOWN_CHANNEL'],
+            unresolvedRunningPositivePlayers=[U+'1'])],unresolvedPlateAppearances=[])
+        q=dict(participation=[dict(player=U+'1',plateAppearances=1)],
+            expectedObservations=[dict(player=U+'1',plateAppearance='pa')])
+        for resolution,expected in ((PROOF,1),({},0)):
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G+'1',scope=SCOPE,rows=rows,
+                    proofs=dict(batting=PROOF,run={},players={},resolution=resolution),
+                    inputs=dict(contribution={},progress=progress,emptyScoring=P.empty_scoring_inputs(M,rows,progress)),
+                    runs={},run_people={},metric_ids={'empty-game-rate'})
+            self.assertEqual(records[0][3],expected)
+            self.assertEqual(json.loads(records[0][4])['count'],1)
 
 
 if __name__=='__main__':unittest.main()

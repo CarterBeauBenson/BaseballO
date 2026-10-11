@@ -21,43 +21,51 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 10 at 21:38 Eastern
+## Latest measured publication: October 11 at 12:15 Eastern
 
-Offense publication `20261011T012429Z-dashboard-offense-73c4c8a2`, promoted at October 11 01:38:53 UTC,
+Offense publication `20261011T160120Z-dashboard-offense-0cefa1a7`, promoted at October 11 16:15:41 UTC,
 contains all 2,429 selected
-2026 regular-season games. The complete eligible player count is now **551**;
-**111 players remain incomplete**, with **116 unresolved player-games across
-109 games**. This is 31 more complete players than the October 9 publication.
+2026 regular-season games. The complete eligible player count is now **614**;
+**48 players remain incomplete**, with **51 unresolved player-games across
+48 games**. This is 63 more complete players than the preceding publication.
 The population contains 662 distinct hitters; players who appeared for multiple
 teams count once. Empty Games has no appearance minimum. These gains have not
 completed the metric.
 
 | Retained diagnostic family | Player-games | Distinct players | Games |
 | --- | ---: | ---: | ---: |
-| Progress attribution | 70 | 68 | 69 |
-| Progress attribution plus path coalescence | 24 | 24 | 23 |
+| Progress attribution | 20 | 19 | 19 |
+| Progress attribution plus path coalescence | 15 | 15 | 15 |
 | Runner resolution census | 1 | 1 | 1 |
-| Offensive eligibility | 7 | 7 | 7 |
+| Offensive eligibility | 1 | 1 | 1 |
 | Independent-running attribution | 8 | 8 | 8 |
-| Ambiguous batting contributor | 5 | 5 | 4 |
-| Ambiguous batting contributor plus attribution | 1 | 1 | 1 |
+| Ambiguous batting contributor | 6 | 6 | 5 |
 
 Each player-game occurs in exactly one row; player/game counts overlap across
 families. These are retained analytical failures, not new semantic decisions.
-Of the 455 originally approved EG1 candidate games, 346 now have no remaining
-original exclusions and 109 remain held. Successful repair receipts do not
+Of the 455 originally approved EG1 candidate games, 407 now have no remaining
+original exclusions and 48 remain held. Successful repair receipts do not
 establish metric completion.
 
-The recorded failures share two implementation defects: 49 strict RML executions
+The preceding failures shared two implementation defects: 49 strict RML executions
 read absent optional `contactPlay` fields, and 30 authoritative SHACL reports
-reject the accepted PA/RBI decision's two subjects. The correction selects
+rejected the accepted PA/RBI decision's two subjects. The correction selects
 contact-record links only when the field exists and adds a precise EG4/EG5
 decision branch requiring the matching scoring rule, Person, PA/run, judgment
 and source record. Other decisions retain their existing constraints. Strict
 RML and conformance regressions cover present/absent contact context and invalid
-scoring pairs. NiFi retries the affected failed additions under the changed
-implementation; successful unrelated repairs and existing RDF remain intact.
-The publication above predates these two corrections.
+scoring pairs. NiFi completed 78 affected additions. The remaining old failed
+receipt, game 823448, has no unresolved Empty Games record in this publication.
+Successful unrelated repairs and existing RDF remain intact.
+
+A further reader correction applies the accepted terminal-out rule even without
+an error/RBI annotation, including completed batting rows with an unresolved
+running channel. Against the retained RDF answers, this resolves six of the 51
+held player-games. Missing history and unknown safe attribution stay unresolved;
+neither receives invented credit. A separate retry-scanner correction skips
+runner-only dependency fragments when selecting full-PA EG2 witnesses. Both
+corrections have focused regression coverage and await NiFi publication; the
+614/48 figures above do not include their expected gain.
 
 NiFi now maintains the whole grouped remainder and approved family work list
 through its existing owners. Repeated source discovery is cached per publication
@@ -86,7 +94,7 @@ an eligible batter's binary positive without a numeric advance or running credit
 The same EG1 owner reopens only matching still-incomplete selections and projects
 only their changed admission obligations. Ordinary future ingestion uses the same
 patterns. Focused source/RML/SHACL/SPARQL and prepared-reader regressions pass.
-The measured 551/111 population includes some of these additions; NiFi publication
+The measured 614/48 population includes these additions; NiFi publication
 must demonstrate complete coverage before this milestone can close.
 
 ## Earlier measured publication: October 8 at 23:34 Eastern

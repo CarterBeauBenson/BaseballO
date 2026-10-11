@@ -259,13 +259,17 @@ def empty_running_entries(m, rows, progress):
 
 
 def empty_scoring_inputs(m, rows, progress):
-    """EG5 binary attribution from promoted scoring decisions and actual paths.
+    """Binary attribution from promoted scoring decisions and actual paths.
 
     A mixed contact/error record remains uncertain; its error label alone
     cannot exclude all progress. Explicit RBI credit can establish a batter
     positive without supplying a numeric advance or transferring running credit.
+
+    A complete terminal-out path rules out positive progress even when no
+    scoring annotation is needed. This never supplies a missing attribution.
     """
-    turns={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])}
+    turns={p['plateAppearance'] for p in [*progress.get('unresolvedPlateAppearances',[]),
+           *progress.get('plateAppearances',[])]}
     actors=defaultdict(set);types=defaultdict(set);moves=defaultdict(list)
     histories=defaultdict(list);whole_rows=defaultdict(list)
     for row in rows:
@@ -278,8 +282,7 @@ def empty_scoring_inputs(m, rows, progress):
             if row.get('trajectory'):whole_rows[(row['graph'],row['trajectory'])].append(row)
     output={};excluded=set(m.policies()['batterProgressExcludedResultTypes'])
     for pa in turns:
-        if (not actors[pa] or None in actors[pa] or len(types[pa])!=1
-                or not any(r.get('secondaryError') or r.get('rbiDecision') for r in moves[pa])):continue
+        if not actors[pa] or None in actors[pa] or len(types[pa])!=1 or not moves[pa]:continue
         batting=set() if types[pa]<=excluded else actors[pa]
         possible=set();positive=set();groups=defaultdict(list)
         for row in moves[pa]:groups[row.get('runner')].append(row)
@@ -374,9 +377,14 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         if pa['plateAppearance'] in resolved:
             if pa['reach']:certain_positive.add(pa['player'])
             certain_positive.update(r['player'] for r in pa['independentPositive'])
-        uncertain.update(pa.get('unresolvedRunningPositivePlayers',[]))
-        if pa.get('independentPositiveGaps') and not pa.get('unresolvedRunningPositivePlayers'):
-            uncertain.update(roster)
+        scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
+        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
+            positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
+            uncertain.update(scoring['possiblePositivePlayers'])
+        else:
+            uncertain.update(pa.get('unresolvedRunningPositivePlayers',[]))
+            if pa.get('independentPositiveGaps') and not pa.get('unresolvedRunningPositivePlayers'):
+                uncertain.update(roster)
         for r in pa['positiveChannels']:channels[r['player']].add((r['play'],r['channel']))
         for r in pa['independentEpisodes']:episodes[r['player']].add(r['episode'])
         if pa['independentEpisodeGaps']:
@@ -627,11 +635,14 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
         resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]) if p['status']=='admitted'}
         help_progress=dict(unresolvedPlateAppearances=[p for p in inputs['progress'].get('unresolvedPlateAppearances',[])
             if admitted(proofs['resolution']) or p['plateAppearance'] in resolved])
+        empty_progress=dict(help_progress,plateAppearances=[p for p in inputs['progress'].get('plateAppearances',[])
+            if (p.get('independentPositiveGaps') or p.get('unresolvedRunningPositivePlayers'))
+            and (admitted(proofs['resolution']) or p['plateAppearance'] in resolved)])
         needs_contribution=individual.get('paBoundaries') and not inputs['contribution'].get('complete')
         needs_channels=admitted(proofs['resolution']) and any(p.get('independentEpisodeGaps') for p in inputs['progress'].get('plateAppearances',[]))
         needs_ambiguity=any(p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR']
                             for p in inputs['progress'].get('unresolvedPlateAppearances',[]))
-        if needs_contribution or needs_channels or needs_ambiguity or help_progress['unresolvedPlateAppearances']:
+        if needs_contribution or needs_channels or needs_ambiguity or help_progress['unresolvedPlateAppearances'] or empty_progress['plateAppearances']:
             evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
                 'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
             saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
@@ -640,7 +651,8 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
             if help_progress['unresolvedPlateAppearances']:
                 inputs['binaryHelp']=binary_help_inputs(m,evidence,help_progress)
                 inputs['emptyRunningEntries']=empty_running_entries(m,evidence,help_progress)
-                inputs['emptyScoring']=empty_scoring_inputs(m,evidence,help_progress)
+            if empty_progress['unresolvedPlateAppearances'] or empty_progress['plateAppearances']:
+                inputs['emptyScoring']=empty_scoring_inputs(m,evidence,empty_progress)
             if needs_channels:
                 inputs['channelGapPlayers']=channel_gap_players(evidence,inputs['progress'])
             if needs_ambiguity:

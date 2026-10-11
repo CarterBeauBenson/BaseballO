@@ -150,6 +150,11 @@ class TargetedCompletion(unittest.TestCase):
     def test_retired_execution_context_is_only_a_hash_checked_retry_diagnostic(self):
         document=copy.deepcopy(DOCUMENT);batter='https://baseballontology.org/data/player/'+str(play(11)['matchup']['batter']['id'])
         case=dict(gamePk='822714',excludedPlayerGames=[dict(player=batter)])
+        # A dependency carried into an older targeted context has no full PA.
+        # It must neither crash EG2 discovery nor hide a later supported play.
+        document['liveData']['plays']['allPlays'].insert(0,dict(
+            runners=[dict(details=dict(runner=dict(id=int(batter.rsplit('/',1)[-1]))))],
+            _baseballO=dict(runnerEpisodes=[dict(atBatIndex='79',runnerIndex='0')])))
         with tempfile.TemporaryDirectory() as directory:
             state=Path(directory);folder=state/'pipeline/evidence/mlb-game/822714/old-addition'
             context=folder/'game-context.json';E.W.atomic(context,document)

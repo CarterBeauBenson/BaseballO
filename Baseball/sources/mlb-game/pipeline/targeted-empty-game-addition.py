@@ -416,7 +416,9 @@ def selection_repair_families(state,case,previous,players=None):
         if eg4 and substituted:families.add('EG4-official-pa-credit')
         if eg5 and affected and any(r.get('details',{}).get('eventType') in SCORING.S.ERROR_EVENTS for r in play.get('runners',[])):
             families.add('EG5-secondary-error-attribution')
-        if eg2 and affected:
+        # Retained targeted contexts also contain runner-only dependency
+        # fragments. They are not complete PA witnesses for an EG2 selector.
+        if eg2 and affected and play.get('atBatIndex') is not None:
             result=play.get('result',{}).get('eventType');pa=str(play['atBatIndex'])
             if result in C.BATTED_RUNNER_RESULT_TYPES and any(r.get('details',{}).get('eventType')=='other_out' for r in play.get('runners',[])):
                 if any(e.get('isSubstitution') is True or e.get('reviewDetails') or e.get('details',{}).get('hasReview') for e in play.get('playEvents',[])) or play.get('reviewDetails'):
