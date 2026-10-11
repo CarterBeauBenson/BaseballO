@@ -50,10 +50,10 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
-| Dashboard build, October 11 at 20:25 UTC | `20261011T201105Z-dashboard-offense-30b0c6c7` published | All four families have independent publications |
-| Published dashboard, October 11 at 16:25 Eastern | 614 complete Empty Games players, 48 incomplete; 51 unresolved player-games across 48 games | Zero incomplete remains the finish line |
-| Reader repair, awaiting publication | Complete terminal-out paths clear six retained holds; actual award recipients clear three more. Partial retry-context records no longer crash discovery | NiFi must publish the changed projection before counting the gain |
-| Eligibility repair, awaiting addition | B1 now reconciles neutral defensive prefixes; the retained 823565 response selects the previously missing EG4 PA credit | Existing targeted owner adds the supported credit and refreshes its player result |
+| Dashboard build, October 11 at 23:06 UTC | `20261011T222654Z-dashboard-offense-83be8fec` published | All four families have independent publications |
+| Published dashboard, October 11 at 19:06 Eastern | 608 complete Empty Games players, 54 incomplete; 56 held player-games across 51 games | A reader regression reopened 15 resolved records; zero incomplete remains the finish line |
+| Reader repair, awaiting publication | Preserve established zero contributions when refining uncertainty; retained evidence clears all 15 regressions | With the completed EG4 addition, the diagnostic remainder is 40 player-games; publication must demonstrate the gain |
+| Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable

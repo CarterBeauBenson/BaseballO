@@ -395,14 +395,15 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         if pa['plateAppearance'] in resolved:
             if pa['reach']:certain_positive.add(pa['player'])
             certain_positive.update(r['player'] for r in pa['independentPositive'])
+        affected=set(pa.get('unresolvedRunningPositivePlayers',[]))
+        if pa.get('independentPositiveGaps') and not affected:affected=set(roster)
         scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
         if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
             positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
-            uncertain.update(scoring['possiblePositivePlayers'])
-        else:
-            uncertain.update(pa.get('unresolvedRunningPositivePlayers',[]))
-            if pa.get('independentPositiveGaps') and not pa.get('unresolvedRunningPositivePlayers'):
-                uncertain.update(roster)
+            # A binary reader can resolve an existing gap, but cannot erase
+            # the full reducer's already established zero batting/running credit.
+            affected.intersection_update(scoring['possiblePositivePlayers'])
+        uncertain.update(affected)
         for r in pa['positiveChannels']:channels[r['player']].add((r['play'],r['channel']))
         for r in pa['independentEpisodes']:episodes[r['player']].add(r['episode'])
         if pa['independentEpisodeGaps']:
@@ -419,7 +420,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
         affected=set(affected)
         scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
         if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
-            affected=set(scoring['possiblePositivePlayers'])
+            affected.intersection_update(scoring['possiblePositivePlayers'])
             positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
         positive.update(pa.get('confirmedPositivePlayers',[]))
         if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))

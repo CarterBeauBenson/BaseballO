@@ -128,5 +128,38 @@ class EmptyScoringCredit(unittest.TestCase):
         rows.extend(self.terminal_path()[3:])
         self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
 
+    def test_scoring_refinement_preserves_known_batting_zero_and_all_out_exclusion(self):
+        def completed(pa,player):
+            return dict(plateAppearance=pa,player=player,officialResult=True,reach=0,
+                batterPositive=False,otherPositivePlayers=[],independentPositive=[],positiveChannels=[],
+                independentEpisodes=[],independentEpisodeGaps=[],independentPositiveGaps=[])
+        other=dict(self.turn(),entity='other-pa',player=U+'2',act='other-act')
+        roster=[dict(kind='player_team_game',graph=G+'1',game='game',player=U+str(i),team='team',teamRole='role') for i in (1,2)]
+        q=dict(participation=[dict(player=U+str(i),plateAppearances=1) for i in (1,2)],
+            expectedObservations=[dict(player=U+'1',plateAppearance='pa'),dict(player=U+'2',plateAppearance='other-pa')])
+        unknown=self.error()
+        for field in ('secondaryError','errorJudgment','errorDecision'):unknown.pop(field)
+        rows=[self.turn(),other,unknown,*roster]
+        progress=dict(plateAppearances=[completed('pa',U+'1'),completed('other-pa',U+'2')],unresolvedPlateAppearances=[])
+        progress['plateAppearances'][0].update(independentPositiveGaps=['UNKNOWN_CHANNEL'],unresolvedRunningPositivePlayers=[U+'2'])
+        scoring=P.empty_scoring_inputs(M,rows,progress)
+        self.assertEqual(scoring['pa']['possiblePositivePlayers'],[U+'1',U+'2'])
+        def project(inputs,evidence):
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G+'1',scope=SCOPE,rows=evidence,
+                    proofs=dict(batting=PROOF,run={},players={},resolution=PROOF),
+                    inputs=dict(contribution={},**inputs),runs={},run_people={},metric_ids={'empty-game-rate'})
+            return {r[1]:(r[3],json.loads(r[4])['count']) for r in records}
+        self.assertEqual(project(dict(progress=progress,emptyScoring=scoring),rows),{U+'1':(1,1),U+'2':(0,1)})
+        # Two actual-batter bindings repeat one out. The existing all-out
+        # exclusion already proves zero; unresolved attribution cannot undo it.
+        out=dict(unknown,hasSafeType='false',hasOutType='true',runner=U+'1')
+        rows=[self.turn(),dict(self.turn(),player=U+'2',act='bat2'),other,out,dict(out,batter=U+'2'),*roster]
+        progress=dict(plateAppearances=[completed('other-pa',U+'2')],unresolvedPlateAppearances=[dict(
+            plateAppearance='pa',player=U+'1',officialResult=True,possiblePositivePlayers=None,gaps=['AMBIGUOUS_BATTING_CONTRIBUTOR'])])
+        inputs=dict(progress=progress,emptyScoring=P.empty_scoring_inputs(M,rows,progress),
+            ambiguousProgressPlayers={'pa':[U+'1',U+'2']},ambiguousEmptyPositivePlayers={'pa':[]})
+        self.assertEqual(project(inputs,rows),{U+'1':(1,1),U+'2':(1,1)})
+
 
 if __name__=='__main__':unittest.main()

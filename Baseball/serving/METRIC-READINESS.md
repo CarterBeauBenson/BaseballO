@@ -21,7 +21,25 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 11 at 16:25 Eastern
+## Latest measured publication: October 11 at 19:06 Eastern
+
+Offense publication `20261011T222654Z-dashboard-offense-83be8fec` contains all
+2,429 selected games, but has **608 complete hitters and 54 incomplete**, with
+**56 held player-games across 51 games**. The reader extension introduced a
+regression: its conservative attribution candidates replaced the existing
+reducer's narrower uncertainty sets, reopening 15 previously resolved records.
+It must refine those sets by intersection and preserve already established zero
+batting credit and all-out exclusions. The correction and regression checks are
+implemented. Against the affected games' retained SQL evidence it clears all 15
+regressions; the completed 823565 EG4 addition clears one further record. The
+resulting diagnostic remainder is 40 player-games, pending NiFi publication.
+
+The terminal-out and actual-award-recipient improvements below are now in the
+published reader. The separate EG4 targeted addition for 823565 is complete.
+Neither the 40-record diagnostic remainder nor an expected player-count gain
+is a live dashboard result until its prepared snapshot publishes.
+
+## Earlier measured publication: October 11 at 16:25 Eastern
 
 Offense publication `20261011T201105Z-dashboard-offense-30b0c6c7`, promoted at October 11 20:25:15 UTC,
 contains all 2,429 selected
