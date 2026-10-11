@@ -4539,39 +4539,62 @@
     "families": {
       "batting": {
         "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
-        "currentImplementationSha256": "5342fa8028761256dd563ab8e3b6c0a5f5c207aa6660626a0f7537dfe49afc61",
-        "reuseKind": "prior-stricter-scoring-selection"
+        "currentImplementationSha256": "192330c15506135a3bb4c4e4147cf9433364faf0ab022b0f5d3b7df8975c6101",
+        "reuseKind": "prior-stricter-scoring-selection",
+        "intermediateImplementations": {
+          "5342fa8028761256dd563ab8e3b6c0a5f5c207aa6660626a0f7537dfe49afc61": "prior-stricter-scoring-selection"
+        }
       },
       "scoring-run": {
         "previousImplementationSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
-        "currentImplementationSha256": "868c2ae00334aec598fb7a8c41d7065aaeabbfc39c1e8e8af54e25fa902e1fab",
-        "reuseKind": "unchanged-proof-dependencies"
+        "currentImplementationSha256": "7aba12af139ace7eb548af9963227507b83244165df23ad4f49b269cac7d1227",
+        "reuseKind": "unchanged-proof-dependencies",
+        "intermediateImplementations": {
+          "868c2ae00334aec598fb7a8c41d7065aaeabbfc39c1e8e8af54e25fa902e1fab": "unchanged-proof-dependencies"
+        }
       },
       "runner-resolution": {
         "previousImplementationSha256": "d8d12fe76e49cffa26914b58effae430faaf810d163f26e0186e1dcbbba087f6",
-        "currentImplementationSha256": "d34f52da2876c8e1dc664b846448a09e8f167660ca1ab0c5f5f56468c87f262c",
-        "reuseKind": "prior-stricter-scoring-selection"
+        "currentImplementationSha256": "e4a4c01ff29f73a9cd667249168c64aa6a85d18e96c24f700ba2e2983af40937",
+        "reuseKind": "prior-stricter-scoring-selection",
+        "intermediateImplementations": {
+          "d34f52da2876c8e1dc664b846448a09e8f167660ca1ab0c5f5f56468c87f262c": "unchanged-proof-dependencies"
+        }
       },
       "pitch-count": {
         "previousImplementationSha256": "f83d93716a53d16072207c2e62fee0c725ae6d2fd8bf408e84581625737f0245",
-        "currentImplementationSha256": "b5cbaab9c302f81ac647b29fd23eec220cc089d65e08557ca108fe7e584a0a3b",
-        "reuseKind": "prior-stricter-scoring-selection"
+        "currentImplementationSha256": "ee67412b60310ac75b637c5fd1567474dceb10d6f04fcc81f3891408117a6f37",
+        "reuseKind": "prior-stricter-scoring-selection",
+        "intermediateImplementations": {
+          "b5cbaab9c302f81ac647b29fd23eec220cc089d65e08557ca108fe7e584a0a3b": "unchanged-proof-dependencies"
+        }
       },
       "runner-boundary": {
         "previousImplementationSha256": "d8b760084876f81e839fcefb3f9195736e666d4e8fc4c77c3385dd37bd94e4ae",
-        "currentImplementationSha256": "dd9ede440129588819ddb855cacda23ca01206090b922f9a5d12686797bf3c55",
-        "reuseKind": "prior-stricter-scoring-selection"
+        "currentImplementationSha256": "52e937f53d4e5c4593b9b4786e3c66e52489d91896dbfb65a7463c8ea1f2bd92",
+        "reuseKind": "prior-stricter-scoring-selection",
+        "intermediateImplementations": {
+          "dd9ede440129588819ddb855cacda23ca01206090b922f9a5d12686797bf3c55": "unchanged-proof-dependencies"
+        }
       },
       "defensive": {
         "previousImplementationSha256": "4c8d874b20871f1390cf6a97fd2e5b8530262062214ee355c458ce966389987f",
-        "currentImplementationSha256": "1c509fd47b874b6a380355f45af526f0c89d342174b1d4bd2a423223f28e84b9",
-        "reuseKind": "unchanged-proof-dependencies"
+        "currentImplementationSha256": "9c95006c9957a58052339875148142a6625a473ee9a03d47cbca768d74d3ee94",
+        "reuseKind": "unchanged-proof-dependencies",
+        "intermediateImplementations": {
+          "1c509fd47b874b6a380355f45af526f0c89d342174b1d4bd2a423223f28e84b9": "unchanged-proof-dependencies"
+        }
       }
     },
     "independentProofs": {
       "batting": {
-        "currentImplementationSha256": "b32fdcf5e38f240fc65c21fef49adc4a5a3fdae73c00951eebb9a5ae8f16c338",
+        "currentImplementationSha256": "8dde8d2e2c241b331a81089717ab8d034ece9d001c2deb53ec9368f050142b5b",
         "previous": [
+          {
+            "previousImplementationSha256": "b32fdcf5e38f240fc65c21fef49adc4a5a3fdae73c00951eebb9a5ae8f16c338",
+            "previousSourceProducerSha256": "5342fa8028761256dd563ab8e3b6c0a5f5c207aa6660626a0f7537dfe49afc61",
+            "requiresOriginalAdmission": true
+          },
           {
             "previousImplementationSha256": "2d126b4df793bfd534fb95fbd5805e85b9ab14dcd3fb0773f220c0a2cb859990",
             "previousSourceProducerSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
@@ -4581,8 +4604,13 @@
         "requiresOriginalAdmission": true
       },
       "scoring-run": {
-        "currentImplementationSha256": "25613e3daea84cb748ec8ad999cf536289da4115b2359c758ad7348c42cf1ee4",
+        "currentImplementationSha256": "18f1ba855869342c0f4ab70cbb8233bd19d3bc95c618751147e0775ad6fb78d4",
         "previous": [
+          {
+            "previousImplementationSha256": "25613e3daea84cb748ec8ad999cf536289da4115b2359c758ad7348c42cf1ee4",
+            "previousSourceProducerSha256": "868c2ae00334aec598fb7a8c41d7065aaeabbfc39c1e8e8af54e25fa902e1fab",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "b2f44718a50eb8b565d0b01d8d589d2e661a7503cb27a554be5377b7dbf766c6",
             "previousSourceProducerSha256": "727b5e760bdfdf2a7189f979f9018279383ed058f9b43e57d4dcbe43db6b283e",
@@ -4592,8 +4620,13 @@
         "requiresOriginalAdmission": false
       },
       "runner-resolution": {
-        "currentImplementationSha256": "f56f4121b2906c6ff0892fd7a84a5cfbd6cafcc1eb674b093328fca99a3a84ff",
+        "currentImplementationSha256": "ef2108f368945512541f4538fbc02fe0b33d29728fd253b81bbd22e316c678ab",
         "previous": [
+          {
+            "previousImplementationSha256": "f56f4121b2906c6ff0892fd7a84a5cfbd6cafcc1eb674b093328fca99a3a84ff",
+            "previousSourceProducerSha256": "d34f52da2876c8e1dc664b846448a09e8f167660ca1ab0c5f5f56468c87f262c",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "3e2124c257e144a8a6bb5e36f1de93a8e838860621f891971a4df37ec4c5e55a",
             "previousSourceProducerSha256": "d8d12fe76e49cffa26914b58effae430faaf810d163f26e0186e1dcbbba087f6",
@@ -4603,8 +4636,13 @@
         "requiresOriginalAdmission": true
       },
       "pitch-count": {
-        "currentImplementationSha256": "e2d4189a412b1e219e26496809f016d7fb60f0b464ba91ffae538cff924b3142",
+        "currentImplementationSha256": "910f6f3b8a89f22e6ac64fa99c578b58ff7568e1a6f64a2b9276cd41e69176b6",
         "previous": [
+          {
+            "previousImplementationSha256": "e2d4189a412b1e219e26496809f016d7fb60f0b464ba91ffae538cff924b3142",
+            "previousSourceProducerSha256": "b5cbaab9c302f81ac647b29fd23eec220cc089d65e08557ca108fe7e584a0a3b",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "a193e6eb7edab664aa08b78d6adc01c2fa9db9e094645ba1e3c577dd86636f94",
             "previousSourceProducerSha256": "f83d93716a53d16072207c2e62fee0c725ae6d2fd8bf408e84581625737f0245",
@@ -4614,8 +4652,13 @@
         "requiresOriginalAdmission": true
       },
       "runner-boundary": {
-        "currentImplementationSha256": "40dc17161aa72c101608eec4775f48a22416c6c94dbc2670e1d465a5eb0e0130",
+        "currentImplementationSha256": "21756f0c65f4d6381a93a9e343814ba3d9a2e32cf88506ff5fc9d8aa258135b7",
         "previous": [
+          {
+            "previousImplementationSha256": "40dc17161aa72c101608eec4775f48a22416c6c94dbc2670e1d465a5eb0e0130",
+            "previousSourceProducerSha256": "dd9ede440129588819ddb855cacda23ca01206090b922f9a5d12686797bf3c55",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "5de6aa1144efd9e9070fd50047def7145d3b4034b7874167d609bb9f3d2a5c75",
             "previousSourceProducerSha256": "d8b760084876f81e839fcefb3f9195736e666d4e8fc4c77c3385dd37bd94e4ae",
@@ -4625,8 +4668,13 @@
         "requiresOriginalAdmission": true
       },
       "defensive": {
-        "currentImplementationSha256": "3d04a1b8e294016cc4ea9e388fece0c2b83219091e071059034200e2d7d7ad4d",
+        "currentImplementationSha256": "98323dca6653a2c95b19263677fcb9d93da2dfa37496b495ba149ba6972e91fe",
         "previous": [
+          {
+            "previousImplementationSha256": "3d04a1b8e294016cc4ea9e388fece0c2b83219091e071059034200e2d7d7ad4d",
+            "previousSourceProducerSha256": "1c509fd47b874b6a380355f45af526f0c89d342174b1d4bd2a423223f28e84b9",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "e62168bca4f07942274fdb622007ddcc36bf8de4ac29981baea7d3880fc4e568",
             "previousSourceProducerSha256": "4c8d874b20871f1390cf6a97fd2e5b8530262062214ee355c458ce966389987f",
@@ -4638,8 +4686,9 @@
     },
     "derivedProofs": {
       "players": {
-        "currentImplementationSha256": "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
+        "currentImplementationSha256": "60ead0fa218c5e9c5b15c4a841ef9b766bc3013fbfd3d5eabca7debed2213c49",
         "previousImplementationSha256s": [
+          "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
           "343befe7a01fe3da57ee7b843b909c7882390d7dbca38e0b3ba2ed916c4138aa",
           "0ea85bfbe665fc0a4b7cff986614076bdbc4e64d726d99b48b8fb3489617c806",
           "d2a169e02913fd13902df3a4ecb9988251619a51478c264f545079ff7447eb1a",
@@ -4666,8 +4715,9 @@
         ]
       },
       "pa": {
-        "currentImplementationSha256": "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
+        "currentImplementationSha256": "692b0798271f1363c53237a113ba570a7c346d4633f26e8ca4c26fe4ee23e3d8",
         "previousImplementationSha256s": [
+          "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
           "8817a0d99eda10dee596ee502fd7676ea7d7513eff4e17b119030c0d11bf871c",
           "9c449239f98787ba2d8cdd0c9c9aec15f70258ed773940ab8da042ec10476817",
           "267640d5196076214f7ec9b0ad954ac976554617047c8240e4cd005fb6046c0c",
@@ -4691,8 +4741,9 @@
         ]
       },
       "c2pa": {
-        "currentImplementationSha256": "bb8294d0935911001ddfbd5c4c3e6cdee17a14bc73b0d022263a52a9a4eef8cc",
+        "currentImplementationSha256": "4897efe12a3642780b31e05853ef072d48d9aa0c52e38b05064f0f589c5d6dce",
         "previousImplementationSha256s": [
+          "bb8294d0935911001ddfbd5c4c3e6cdee17a14bc73b0d022263a52a9a4eef8cc",
           "8f751db49c738d55889c288bc4ba07f23325d43696feb90f42003b3d6c89ef15",
           "847b8db8e11d0678ce19f5ebea61d5f4e807e5a59bf7e917b00a64c8b9fabdc2",
           "ec215b6f0fa22db89de2043cb9063680bd8c9ed98c52ebc278a429be749430a5",
@@ -4717,8 +4768,9 @@
         ]
       },
       "retained-batting": {
-        "currentImplementationSha256": "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
+        "currentImplementationSha256": "aeb4b85652358a0e5acaf1c7a53bfb6d66b6e2fee292d59950d73bc9401c0687",
         "previousImplementationSha256s": [
+          "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
           "4f9f6da0305a7de7ae16e1dcd97d9aa0b46237fb6958e4ccc69feb7161fd3376"
         ]
       }
@@ -4738,7 +4790,8 @@
     ],
     "changedValidationDefinitions": [
       "batting census and player shapes separate actual actors from reconciled official PA credit",
-      "EG2 source selections admit additional reconciled runner and result patterns; previous positive proofs retain original producers and outcomes"
+      "EG2 source selections admit additional reconciled runner and result patterns; previous positive proofs retain original producers and outcomes",
+      "B1 recognizes defensive changes before an untouched zero-count PH boundary; existing counts and graph obligations are unchanged"
     ]
   }
 }

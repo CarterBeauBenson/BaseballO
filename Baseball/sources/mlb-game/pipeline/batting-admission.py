@@ -159,12 +159,13 @@ def census(raw, game_pk):
                 and player in owners
                 and all(owners.get(BASE+'data/player/'+str(v),{}).get('side')==owners[player]['side']
                         for v in (new_id,old_id)))
-            # A pitching change or mound visit can precede a PH in the feed
+            # Defensive changes or a mound visit can precede a PH in the feed
             # without a pitch or count award having begun batting. Array
             # position is not evidence of prior batting participation.
             neutral_prefix = all(
                 e.get('index') == i and e.get('type') == 'action' and e.get('isPitch') is False
-                and e.get('details', {}).get('eventType') in {'pitching_substitution', 'mound_visit'}
+                and e.get('details', {}).get('eventType') in {
+                    'pitching_substitution', 'mound_visit', 'defensive_switch', 'defensive_substitution'}
                 and e.get('details', {}).get('isInPlay') is not True
                 and e.get('details', {}).get('isBall') is not True
                 and e.get('details', {}).get('isStrike') is not True

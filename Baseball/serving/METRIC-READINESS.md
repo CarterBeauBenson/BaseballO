@@ -67,6 +67,17 @@ runner-only dependency fragments when selecting full-PA EG2 witnesses. Both
 corrections have focused regression coverage and await NiFi publication; the
 614/48 figures above do not include their expected gain.
 
+The remaining official-PA eligibility hold, 823565/667670, has a separate B1
+defect: defensive switches before a zero-count pinch hitter in PA 59 blocked
+the otherwise reconciled EG4 credit in PA 2. B1 now treats those no-pitch,
+no-count-change, no-movement prefixes consistently with pitching changes.
+The unchanged retained response reconciles every player/team PA total and
+selects the existing EG4 credit. The bounded owner retries only a still-excluded
+player whose previous attempt selected no credit and whose retained full response
+now supports it. Existing unaffected admission results remain reusable; an old
+negative batting check cannot certify this newly supported case. NiFi owns the
+targeted addition and subsequent publication.
+
 NiFi now maintains the whole grouped remainder and approved family work list
 through its existing owners. Repeated source discovery is cached per publication
 and implementation, and the existing bounded batch consumes the family. A further

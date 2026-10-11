@@ -95,10 +95,12 @@ def code_equivalence(family,previous,current,*,_context=None):
         if (bridge and context==selection.get('currentContextSha256')
                 and current==bridge['currentImplementationSha256']):
             prior=bridge['previousImplementationSha256']
-            reused=(dict(kind=bridge['reuseKind']) if previous==prior else
+            intermediate=bridge.get('intermediateImplementations',{})
+            reused=(dict(kind=intermediate[previous]) if previous in intermediate else
+                dict(kind=bridge['reuseKind']) if previous==prior else
                 code_equivalence(family,previous,prior,_context=selection['previousContextSha256']))
             if reused is not None:
-                if bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind'] in {'unchanged-proof-dependencies','unchanged-admission-census'}:
+                if previous not in intermediate and bridge['reuseKind']!='unchanged-proof-dependencies' and reused['kind'] in {'unchanged-proof-dependencies','unchanged-admission-census'}:
                     reused=dict(reused,kind=bridge['reuseKind'])
                 return dict(reused,recordSha256=sha(COMPATIBILITY_PATH),
                     previousImplementationSha256=previous,currentImplementationSha256=current,

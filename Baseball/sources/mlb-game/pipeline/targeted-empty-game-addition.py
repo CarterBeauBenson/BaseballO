@@ -384,8 +384,10 @@ def selection_repair_families(state,case,previous,players=None):
     w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
     eg2=previous.get('emptySelectionDecision')!=SELECTION_DECISION
     eg4=previous.get('officialPACreditDecision')!=PA_CREDIT_DECISION
+    prior_scoring=previous.get('selected',{}).get('scoring')
+    eg4_completion=(not eg4 and prior_scoring is not None and not prior_scoring.get('officialPACredits'))
     eg5=previous.get('secondaryErrorDecision')!=ERROR_DECISION
-    if not (d2 or w5 or eg2 or eg4 or eg5):return []
+    if not (d2 or w5 or eg2 or eg4 or eg4_completion or eg5):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -407,6 +409,12 @@ def selection_repair_families(state,case,previous,players=None):
     if not players:return []
     ids={p.rsplit('/',1)[-1] for p in players}
     families=set()
+    if eg4_completion and raw is not None:
+        # The earlier attempt emitted no credit because an unrelated neutral
+        # defensive prefix blocked B1. Reopen only a newly reconciled credit
+        # for a still-excluded player, using the exact retained full response.
+        credits=SCORING.S.pa_rows(SCORING.B.census(raw,case['gamePk']))
+        if any(row['player'] in players for row in credits):families.add('EG4-official-pa-credit')
     for play in plays:
         batter=str(play.get('matchup',{}).get('batter',{}).get('id'))
         affected=batter in ids or any(str(r.get('details',{}).get('runner',{}).get('id')) in ids for r in play.get('runners',[]))

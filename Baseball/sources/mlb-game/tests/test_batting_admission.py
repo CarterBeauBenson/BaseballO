@@ -58,7 +58,9 @@ def fixture():
 
 class SourceAdmission(unittest.TestCase):
     def test_neutral_zero_count_prefix_before_pinch_hitter_is_not_mid_turn(self):
-        for event_types in (['pitching_substitution'], ['mound_visit'], ['mound_visit', 'pitching_substitution']):
+        for event_types in (['pitching_substitution'], ['mound_visit'], ['mound_visit', 'pitching_substitution'],
+                            ['defensive_switch'], ['defensive_substitution'],
+                            ['defensive_switch', 'defensive_substitution', 'pitching_substitution']):
             doc=raw();pa=doc['liveData']['plays']['allPlays'][53]
             amount=len(event_types);ph=copy.deepcopy(pa['playEvents'][0])
             prefix=[]

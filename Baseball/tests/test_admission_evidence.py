@@ -569,6 +569,9 @@ class AdmissionEvidence(unittest.TestCase):
             expected=(record['missingCountResultHandling'] if not final_award and family=='pitch-count' and
                 'missingCountResultHandling' in record else current['families'][family])
             self.assertEqual(adapter.fingerprint(),expected['currentImplementationSha256'])
+            for previous,kind in expected.get('intermediateImplementations',{}).items():
+                self.assertEqual(E.code_equivalence(family,previous,adapter.fingerprint())['kind'],kind)
+            self.assertIsNone(E.code_equivalence(family,'unknown',adapter.fingerprint()))
             clock=record['priorClockIsolation']['families'].get(family)
             if clock:
                 self.assertIsNotNone(E.code_equivalence(family,clock['previousImplementationSha256'],adapter.fingerprint()))

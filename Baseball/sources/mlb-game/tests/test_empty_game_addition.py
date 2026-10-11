@@ -116,6 +116,28 @@ class EmptyGameAddition(unittest.TestCase):
         self.assertEqual(play['result'],self.play['result'])
         Graph().parse(data=E.BK.shapes('566279',rows),format='turtle')
 
+    def test_official_credit_retry_requires_new_reconciled_credit_for_an_excluded_player(self):
+        raw=(ROOT/'data/raw/samples/2026-07-18/824169.json').read_bytes()
+        player='https://baseballontology.org/data/player/664774'
+        case=dict(gamePk='824169')
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);source=state/'input.json';source.write_bytes(raw)
+            previous=dict(status='already-present',independentRunningDecision=E.INDEPENDENT_DECISION,
+                reviewedWalkDecision=E.REVIEW_WALK_DECISION,emptySelectionDecision=E.SELECTION_DECISION,
+                officialPACreditDecision=E.PA_CREDIT_DECISION,secondaryErrorDecision=E.ERROR_DECISION,
+                selected=dict(scoring=dict(officialPACredits=[]),sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
+            self.assertEqual(E.selection_repair_families(state,case,previous,players=[player]),['EG4-official-pa-credit'])
+            self.assertEqual(E.selection_repair_families(state,case,previous,players=['urn:unaffected']),[])
+            selected=copy.deepcopy(previous);selected['selected']['scoring']['officialPACredits']=E.SCORING.select(raw,'824169')['officialPACredits']
+            self.assertEqual(E.selection_repair_families(state,case,selected,players=[player]),[])
+            changed=json.loads(raw)
+            changed['liveData']['boxscore']['teams']['home']['players']['ID664774']['stats']['batting']['plateAppearances']+=1
+            source.write_text(json.dumps(changed),encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'retained source changed'):
+                E.selection_repair_families(state,case,previous,players=[player])
+            previous['selected']['sourceWitness']['sha256']=E.W.sha(source)
+            self.assertEqual(E.selection_repair_families(state,case,previous,players=[player]),[])
+
     def test_scoring_balk_uses_existing_run_process_and_rejects_wrong_result_type(self):
         row=dict(atBatIndex='37',runnerIndex='0',runnerId='702332',resolutionKind='score',actionId='fixture-balk')
         game='https://baseballontology.org/data/game/822846'
