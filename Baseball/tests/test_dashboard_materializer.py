@@ -649,6 +649,20 @@ class DashboardMaterializer(unittest.TestCase):
                 self.assertEqual(original.call_count,2)
             self.assertIs(D.ADMISSION_EVIDENCE.code_equivalence,original)
 
+    def test_admission_versions_preserve_parameterized_census_fingerprints(self):
+        adapter=next(a for a in D.ADMISSIONS.values() if hasattr(a,'previous_fingerprints'))
+        current=adapter.fingerprint()
+        previous=adapter.previous_fingerprints()
+        self.assertNotIn(current,previous)
+        with patch.object(adapter,'fingerprint',wraps=adapter.fingerprint) as original:
+            with D.admission_versions():
+                self.assertEqual(adapter.fingerprint(),current)
+                self.assertEqual(adapter.previous_fingerprints(),previous)
+                self.assertEqual(adapter.previous_fingerprints(),previous)
+                self.assertEqual(original.call_count,3)
+            self.assertIs(adapter.fingerprint,original)
+            self.assertEqual(original.call_count,4)
+
     def test_admission_report_hashes_survive_restart_but_detect_changed_evidence(self):
         path=self.state/'proof.report.ttl';path.write_bytes(b'<a> <b> <c> .')
         cache=self.state/'hashes.json';original_open=Path.open;opens=[]

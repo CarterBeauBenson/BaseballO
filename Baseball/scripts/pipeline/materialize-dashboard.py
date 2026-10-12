@@ -304,12 +304,13 @@ def admission_versions():
     originals=[(adapter,adapter.fingerprint) for adapter in
                [*ADMISSIONS.values(),ADMISSION_EVIDENCE.RETAINED_BATTING,ADMISSION_EVIDENCE.PLAYER_PARTICIPATION,
                 ADMISSION_EVIDENCE.PA_RESOLUTION]]
-    versions=[function() for _,function in originals]
+    cached=[lru_cache(maxsize=None)(function) for _,function in originals]
+    versions=[function() for function in cached]
     equivalence=ADMISSION_EVIDENCE.code_equivalence
     compatibility=ADMISSION_EVIDENCE.sha(ADMISSION_EVIDENCE.COMPATIBILITY_PATH)
     ADMISSION_EVIDENCE.code_equivalence=lru_cache(maxsize=None)(equivalence)
-    for (adapter,_),version in zip(originals,versions):
-        adapter.fingerprint=lambda value=version:value
+    for (adapter,_),function in zip(originals,cached):
+        adapter.fingerprint=function
     try:yield
     finally:
         for adapter,function in originals:adapter.fingerprint=function
