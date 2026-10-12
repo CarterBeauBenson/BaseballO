@@ -168,10 +168,17 @@ remain in the current implementation.
 Bounded follow-through also confirmed remaining graph/source gaps independently
 of the SQL reader:
 
-- In 824385 PA 35, the retained original B1 census expects the accepted compound
-  Double Play classification. The promoted result has its institutional-process
+- In 824385 PA 35, the accepted K1 expectation is the compound Double Play
+  classification. The promoted result has its institutional-process
   type and adjudication/record links, but lacks that classification. The player's
-  official-PA check consequently fails. A different known positive can already
+  official-PA check consequently fails. Its source event is `strikeout_double_play`;
+  the original census used the older Strikeout expectation, which the accepted
+  K1 reader correctly normalizes to Double Play. The recorded follow-up in
+  `sources/mlb-game/pipeline/compound-repair-candidates.json` now submits this
+  same existing K1 pattern under the September 30 standing narrow-repair scope.
+  NiFi must reconcile the targeted response and the two existing out patterns
+  before adding missing triples. No mapping changes or new decision are needed.
+  A different known positive can already
   settle Empty Games; it cannot supply that missing PA to an average.
 - In 822685, scoring episode 17/2 and its Run Process exist, but the queried C1
   personal-history whole does not contain that episode. Retained raw inputs were

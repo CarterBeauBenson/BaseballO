@@ -1,4 +1,4 @@
-"""NiFi-owned K1: five bounded responses and additive compound-result facts."""
+"""NiFi-owned K1: recorded bounded responses and additive compound-result facts."""
 import argparse
 import hashlib
 import json
@@ -13,13 +13,25 @@ ROOT=W.ROOT
 DECISION='archive/design-records/mlb-game-strikeout-double-play/review.json'
 CASES={'823327':(46,802139),'823489':(6,641355),'824301':(40,672695),
        '824302':(17,694249),'824866':(42,663886)}
+FOLLOWUP=HERE/'compound-repair-candidates.json'
 SUCCESS={'complete','already-complete','already-present'}
 SHAPE=HERE.parent/'shacl/compound-result-addition.ttl'
 C=W.C.CONTEXT
 
 
+def cases():
+    recorded=W.read(FOLLOWUP)
+    return dict(CASES,**{r['gamePk']:(r['atBatIndex'],r['batterId']) for r in recorded['cases']})
+
+
+def decisions(game_pk):
+    result=dict(decision=DECISION)
+    if game_pk not in CASES:result['scopeDecision']=W.read(FOLLOWUP)['scopeDecision']
+    return result
+
+
 def approved(game_pk):
-    if W.read(ROOT/DECISION)['status']!='accepted' or game_pk not in CASES:
+    if game_pk not in cases() or any(W.read(ROOT/path)['status']!='accepted' for path in decisions(game_pk).values()):
         raise ValueError('Game is outside accepted K1 scope')
 
 
@@ -29,7 +41,7 @@ def select(raw,game_pk):
     if str(doc.get('gamePk'))!=game_pk:raise ValueError('K1 response game differs')
     source=W.C.B.SOURCE.reconcile(raw,game_pk)
     if source['blockingIssues']:raise ValueError('K1 source membership is not reconciled')
-    pa,batter=CASES[game_pk]
+    pa,batter=cases()[game_pk]
     plays=[p for p in doc['liveData']['plays']['allPlays'] if p['atBatIndex']==pa]
     if len(plays)!=1 or plays[0]['matchup']['batter']['id']!=batter:
         raise ValueError('K1 selected participant or PA changed')
@@ -57,8 +69,9 @@ def shapes(game_pk,selected):
     return text.replace('__PARTS__',' UNION '.join(values))
 
 
-def revalidate(*args):
-    return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION))
+def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delta):
+    return W.revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delta,
+        shape_text=shapes,decisions=decisions(game_pk))
 
 
 def acquire(state,game_pk):
@@ -88,18 +101,19 @@ def acquire(state,game_pk):
     else:
         temporary=directory/'input.pending';temporary.write_bytes(raw);temporary.replace(source)
     witness=dict(kind='targeted-reacquisition',path=str(source),sha256=W.sha(source),
-        url=url,gamePk=game_pk,decision=DECISION,acquiredAtUtc=W.TX.now())
+        url=url,gamePk=game_pk,**decisions(game_pk),acquiredAtUtc=W.TX.now())
+    if game_pk not in CASES:witness['repairManifestSha256']=W.sha(FOLLOWUP)
     W.atomic(manifest,witness);return witness
 
 
 def fingerprint():
-    return hashlib.sha256(Path(__file__).read_bytes()+SHAPE.read_bytes()+W.fingerprint().encode()
+    return hashlib.sha256(Path(__file__).read_bytes()+FOLLOWUP.read_bytes()+SHAPE.read_bytes()+W.fingerprint().encode()
         +(ROOT/DECISION).read_bytes()).hexdigest()
 
 
 def next_game(state):
     version=fingerprint()
-    for number,game_pk in enumerate(CASES):
+    for number,game_pk in enumerate(cases()):
         if not W.A.SCOPE.active(state,game_pk):continue
         approved(game_pk)
         path=state/'pipeline/control/mlb-game/compound-addition'/(game_pk+'.json')
@@ -124,7 +138,7 @@ def tick(state,game_pk,java,mapper,classpath):
     try:
         witness=acquire(state,game_pk)
         result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
-            decisions=dict(decision=DECISION),select=select,execution_inputs=execution_inputs,
+            decisions=decisions(game_pk),select=select,execution_inputs=execution_inputs,
             revalidate=revalidate,validation_scope='selected-k1-compound-result-and-retained-admissions')))
         result['acquiredInputs']=1
     except Exception as error:result.update(status='failed',error=str(error))

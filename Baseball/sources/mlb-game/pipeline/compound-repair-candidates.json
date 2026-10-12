@@ -1,0 +1,25 @@
+{
+  "artifactType": "baseballo-targeted-compound-repair-inventory",
+  "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/review.json",
+  "semanticDecision": "archive/design-records/mlb-game-strikeout-double-play/review.json",
+  "identifiedAt": "2026-10-12",
+  "mappingSelection": [
+    "CompoundDoublePlayMap"
+  ],
+  "mutation": "add-missing-triples-only",
+  "cases": [
+    {
+      "gamePk": "824385",
+      "atBatIndex": 35,
+      "batterId": 701678,
+      "sourceEventType": "strikeout_double_play",
+      "basePromotionManifest": "pipeline/evidence/nifi/game-promotion/824385/0011f84ca3c54ab0a8e64a026b2e770c.json",
+      "basePromotionManifestSha256": "9e922dd6fe563b65591f8f037a9cd56919bd9fb671ccfbf8a9701584f9435ac5",
+      "retainedCensus": "pipeline/evidence/mlb-game/824385/0011f84ca3c54ab0a8e64a026b2e770c/batting-admission.source.json",
+      "retainedCensusSha256": "5d09c6467e7441ccb54e282b8fa48d47ffcb788b9d3d4524f16749a38ad3689c",
+      "originalSourceSha256": "5bab6b1a17e61916a760ed7ed05a41acc28f7e1738d1d7f356ce9f5db865cd82",
+      "recordedFailure": "PLAYER_GRAPH_CONFORMANCE: existing combined result lacks DoublePlayProcess classification and/or exact two-out parts",
+      "requiredDependencies": "Both existing out identities, participants and adjudications must pass the unchanged compound-result SHACL before promotion."
+    }
+  ]
+}

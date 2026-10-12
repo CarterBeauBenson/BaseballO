@@ -91,5 +91,17 @@ class CompoundAddition(unittest.TestCase):
             self.assertIsNone(K.next_game(state))
             with self.assertRaises(ValueError):K.acquire(state,'824895')
 
+    def test_recorded_followup_uses_standing_scope_and_skips_completed_originals(self):
+        self.assertEqual(K.cases()['824385'],(35,701678))
+        self.assertEqual(K.decisions('824385')['scopeDecision'],
+            'archive/design-records/metric-repair-scope-2026-09-30/review.json')
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory)
+            for pk in K.CASES:
+                K.W.atomic(state/'pipeline/control/mlb-game/compound-addition'/(pk+'.json'),dict(status='complete'))
+            self.assertEqual(K.next_game(state),'824385')
+            K.W.atomic(state/'pipeline/control/mlb-game/compound-addition/824385.json',dict(status='complete'))
+            self.assertIsNone(K.next_game(state))
+
 
 if __name__=='__main__':unittest.main()
