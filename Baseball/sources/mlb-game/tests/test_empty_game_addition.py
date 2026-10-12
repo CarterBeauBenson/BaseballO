@@ -138,6 +138,49 @@ class EmptyGameAddition(unittest.TestCase):
             previous['selected']['sourceWitness']['sha256']=E.W.sha(source)
             self.assertEqual(E.selection_repair_families(state,case,previous,players=[player]),[])
 
+    def test_contact_retry_requires_new_complete_links_for_a_still_excluded_player(self):
+        from test_empty_game_selections import RemainingSelections
+        witness,=RemainingSelections().witnesses('EG2a')
+        play=witness['play'];pa=str(witness['atBatIndex'])
+        player='https://baseballontology.org/data/player/'+str(play['matchup']['batter']['id'])
+        history=dict(sourceConsistency='consistent',episodeMembership=[dict(atBatIndex=pa,
+            runnerIndex=str(i),runnerId=str(r['details']['runner']['id']),lifetimeKey='runner-'+str(r['details']['runner']['id']))
+            for i,r in enumerate(play['runners'])])
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);source=state/'input.json'
+            E.W.atomic(source,dict(liveData=dict(plays=dict(allPlays=[play]))))
+            prior=dict(status='complete',independentRunningDecision=E.INDEPENDENT_DECISION,
+                reviewedWalkDecision=E.REVIEW_WALK_DECISION,emptySelectionDecision=E.SELECTION_DECISION,
+                officialPACreditDecision=E.PA_CREDIT_DECISION,secondaryErrorDecision=E.ERROR_DECISION,
+                selected=dict(contactCensus=dict(plays=[dict(atBatIndex=pa,status='withheld',links=[])]),
+                    sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
+            case=dict(gamePk=str(witness['gamePk']))
+            with patch.object(E.C,'personal_runner_histories',return_value=history):
+                self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),['EG2a-contact-prefix'])
+                legacy=copy.deepcopy(prior);legacy.pop('emptySelectionDecision')
+                self.assertEqual(E.selection_repair_families(state,case,legacy,players=[player]),['EG2a-contact-prefix'])
+                self.assertEqual(E.selection_repair_families(state,case,prior,players=['urn:unaffected']),[])
+                complete=copy.deepcopy(prior)
+                complete['selected']['contactCensus']['plays'][0]['links']=E.C.batted_runner_resolution_links(play,pa,history)
+                self.assertEqual(E.selection_repair_families(state,case,complete,players=[player]),[])
+                context=state/'pipeline/evidence/mlb-game'/case['gamePk']/'repair/game-context.json'
+                E.W.atomic(context,dict(liveData=dict(plays=dict(allPlays=[dict(atBatIndex=int(pa),
+                    **{E.C.CONTEXT_KEY:dict(battedRunnerResolutions=[])})]))))
+                compact=copy.deepcopy(prior);compact['sourceWitness']=compact.pop('selected')['sourceWitness']
+                compact.update(deltaPath=str(context.parent/'addition.ttl'),executionContextSha256=E.W.sha(context))
+                self.assertEqual(E.selection_repair_families(state,case,compact,players=[player]),['EG2a-contact-prefix'])
+                context.write_text('{}',encoding='utf-8')
+                with self.assertRaisesRegex(ValueError,'retained context changed'):
+                    E.selection_repair_families(state,case,compact,players=[player])
+            with patch.object(E.C,'personal_runner_histories',return_value={}):
+                self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
+            source.write_text('{}',encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'retained source changed'):
+                E.selection_repair_families(state,case,prior,players=[player])
+            source.unlink()
+            prior['selected']['context']=dict(liveData=dict(plays=dict(allPlays=[play])))
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
+
     def test_scoring_balk_uses_existing_run_process_and_rejects_wrong_result_type(self):
         row=dict(atBatIndex='37',runnerIndex='0',runnerId='702332',resolutionKind='score',actionId='fixture-balk')
         game='https://baseballontology.org/data/game/822846'

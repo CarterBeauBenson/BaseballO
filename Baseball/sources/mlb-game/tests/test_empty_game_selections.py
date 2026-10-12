@@ -43,6 +43,35 @@ class RemainingSelections(unittest.TestCase):
             else:extra['movement']['isOut']=True
             self.assertEqual(C.nonmovement_strikeout_records(play),{},change)
 
+    def test_contact_keeps_neutral_pitcher_advisory_and_initial_batter_chain(self):
+        w,=self.witnesses('EG2a');pa=str(w['atBatIndex'])
+        for kind in ('pitching_substitution','game_advisory','offensive_substitution'):
+            play=copy.deepcopy(w['play']);first=play['playEvents'][0]
+            event=copy.deepcopy(first);event['index']=0;event['details']['eventType']=kind
+            event['details'].update(isOut=False,isScoringPlay=False,hasReview=False)
+            if kind=='pitching_substitution':
+                play['matchup'].setdefault('pitcher',dict(id=990001))
+                event['player']=dict(id=play['matchup']['pitcher']['id']);event['position']=dict(abbreviation='P')
+            elif kind=='game_advisory':event['isSubstitution']=False
+            else:
+                event['player']=copy.deepcopy(first['replacedPlayer']);event['replacedPlayer']=dict(id=990002)
+            for e in play['playEvents']:e['index']+=1
+            for r in play['runners']:r['details']['playIndex']+=1
+            play['playEvents'].insert(0,event)
+            histories=dict(sourceConsistency='consistent',episodeMembership=[dict(atBatIndex=pa,
+                runnerIndex=str(i),runnerId=str(r['details']['runner']['id']),lifetimeKey='whole-'+str(r['details']['runner']['id']))
+                for i,r in enumerate(play['runners'])])
+            self.assertEqual(len(C.batted_runner_resolution_links(play,pa,histories)),len(play['runners']),kind)
+            for fault in ('count','movement','review','identity'):
+                changed=copy.deepcopy(play);prefix=changed['playEvents'][0]
+                if fault=='count':prefix['count']['strikes']=1
+                elif fault=='movement':changed['runners'][0]['details']['playIndex']=0
+                elif fault=='review':prefix['details']['hasReview']=True
+                elif kind=='pitching_substitution':prefix['player']['id']=990003
+                elif kind=='offensive_substitution':changed['playEvents'][1]['replacedPlayer']['id']=990003
+                else:prefix['details']['eventType']='unknown_advisory'
+                self.assertEqual(C.batted_runner_resolution_links(changed,pa,histories),[],(kind,fault))
+
     def test_compound_uses_reconciled_review_and_keeps_two_distinct_outs(self):
         w,=self.witnesses('EG2c');p=w['play']
         self.assertEqual(len(C.compound_double_play_parts(p)),2)

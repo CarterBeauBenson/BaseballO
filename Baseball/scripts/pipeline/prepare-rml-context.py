@@ -197,18 +197,23 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
         if independent:
             prefix_indexes.add(event['index'])
         reviewed=event['index'] in review['events'] or review.get('accountedFieldReview',{}).get('eventIndex')==event['index']
+        before=(events[event['index']-1].get('count',{}) if event['index'] else
+                dict(balls=0,strikes=0,outs=event.get('count',{}).get('outs')))
+        administration=before_contact and runner_state_neutral_event(play,event,before)
         replacement=False
         if before_contact and event.get('isSubstitution') is True:
             prefix=events[:event['index']]
-            neutral=(event.get('isPitch') is False and details.get('eventType')=='offensive_substitution'
+            neutral=(event.get('isPitch') is False
                 and event.get('count',{}).get('balls')==0 and event.get('count',{}).get('strikes')==0
                 and not selected and not any(e.get('isPitch') is True for e in prefix)
                 and not any(r.get('details',{}).get('playIndex',terminal_index)<event['index'] for r in rows))
-            if neutral and event.get('position',{}).get('abbreviation')=='PH':
+            if neutral and details.get('eventType')=='offensive_substitution' and event.get('position',{}).get('abbreviation')=='PH':
                 try:actual=batter_participation_context(play,'1',source_consistent=True)['participations']
                 except (ValueError,KeyError):actual=[]
-                replacement=len(actual)==1 and actual[0]['playerId']==str(event.get('player',{}).get('id'))
-            elif neutral and event.get('position',{}).get('abbreviation')=='PR':
+                # Q4 proves the whole replacement chain. A person replaced
+                # before any pitch need not be the single actual final batter.
+                replacement=len(actual)==1 and actual[0]['playerId']==str(play.get('matchup',{}).get('batter',{}).get('id'))
+            elif neutral and details.get('eventType')=='offensive_substitution' and event.get('position',{}).get('abbreviation')=='PR':
                 incoming=str(event.get('player',{}).get('id'));outgoing=str(event.get('replacedPlayer',{}).get('id'))
                 def witness(h,field):
                     w=h.get(field,{})
@@ -216,10 +221,21 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
                 begun=[h for h in histories.get('histories',[]) if h.get('runnerId')==incoming and witness(h,'entryWitness')]
                 ended=[h for h in histories.get('histories',[]) if h.get('runnerId')==outgoing and witness(h,'terminationWitness')]
                 replacement=(len(begun)==len(ended)==1 and begun[0].get('entryAnchor')==ended[0].get('terminationAnchor'))
+            elif neutral and details.get('eventType')=='pitching_substitution':
+                # Only a pre-pitch, count/movement-neutral change to the
+                # already identified final pitcher. No earlier pitcher act or
+                # contact attribution is inferred from this administrative row.
+                incoming=event.get('player',{}).get('id')
+                replacement=(event.get('position',{}).get('abbreviation')=='P'
+                    and type(incoming) is int and incoming>0
+                    and incoming==play.get('matchup',{}).get('pitcher',{}).get('id')
+                    and event.get('count',{}).get('outs')==before.get('outs')
+                    and all(details.get(k) is False for k in ('isOut','isScoringPlay','hasReview'))
+                    and not any(details.get(k) is True for k in ('isBall','isStrike','isInPlay')))
         if (((event.get('reviewDetails') or details.get('hasReview') is True) and not reviewed)
                 or event.get('isSubstitution') is True and not replacement
                 or (event.get('isPitch') is not True and details.get('eventType') not in {'batter_timeout', 'mound_visit'}
-                    and not independent and not empty_attempt and not replacement and not reviewed)):
+                    and not independent and not empty_attempt and not replacement and not reviewed and not administration)):
             return False
     allowed = {play.get('result', {}).get('eventType'), 'other_out'}
     membership = defaultdict(list)

@@ -54,6 +54,7 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | Published dashboard, October 11 at 19:06 Eastern | 608 complete Empty Games players, 54 incomplete; 56 held player-games across 51 games | A reader regression reopened 15 resolved records; zero incomplete remains the finish line |
 | Reader repair, awaiting publication | Preserve established zero contributions when refining uncertainty; retained evidence clears all 15 regressions | With the completed EG4 addition, the diagnostic remainder is 40 player-games; publication must demonstrate the gain |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
+| EG2 contact selection repair | Four retained cases now select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Existing NiFi additive owner retries only newly supported, still-excluded cases; dashboard gains remain pending |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable

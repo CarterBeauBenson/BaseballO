@@ -383,11 +383,28 @@ def selection_repair_families(state,case,previous,players=None):
     d2=previous.get('independentRunningDecision')!=INDEPENDENT_DECISION
     w5=previous.get('reviewedWalkDecision')!=REVIEW_WALK_DECISION
     eg2=previous.get('emptySelectionDecision')!=SELECTION_DECISION
+    prior_contacts=previous.get('selected',{}).get('contactCensus')
+    prior_context=previous.get('selected',{}).get('context',{})
+    if not prior_context and previous.get('deltaPath') and previous.get('executionContextSha256'):
+        context=Path(previous['deltaPath']).parent/'game-context.json'
+        owner=(state/'pipeline/evidence/mlb-game'/case['gamePk']).resolve()
+        if not context.resolve().is_relative_to(owner):raise ValueError('D2/W5 context is outside its game owner')
+        if context.is_file():
+            if W.sha(context)!=previous['executionContextSha256']:raise ValueError('D2/W5 retained context changed')
+            prior_context=W.read(context)
+    if prior_contacts is None and prior_context:
+        # Successful additive receipts retain a hashed execution context rather
+        # than duplicating the full selection. Read its original B2 obligations.
+        prior_contacts=dict(plays=[dict(atBatIndex=str(p['atBatIndex']),
+            links=p[C.CONTEXT_KEY]['battedRunnerResolutions'])
+            for p in prior_context.get('liveData',{}).get('plays',{}).get('allPlays',[])
+            if p.get('atBatIndex') is not None and 'battedRunnerResolutions' in p.get(C.CONTEXT_KEY,{})])
+    eg2_completion=prior_contacts is not None
     eg4=previous.get('officialPACreditDecision')!=PA_CREDIT_DECISION
     prior_scoring=previous.get('selected',{}).get('scoring')
     eg4_completion=(not eg4 and prior_scoring is not None and not prior_scoring.get('officialPACredits'))
     eg5=previous.get('secondaryErrorDecision')!=ERROR_DECISION
-    if not (d2 or w5 or eg2 or eg4 or eg4_completion or eg5):return []
+    if not (d2 or w5 or eg2 or eg2_completion or eg4 or eg4_completion or eg5):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -396,19 +413,14 @@ def selection_repair_families(state,case,previous,players=None):
         if W.sha(source)!=witness['sha256']:raise ValueError('D2/W5 retained source changed')
         raw=source.read_bytes();doc=json.loads(raw)
     else:
-        doc=previous.get('selected',{}).get('context',{})
-        if not doc and previous.get('deltaPath') and previous.get('executionContextSha256'):
-            context=Path(previous['deltaPath']).parent/'game-context.json'
-            owner=(state/'pipeline/evidence/mlb-game'/case['gamePk']).resolve()
-            if not context.resolve().is_relative_to(owner):raise ValueError('D2/W5 context is outside its game owner')
-            if context.is_file():
-                if W.sha(context)!=previous['executionContextSha256']:raise ValueError('D2/W5 retained context changed')
-                doc=W.read(context)
+        doc=prior_context
     plays=doc.get('liveData',{}).get('plays',{}).get('allPlays',[])
     if players is None:players=outstanding(state,case)
     if not players:return []
     ids={p.rsplit('/',1)[-1] for p in players}
     families=set()
+    old_contacts={str(p['atBatIndex']):p for p in (prior_contacts or {}).get('plays',[])}
+    contact_history=None
     if eg4_completion and raw is not None:
         # The earlier attempt emitted no credit because an unrelated neutral
         # defensive prefix blocked B1. Reopen only a newly reconciled credit
@@ -421,6 +433,14 @@ def selection_repair_families(state,case,previous,players=None):
         substituted=any(e.get('position',{}).get('abbreviation')=='PH' and
             (str(e.get('player',{}).get('id')) in ids or str(e.get('replacedPlayer',{}).get('id')) in ids)
             for e in play.get('playEvents',[]))
+        if (eg2_completion and raw is not None and affected
+                and str(play.get('atBatIndex')) in old_contacts
+                and not old_contacts[str(play['atBatIndex'])].get('links')):
+            # Reopen only an earlier withheld B2 selection that the current
+            # approved selector can complete from the hash-checked response.
+            if contact_history is None:contact_history=C.personal_runner_histories(raw)
+            if C.batted_runner_resolution_links(play,str(play['atBatIndex']),contact_history):
+                families.add('EG2a-contact-prefix')
         if eg4 and substituted:families.add('EG4-official-pa-credit')
         if eg5 and affected and any(r.get('details',{}).get('eventType') in SCORING.S.ERROR_EVENTS for r in play.get('runners',[])):
             families.add('EG5-secondary-error-attribution')

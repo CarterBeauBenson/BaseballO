@@ -39,6 +39,16 @@ published reader. The separate EG4 targeted addition for 823565 is complete.
 Neither the 40-record diagnostic remainder nor an expected player-count gain
 is a live dashboard result until its prepared snapshot publishes.
 
+The next EG2 repair corrects contact selection after a neutral pre-pitch pitching
+change, a reconciled chain of pinch hitters with one actual batter, or an accepted
+count-neutral advisory. The selector now returns all runner links for 822942/53,
+823587/53, 824547/63 and 824960/12. NiFi's existing additive owner reopens a prior
+receipt only for a still-excluded player and newly complete contact links from
+hash-checked retained source. It supports both retained selection and compact
+successful receipts. Completed links suppress another retry. These four source
+checks are not yet measured dashboard gains; no game graph replacement is used.
+The six unrelated census proof contracts retain exact implementation compatibility.
+
 ## Earlier measured publication: October 11 at 16:25 Eastern
 
 Offense publication `20261011T201105Z-dashboard-offense-30b0c6c7`, promoted at October 11 20:25:15 UTC,
