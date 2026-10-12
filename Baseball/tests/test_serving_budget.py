@@ -34,6 +34,13 @@ class ServingBudget(unittest.TestCase):
             pointer=state/'serving/dashboard-current.json';pointer.parent.mkdir()
             pointer.write_text(json.dumps(dict(promotedAtUtc='2026-10-08T10:09:00Z')))
             self.assertTrue(B.upstream_repair_priority(state,'dashboard',now=later))
+            pointer.write_text(json.dumps(dict(promotedAtUtc='2026-10-08T10:00:00Z',families={
+                'offense':dict(promotedAtUtc='2026-10-08T10:00:00Z'),
+                'other':dict(promotedAtUtc='2026-10-08T10:09:00Z')})))
+            self.assertTrue(B.upstream_repair_priority(state,'dashboard',now=later))
+            self.assertFalse(B.upstream_repair_priority(state,'dashboard',
+                now=datetime(2026,10,8,10,19,tzinfo=timezone.utc)))
+            self.assertEqual(request.read_text(),original)
 
     def test_short_contention_hands_off_and_persistent_contention_stays_bounded(self):
         with tempfile.TemporaryDirectory() as temp, patch.object(B.PROCESS,'available_memory',return_value=2*1024**3):

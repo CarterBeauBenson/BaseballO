@@ -62,8 +62,14 @@ def upstream_repair_priority(state,kind='report',*,now=None):
         pointer=state/'serving/dashboard-current.json'
         last_publication=requested
         if pointer.is_file():
-            published=json.loads(pointer.read_text(encoding='utf-8-sig')).get('promotedAtUtc')
-            if published:last_publication=max(last_publication,control_timestamp(published))
+            publication=json.loads(pointer.read_text(encoding='utf-8-sig'))
+            # A composed pointer keeps offense's timestamp at the top level.
+            # Every independently published family must give repairs their
+            # existing window before another heavy dashboard build starts.
+            members=[publication,*publication.get('families',{}).values()]
+            for member in members:
+                published=member.get('promotedAtUtc')
+                if published:last_publication=max(last_publication,control_timestamp(published))
         return (now-last_publication).total_seconds()<600
     request.update(enabled=False,releasedAtUtc=datetime.now(timezone.utc).isoformat(),
         releaseReason='NiFi recorded upstream repair work clear',repairStatusCheckedAtUtc=report['checkedAtUtc'])

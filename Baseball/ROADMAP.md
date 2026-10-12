@@ -83,6 +83,10 @@ during serving builds, so the H5 repair queue can advance without another heavy
 worker. B1 also reconciles the existing unfinished-turn rule for generic runner
 outs; game 822701's retained census now reconciles 72 official PAs. Source checks
 and queued repairs remain intermediate work until their player results publish.
+The existing ten-minute repair window now uses the newest family publication;
+the composed pointer's older offense timestamp no longer permits consecutive
+heavy serving builds to bypass that window. The resource limit and schedules
+are unchanged.
 
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |

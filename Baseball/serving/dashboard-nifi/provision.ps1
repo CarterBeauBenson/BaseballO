@@ -15,11 +15,11 @@ $contract = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
 if (
     [string]$contract.artifactType -ne 'baseballo-nifi-dashboard-sql-flow-contract' -or
     [int]$contract.contractVersion -ne 1 -or
-    [int]$contract.materialization.readOnlyWorkers -ne 2 -or
+    [int]$contract.materialization.readOnlyWorkers -ne 1 -or
     [bool]$contract.failurePolicy.authoritativeRdfUnaffected -ne $true -or
     [bool]$contract.failurePolicy.queryIndexRdfUnaffected -ne $true -or
     [bool]$contract.failurePolicy.sourceLanesUnaffected -ne $true -or
-    [bool]$contract.failurePolicy.priorServingPointerUnaffected -ne $true -or
+    [bool]$contract.failurePolicy.priorFamilyProductsUnaffected -ne $true -or
     [bool]$contract.failurePolicy.uiAdmissionUnaffected -ne $true
 ) {
     throw "Unsupported Dashboard SQL NiFi contract: $contractPath"
