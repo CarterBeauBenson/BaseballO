@@ -696,7 +696,9 @@ def recovery_histories(rows, *, zero_pitch_pas=()):
     for (graph,pa), observations in sorted(pas.items()):
         official=[r for r in observations if r.get('recognizedBattingResult') in ('true','1')]
         if not official:continue
-        people={r.get('player') for r in official}
+        # Recovery is a PA statistic. Use its explicit official scoring credit
+        # while retaining each pitch and each person's actual participation.
+        people={officially_credited_player(r) for r in official}
         games={r.get('game') for r in official}
         if len(games)!=1 or None in games:
             gaps.append(dict(graph=graph,plateAppearance=pa,gap='RECOVERY_GAME_SCOPE'));continue
@@ -1821,9 +1823,21 @@ def consequence_actors(rows):
 
 def consequence_movements(rows, actors):
     """Remove only the OPTIONAL join to a different actual batter's act."""
+    groups=defaultdict(list)
+    for r in rows:
+        if r['kind']=='runner_movement':groups[(r['graph'],r['plateAppearance'],r['resolution'])].append(r)
+    selected={}
+    for key,bindings in groups.items():
+        actor=actors.get(key[:2]);actual=[r for r in bindings if r.get('batter')==actor]
+        physical={_json({k:v for k,v in r.items() if k not in {'batter','metricOrigin'}}) for r in bindings}
+        def expected_origin(r):
+            return '0' if r.get('runner')==r.get('batter') else (
+                r['originCode'][0] if r.get('originCode') in {'1B','2B','3B'} else None)
+        if actor and actual and len(physical)==1 and all(r.get('metricOrigin')==expected_origin(r) for r in bindings):
+            selected[key]=actor
     return [r for r in rows if r['kind']!='runner_movement' or
-        not actors.get((r['graph'],r['plateAppearance'])) or not r.get('batter') or
-        r['batter']==actors[(r['graph'],r['plateAppearance'])]]
+        (r['graph'],r['plateAppearance'],r['resolution']) not in selected or
+        r.get('batter')==selected[(r['graph'],r['plateAppearance'],r['resolution'])]]
 
 
 def run_construction_evidence(rows, *, metric_id='run-construction-depth'):

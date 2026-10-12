@@ -268,6 +268,7 @@ def empty_scoring_inputs(m, rows, progress):
     A complete terminal-out path rules out positive progress even when no
     scoring annotation is needed. This never supplies a missing attribution.
     """
+    rows=m.consequence_movements(rows,m.consequence_actors(rows))
     turns={p['plateAppearance'] for p in [*progress.get('unresolvedPlateAppearances',[]),
            *progress.get('plateAppearances',[])]}
     actors=defaultdict(set);types=defaultdict(set);moves=defaultdict(list)

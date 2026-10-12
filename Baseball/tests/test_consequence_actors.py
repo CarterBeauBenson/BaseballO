@@ -71,5 +71,12 @@ class ConsequenceActors(unittest.TestCase):
             self.assertTrue(expected['runs'],expected)
             self.assertEqual(M.run_construction_evidence(substituted(rows),metric_id=metric),expected)
 
+    def test_conflicting_physical_evidence_is_not_discarded_as_another_batter_join(self):
+        rows=substituted(fixture(outs=0,runner_base=None,contact=True))
+        for row in rows:
+            if row['kind']=='runner_movement' and row['batter']==OTHER:
+                row['destinationCode']='3B'
+        self.assertEqual(M.consequence_movements(rows,M.consequence_actors(rows)),rows)
+
 
 if __name__=='__main__':unittest.main()

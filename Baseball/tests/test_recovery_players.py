@@ -104,5 +104,24 @@ class RecoveryPlayers(unittest.TestCase):
             denied=M.recovery_game_inputs(rows,graph=G1,batting_admission=PROOF,pitch_count_admission={})
             self.assertFalse(denied['complete']);self.assertEqual(denied['plateAppearances'],[])
 
+    def test_substituted_turn_uses_explicit_official_credit_and_keeps_pitch_history(self):
+        graph,bindings_=self.samples[1]
+        rows=M.normalize_bindings(bindings_,[graph])
+        expected=M.recovery_histories(rows)
+        self.assertEqual(expected['unresolvedPlateAppearances'],[])
+        player=expected['plateAppearances'][0]['player']
+        changed=copy.deepcopy(rows)
+        for row in list(changed):
+            if row['kind']=='plate_appearance':
+                row.update(creditedPlayer=player,creditJudgment='credit-judgment',
+                    creditDecision='credit-decision',creditRecord='credit-record')
+                changed.append(dict(row,player='https://baseballontology.org/data/player/replacement'))
+        self.assertEqual(M.recovery_histories(changed),expected)
+        for row in changed:
+            if row['kind']=='plate_appearance' and row['player']!=player:
+                row['creditedPlayer']=row['player']
+        self.assertEqual(M.recovery_histories(changed)['unresolvedPlateAppearances'][0]['gap'],
+                         'RECOVERY_BATTER_ASSIGNMENT')
+
 
 if __name__=='__main__':unittest.main()
