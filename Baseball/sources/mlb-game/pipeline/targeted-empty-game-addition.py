@@ -265,6 +265,10 @@ def project_census(field,source,selected):
                 projected[key]=rows
             if any(any(row not in projected[key] for row in full[pa].get(key,[])) for key in ('links','memberships')):
                 projected['status']='withheld'
+                # The selected history adds only a subset. Other links already
+                # present in RDF are allowed only when this same source census
+                # independently supports them; their presence is not required.
+                projected['allowedLinks']=copy.deepcopy(full[pa]['links'])
             current[pa]=projected
         changed=[]
         for number,old in enumerate(source['plays']):

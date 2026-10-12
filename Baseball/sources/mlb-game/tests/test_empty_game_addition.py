@@ -311,6 +311,11 @@ class EmptyGameAddition(unittest.TestCase):
         self.assertTrue(validate(data,shacl_graph=Graph().parse(data=shape,format='turtle'))[0])
         data.add((contact,o.BFO_0000117,URIRef(root+'/runner-resolution/score/67/4')))
         data.add((URIRef(root+'/runner-resolution/score/67/4'),RDF.type,b.RunnerResolutionProcess))
+        self.assertTrue(validate(data,shacl_graph=Graph().parse(data=shape,format='turtle'))[0])
+        # A preserved link is allowed only by the exact independent census.
+        data.remove((contact,o.BFO_0000117,URIRef(root+'/runner-resolution/score/67/4')))
+        data.add((contact,o.BFO_0000117,URIRef(root+'/runner-resolution/score/67/99')))
+        data.add((URIRef(root+'/runner-resolution/score/67/99'),RDF.type,b.RunnerResolutionProcess))
         self.assertFalse(validate(data,shacl_graph=Graph().parse(data=shape,format='turtle'))[0])
 
     def test_balk_context_preserves_existing_censuses_and_proof_identities(self):

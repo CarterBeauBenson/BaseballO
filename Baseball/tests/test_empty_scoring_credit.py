@@ -49,6 +49,34 @@ class EmptyScoringCredit(unittest.TestCase):
         rows[1].pop('errorContactPlay');rows[1].pop('errorDecision')
         self.assertEqual(self.read(rows)['possiblePositivePlayers'],[U+'1',U+'2'])
 
+    def test_final_record_replaces_old_error_credit_per_pa(self):
+        error=dict(self.error(),contactPlay='contact',contactBatter=U+'1')
+        roster=dict(kind='player_team_game',graph=G+'1',game='game',player=U+'1',team='team',teamRole='role')
+        batter_out=dict(error,runner=U+'1',resolution='batter-out',episode='batter-episode',
+            hasSafeType='false',hasOutType='true',trajectory='batter-whole')
+        history=dict(kind='runner_history',graph=G+'1',game='game',player=U+'2',trajectory='whole',
+            trajectoryHalf='half',trajectoryInterval='interval',episode='episode')
+        rows=[self.turn(),error,batter_out,history,dict(history,player=U+'1',trajectory='batter-whole',episode='batter-episode'),roster]
+        progress=M.batting_progress_evidence(rows)
+        self.assertEqual(progress['plateAppearances'][0]['reach'],1)
+        q=dict(participation=[dict(player=U+'1',plateAppearances=1)],
+            expectedObservations=[dict(player=U+'1',plateAppearance='pa')])
+        for another_positive,expected in ((False,1),(True,0)):
+            evidence=copy.deepcopy(rows);current=copy.deepcopy(progress)
+            if another_positive:
+                evidence.extend([dict(self.turn(),entity='other-pa'),
+                    dict(error,plateAppearance='other-pa',resolution='other-resolution',
+                         secondaryError='',errorJudgment='',errorDecision='')])
+                current['plateAppearances'].append(dict(current['plateAppearances'][0],plateAppearance='other-pa'))
+            scoring=P.empty_scoring_inputs(M,evidence,current)
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G+'1',scope=SCOPE,rows=evidence,
+                    proofs=dict(batting=PROOF,run={},players={},resolution=PROOF),
+                    inputs=dict(contribution={},progress=current,emptyScoring=scoring,
+                        binaryHelp={'pa':dict(player=U+'1',positive=True)}),
+                    runs={},run_people={},metric_ids={'empty-game-rate'})
+            self.assertEqual((records[0][3],json.loads(records[0][4])['count']),(1,expected))
+
     def test_error_does_not_erase_a_safe_steal_but_terminal_out_does(self):
         error=self.error();steal=dict(error,act='steal-act',resolution='steal-resolution',episode='steal',
             originBase='first',originCode='1B',destinationBase='second',destinationCode='2B',independentStealAct='steal-act')

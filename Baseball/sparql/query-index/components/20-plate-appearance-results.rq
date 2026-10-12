@@ -46,5 +46,10 @@ WHERE {
       (base:BalkProcess "balk")
       (base:InterferenceProcess "catcher_interf")
     }
+    # EG6's sacrifice-fly double play has both authoritative types. The
+    # PA-result index uses the same canonical batting category as the metric
+    # reader; the compound and its counted outs remain in authoritative RDF.
+    FILTER(?outcomeClass != base:DoublePlayProcess
+           || NOT EXISTS { ?result a base:SacrificeFlyProcess })
   }
 }

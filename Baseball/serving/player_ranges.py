@@ -407,23 +407,27 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
               if p['status']=='admitted'}
+    empty_resolved=resolved | {p['plateAppearance'] for p in
+        (individual.get('paResolutions') or {}).get('plateAppearances',[])
+        if p.get('emptyGameStatus')=='admitted'}
     help_inputs=inputs.get('binaryHelp',{})
     certain_positive=set()
     positive=set();uncertain=set();mix_uncertain=set();channels=defaultdict(set);episodes=defaultdict(set)
     for pa in progress.get('plateAppearances',[]):
-        if pa['reach']:positive.add(pa['player'])
-        positive.update(r['player'] for r in pa['independentPositive'])
-        if pa['plateAppearance'] in resolved:
-            if pa['reach']:certain_positive.add(pa['player'])
-            certain_positive.update(r['player'] for r in pa['independentPositive'])
+        pa_positive={r['player'] for r in pa['independentPositive']}
+        if pa['reach']:pa_positive.add(pa['player'])
         affected=set(pa.get('unresolvedRunningPositivePlayers',[]))
         if pa.get('independentPositiveGaps') and not affected:affected=set(roster)
         scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
-        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
-            positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
+        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in empty_resolved):
             # A binary reader can resolve an existing gap, but cannot erase
             # the full reducer's already established zero batting/running credit.
             affected.intersection_update(scoring['possiblePositivePlayers'])
+            affected.update(pa_positive & set(scoring['possiblePositivePlayers']))
+            pa_positive=set(scoring['positivePlayers'])
+        positive.update(pa_positive)
+        if admitted(proofs['resolution']) or pa['plateAppearance'] in empty_resolved:
+            certain_positive.update(pa_positive)
         uncertain.update(affected)
         for r in pa['positiveChannels']:channels[r['player']].add((r['play'],r['channel']))
         for r in pa['independentEpisodes']:episodes[r['player']].add(r['episode'])
@@ -440,16 +444,23 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
             affected=inputs.get('ambiguousEmptyPositivePlayers',{}).get(pa['plateAppearance'],affected)
         affected=set(affected)
         scoring=inputs.get('emptyScoring',{}).get(pa['plateAppearance'])
-        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in resolved):
+        pa_positive=set(pa.get('confirmedPositivePlayers',[]))
+        if scoring is not None and (admitted(proofs['resolution']) or pa['plateAppearance'] in empty_resolved):
             affected.intersection_update(scoring['possiblePositivePlayers'])
-            positive.update(scoring['positivePlayers']);certain_positive.update(scoring['positivePlayers'])
-        positive.update(pa.get('confirmedPositivePlayers',[]))
-        if pa['plateAppearance'] in resolved:certain_positive.update(pa.get('confirmedPositivePlayers',[]))
+            affected.update(pa_positive & set(scoring['possiblePositivePlayers']))
+            pa_positive=set(scoring['positivePlayers'])
+        positive.update(pa_positive)
+        if admitted(proofs['resolution']) or pa['plateAppearance'] in empty_resolved:
+            certain_positive.update(pa_positive)
         uncertain.update(affected)
     for pa,players in inputs.get('emptyRunningEntries',{}).items():
-        if admitted(proofs['resolution']) or pa in resolved:
+        if pa in inputs.get('emptyScoring',{}):continue
+        if admitted(proofs['resolution']) or pa in empty_resolved:
             positive.update(players);certain_positive.update(players)
     for pa,item in help_inputs.items():
+        # Help's older progress reader must not restore credit rejected by
+        # the accepted Empty Games step/actor attribution for this same PA.
+        if pa in inputs.get('emptyScoring',{}):continue
         if item['positive'] and (admitted(proofs['resolution']) or pa in resolved):
             positive.add(item['player']);certain_positive.add(item['player'])
     classified={p['plateAppearance']:p for p in
@@ -581,7 +592,9 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
              (m._hash(m._json(player_admissions[graph])) if player_admissions.get(graph) else ''))]
     if 'metric_suite_input_state' in tables:
         ambiguity_candidates={r[0] for r in db.execute("SELECT graph_iri FROM metric_suite_input_state "
-            "WHERE family='progress' AND json_array_length(state_json,'$.unresolvedPlateAppearances')>0")}
+            "WHERE family='progress' AND EXISTS (SELECT 1 FROM "
+            "json_each(state_json,'$.unresolvedPlateAppearances') p "
+            "WHERE json_extract(p.value,'$.gaps[0]')='AMBIGUOUS_BATTING_CONTRIBUTOR')")}
     if {'metric_suite_input_row','metric_suite_runner_resolution_admission'}<=tables:
         for offset in range(0,len(pending),400):
             group=pending[offset:offset+400];marks=','.join('?' for _ in group)
@@ -673,16 +686,19 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
         input_families=('contribution','progress','defense') if metric_ids is None or DEFENSE & set(metric_ids) else ('contribution','progress')
         inputs={f:m._blocks.read_inputs(m._block_api(),db,f,[graph])[graph] for f in input_families}
         resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[]) if p['status']=='admitted'}
+        empty_resolved=resolved | {p['plateAppearance'] for p in
+            (individual.get('paResolutions') or {}).get('plateAppearances',[])
+            if p.get('emptyGameStatus')=='admitted'}
         help_progress=dict(unresolvedPlateAppearances=[p for p in inputs['progress'].get('unresolvedPlateAppearances',[])
             if admitted(proofs['resolution']) or p['plateAppearance'] in resolved])
-        empty_progress=dict(help_progress,plateAppearances=[p for p in inputs['progress'].get('plateAppearances',[])
-            if (p.get('independentPositiveGaps') or p.get('unresolvedRunningPositivePlayers'))
-            and (admitted(proofs['resolution']) or p['plateAppearance'] in resolved)])
+        empty_progress={kind:[p for p in inputs['progress'].get(kind,[])
+            if admitted(proofs['resolution']) or p['plateAppearance'] in empty_resolved]
+            for kind in ('plateAppearances','unresolvedPlateAppearances')}
         needs_contribution=individual.get('paBoundaries') and not inputs['contribution'].get('complete')
         needs_channels=admitted(proofs['resolution']) and any(p.get('independentEpisodeGaps') for p in inputs['progress'].get('plateAppearances',[]))
         needs_ambiguity=any(p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR']
                             for p in inputs['progress'].get('unresolvedPlateAppearances',[]))
-        if needs_contribution or needs_channels or needs_ambiguity or help_progress['unresolvedPlateAppearances'] or empty_progress['plateAppearances']:
+        if needs_contribution or needs_channels or needs_ambiguity or any(empty_progress.values()) or help_progress['unresolvedPlateAppearances']:
             evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
                 'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
             saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])

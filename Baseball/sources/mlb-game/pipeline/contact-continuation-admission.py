@@ -61,9 +61,18 @@ def shape_text(source):
         if 'playId' not in play:
             continue
         target = root+'/process/batted-ball-play/'+play['playId']
+        allowed=play.get('allowedLinks',play['links'])
+        if any(row not in allowed for row in play['links']):
+            raise ValueError('Selected contact links exceed the source-supported inventory')
         properties = [f'''sh:property [ sh:path obo:BFO_0000117 ;
           sh:qualifiedValueShape [ sh:class base:RunnerResolutionProcess ] ;
-          sh:qualifiedMinCount {len(play['links'])} ; sh:qualifiedMaxCount {len(play['links'])} ]''']
+          sh:qualifiedMinCount {len(play['links'])} ; sh:qualifiedMaxCount {len(allowed)} ]''']
+        if 'allowedLinks' in play:
+            allowed_terms=' '.join(term(root+'/runner-resolution/'+row['resolutionKind']+'/'+
+                row['atBatIndex']+'/'+row['runnerIndex']) for row in allowed)
+            properties.append('''sh:property [ sh:path obo:BFO_0000117 ;
+                sh:qualifiedValueShape [ sh:class base:RunnerResolutionProcess ;
+                    sh:not [ sh:in ( %s ) ] ] ; sh:qualifiedMaxCount 0 ]''' % allowed_terms)
         for row in play['links']:
             # Reuse exactly the existing Runner*Source resolution IRI templates.
             resolution = root+'/runner-resolution/'+row['resolutionKind']+'/'+row['atBatIndex']+'/'+row['runnerIndex']

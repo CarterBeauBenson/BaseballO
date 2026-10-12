@@ -13,7 +13,7 @@ ACTS = [URIRef(str(PA) + '/batter/' + str(i)) for i in (1, 2)]
 PLAYERS = [BASE['data/player/' + str(i)] for i in (1, 2)]
 
 
-def constructed(hit=False):
+def constructed(hit=False, compound=False):
     dataset = Dataset()
     graph = dataset.graph(URIRef('urn:baseball:query-index:source-graph'))
     graph.parse(data='''
@@ -33,6 +33,10 @@ def constructed(hit=False):
     ''', format='turtle')
     bfo = Namespace('http://purl.obolibrary.org/obo/')
     cco = Namespace('https://www.commoncoreontologies.org/')
+    if compound:
+        graph.remove((RESULT, RDF.type, BASE.WalkProcess))
+        graph.add((RESULT, RDF.type, BASE.SacrificeFlyProcess))
+        graph.add((RESULT, RDF.type, BASE.DoublePlayProcess))
     if hit:
         graph.remove((RESULT, RDF.type, BASE.WalkProcess))
         graph.add((RESULT, RDF.type, BASE.SingleProcess))
@@ -67,6 +71,12 @@ class BattingParticipationIndexTests(unittest.TestCase):
             self.assertEqual(set(graph.objects(fact, IDX.agent)), set(PLAYERS))
         for act, player in zip(ACTS, PLAYERS):
             self.assertEqual(list(graph.objects(act, IDX.agent)), [player])
+
+    def test_compound_sacrifice_fly_has_one_canonical_batting_category(self):
+        graph=constructed(compound=True)
+        self.check(graph,True)
+        self.assertEqual(list(graph.objects(RESULT,IDX.outcomeClass)),[BASE.SacrificeFlyProcess])
+        self.assertEqual([str(v) for v in graph.objects(RESULT,IDX.sourceEventType)],['sac_fly'])
 
     def test_no_unsupported_or_omitted_actor(self):
         for fact in (PA, RESULT):
