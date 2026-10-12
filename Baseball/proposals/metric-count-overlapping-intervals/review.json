@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-count-overlapping-intervals",
+  "title": "P1 analytical count order with overlapping recorded pitch intervals",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "e79cbc8872a3da93d6e192605d7bb53d6d6258ef33de24a31d757590c8331946"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "e79cbc8872a3da93d6e192605d7bb53d6d6258ef33de24a31d757590c8331946"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "e79cbc8872a3da93d6e192605d7bb53d6d6258ef33de24a31d757590c8331946"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "e79cbc8872a3da93d6e192605d7bb53d6d6258ef33de24a31d757590c8331946"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}

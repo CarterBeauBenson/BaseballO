@@ -29,6 +29,27 @@ The UI reads those prepared snapshots and labels retained results explicitly.
 
 ## October 12: EG6 implementation, publication pending
 
+Follow-through at 18:36 UTC: the 825010 and 824622 targeted additions are
+complete. The called-game scoped resolution evidence for 824295/824807 is
+refreshed. The current Empty Games reader resolves every eligible hitter in
+the bounded 824295 projection, including its previously held player. This is
+not yet a full-season publication measurement: the running offensive build
+has completed 900 of 2,455 active game products (2,429 selected regular-season
+games). Its captured release predates some later fixes.
+
+Published consumer corrections now cover EG6 error-credit replacement,
+actual contact/award actors, official Recovery PA credit, canonical compound
+results, count-history termination, retained source-revision selection and
+complete scoped PA references. Prepared SPARQL execution reduces repeated
+formula parsing. NiFi owns the remaining calculation and publication; no RDF
+rebuild or API reacquisition was started for these fixes. The
+[audit follow-through](RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12)
+records the component changes and their limits.
+
+F9's five missing counted strikes and M1's numerical error-step policy still
+await named decisions. Neither is needed to finish Empty Games. All nineteen
+metrics remain open until the published applicable populations are complete.
+
 The user accepted EG6A/B/C together in decision commit `cb62852c`, before
 implementation. The source and serving owners now implement all three:
 

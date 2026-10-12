@@ -61,8 +61,13 @@ games. The reader now applies EG6 attribution per PA before pooling positives;
 the query index canonicalizes the approved sacrifice-fly double play; partial
 contact-dependency checks preserve independently source-supported existing links.
 These repairs require NiFi publication before any population gain is claimed.
-Next: restore the missing scoped resolution evidence in the two called games,
-then address each remaining metric family's recorded exclusions in delivery order.
+The two targeted additions and called-game scoped resolution refreshes are now
+complete. The latest reader resolves the remaining called-game classification
+in a bounded projection. Next: measure the newly published full-season Empty
+Games result, and repair any actual remainder without reopening successful
+source work. Independent count, actor, source-revision and reference-reader
+corrections are published; see the
+[audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12).
 
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |

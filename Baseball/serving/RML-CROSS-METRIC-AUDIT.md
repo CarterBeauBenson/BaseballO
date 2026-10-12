@@ -104,14 +104,50 @@ evidence layer; they are not evidence that RDF should be regenerated.
 
 ## Remaining broad-scope findings
 
+### Implementation follow-through, October 12
+
+These are published engineering changes, not claims of delivered population.
+The active NiFi build captures its own immutable release; later commits enter a
+subsequent publication.
+
+- A1 is repaired in the final player projection: EG6 classifications replace
+  the older PA positives, and Help cannot restore rejected error credit.
+  Distinct supported steals and later contact advances do not acquire a new
+  whole-PA history requirement merely because the binary reader is invoked.
+- A3 is repaired in the shared progress, contribution and run-contributor
+  readers. They consume the actual contact/award actor and collapse only
+  identical physical movements. Recovery separately consumes official PA
+  credit; that credit never transfers the underlying acts.
+- Count admission recognizes delivered pitchouts, intentional balls,
+  reconciled sacrifice-fly double plays and adjudicated catcher interference.
+  Successful earlier proofs retain their original provenance. F9 remains
+  pending, and these reader fixes do not supply missing mapped strikes.
+- A failed check against a later revised source response no longer displaces
+  the retained census for the source revision that produced the graph. The
+  diagnosed 822678 PA 55 passes its existing boundary constraints with that
+  original census and unchanged RDF.
+- Complete per-PA boundary and resolution admissions can complete contribution
+  inputs and their season references. A whole-game refusal no longer overrides
+  an otherwise exhaustive set of successful scoped checks. Missing individual
+  checks, count histories and defensive inputs still prevent completeness.
+- Repeated metric arithmetic now reuses prepared SPARQL formulas. Text-query
+  comparison covers exact fractions, large percentile inputs, nulls and
+  independent concurrent populations. No scores or source facts are cached by
+  this optimization.
+
+A2's numerical error-step allocation awaits the explicit
+[M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an
+operating constraint. Defense, review populations and remaining history/count
+coverage still have independent work. The detailed probes below are the dated
+audit findings that motivated these changes, not a claim that fixed defects
+remain in the current implementation.
+
 1. **Count repairs help materially, but do not finish the two-strike population.**
    [F9](../proposals/mlb-game-counted-foul-edge-completion/README.md) remains an
    under-review, unimplemented selection package for five strikes in four
    games. It is not included in the implemented-fix total. Separately,
-   `recovery_histories` rejects multiple actual batters with
-   `RECOVERY_BATTER_ASSIGNMENT`; EG4 official credit is not consumed there.
-   The reader must respect the accepted attribution policy rather than force
-   an arbitrary single actor. None of this requires redoing successful F4-F8.
+   the earlier `RECOVERY_BATTER_ASSIGNMENT` defect has been corrected by
+   consuming EG4 official credit. None of this requires redoing successful F4-F8.
 2. **Defensive mapping and complete defensive statistics are separate.** D1
    corrections feed the right four act types into the shared query, and the
    current metric counts distinct acts without requiring strict chronology.
@@ -129,9 +165,9 @@ evidence layer; they are not evidence that RDF should be regenerated.
    mapping README describe implemented subsets. Use exact accepted subsets;
    neither that old label nor a successful mapper run proves complete coverage.
    This audit leaves the source contract unchanged and records the discrepancy.
-5. **The latest EG6 reader defects remain real.** A1-A5 below apply inside this
-   wider picture. Repairing them is useful shared serving work; the broader
-   RML fixes do not resolve those consumer defects automatically.
+5. **Reader delivery must be measured separately from RML success.** A1/A3
+   are implemented; A2 and the remaining A5 populations stay open. The next
+   published player products determine the actual population gain.
 
 The full-scope recommendation is to consume the existing repaired RDF through
 metric-specific readers, refresh only affected evidence/derived products, and
