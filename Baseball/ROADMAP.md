@@ -69,6 +69,12 @@ remainder without reopening successful source work. Independent count, actor, so
 corrections are published; see the
 [audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12).
 
+H5 history alignment is now accepted in decision commit `01afdcdb` and implemented
+with passing focused discovery/recovery checks. NiFi can discover separate missing
+histories even where an earlier narrow repair completed. The offense build's
+admission-cache exception is fixed in `d3f510a9`; the 650/662 measurement remains
+the last published result until a subsequent successful build is measured.
+
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |

@@ -65,6 +65,18 @@ F9's five missing counted strikes, M1's numerical error-step policy and P1's
 overlapping pitch intervals still await named decisions. None is needed to finish Empty Games. All nineteen
 metrics remain open until the published applicable populations are complete.
 
+[H5](../archive/design-records/mlb-game-history-repair-context-alignment/README.md)
+was accepted and published separately in `01afdcdb`. The history worker now uses
+that exact accepted context; its focused discovery and recovery checks pass.
+Completed narrow repairs no longer hide a game's separate missing histories
+from discovery. NiFi owns the resulting targeted additions. This is not a new
+full-history or full-season completeness claim.
+
+The attempted offense build `20261012T200241Z-dashboard-offense-03064240`
+stopped before processing any games because the admission-version cache dropped
+the historical census fingerprint arguments. `d3f510a9` preserves those arguments
+and fixes the exception. Existing publications remain retained while NiFi retries.
+
 The user accepted EG6A/B/C together in decision commit `cb62852c`, before
 implementation. The source and serving owners now implement all three:
 

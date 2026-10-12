@@ -148,9 +148,10 @@ def fingerprint(owner):
 
 
 def checked_context(owner,contract):
-    """Keep the original H3 pin; admit only identical history dependencies.
+    """Keep the reviewed history pin; admit only identical history dependencies.
 
-    The signature was derived from that pinned source, not a new selector.
+    H5 aligns H3's worker with the already accepted uncaught-strike selector.
+    The signature is derived from that pinned source, not a new selector.
     Ordinary source runtime admission must also bind the current full file.
     """
     path=owner.ROOT/'scripts/pipeline/prepare-rml-context.py';raw=path.read_bytes()
