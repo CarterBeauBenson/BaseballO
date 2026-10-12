@@ -28,6 +28,20 @@ def current_implementation(family, entry):
 
 
 class AdmissionEvidence(unittest.TestCase):
+    def test_count_census_expansion_preserves_old_positive_independent_proof(self):
+        adapter=E.module(E.HERE/'pitch-count-admission.py','count_expansion_test')
+        current=adapter.fingerprint();prior=adapter.previous_fingerprint()
+        self.assertNotEqual(current,prior)
+        self.assertEqual(E.code_equivalence('pitch-count',prior,current)['kind'],'prior-stricter-count-census')
+        self.assertIsNone(E.code_equivalence('pitch-count','unknown-producer',current))
+        proof=dict(status='admitted',implementationSha256='original-independent-producer',
+                   sourceProducerSha256=prior,proofSha256='unchanged-proof')
+        def independent(api,state,promotion,family,selected):
+            return proof if selected.fingerprint()==prior else None
+        with patch.object(E.EXISTING_GRAPH,'load',side_effect=independent), \
+             patch.object(E.RETAINED_CENSUS,'load',return_value=None):
+            self.assertEqual(E.load(adapter,'state',{},'pitch-count'),proof)
+
     def test_whole_game_batting_refresh_precedes_missing_individual_fallback(self):
         original=E.module
         def module(path,name):

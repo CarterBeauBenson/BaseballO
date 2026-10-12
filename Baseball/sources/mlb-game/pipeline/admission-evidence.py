@@ -76,6 +76,15 @@ def code_equivalence(family,previous,current,*,_context=None):
     call dependencies. Complete producer fingerprints include every other
     original dependency, SHACL template and validator. Unknown changes miss.
     """
+    if family=='pitch-count':
+        adapter=module(HERE/'pitch-count-admission.py','count_census_compatibility')
+        if current==adapter.fingerprint():
+            prior=adapter.previous_fingerprint()
+            reused=(dict(kind='unchanged-admission-census') if previous==prior else
+                    code_equivalence(family,previous,prior,_context=_context))
+            if reused is not None:
+                return dict(reused,kind='prior-stricter-count-census',
+                    previousImplementationSha256=previous,currentImplementationSha256=current)
     record=read(COMPATIBILITY_PATH)
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
@@ -259,7 +268,7 @@ def compatible_proof(state,promotion,family,implementation):
     proof=read(path)
     reuse=code_equivalence(family,proof.get('implementationSha256'),implementation)
     if reuse is None: return None
-    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result','prior-stricter-defensive-selection','prior-stricter-scoring-selection'}
+    positive_only=reuse['kind'] in {'prior-stricter-clock-check','prior-stricter-pinch-hitter-check','prior-stricter-history-selection','prior-stricter-walk-selection','prior-stricter-compound-result','prior-stricter-defensive-selection','prior-stricter-scoring-selection','prior-stricter-count-census'}
     if positive_only and proof.get('status')!='admitted': return None
     expected=dict(artifactType='baseballo-'+family+'-admission',contractVersion=1,
         gamePk=promotion['gamePk'],sourceSha256=promotion['rawSha256'],
@@ -360,6 +369,15 @@ def load(adapter,state,promotion,family):
     retained=RETAINED_CENSUS.load(SimpleNamespace(**globals()),state,promotion,family,adapter)
     if retained is not None and (independent is None or independent.get('status')!='admitted'):independent=retained
     if independent is not None and independent.get('status')=='admitted':return independent
+    if family=='pitch-count' and hasattr(adapter,'previous_fingerprint'):
+        prior=SimpleNamespace(**{**vars(adapter),'fingerprint':adapter.previous_fingerprint})
+        for owner in (EXISTING_GRAPH,RETAINED_CENSUS):
+            proof=owner.load(SimpleNamespace(**globals()),state,promotion,family,prior)
+            if proof is not None and proof.get('status')=='admitted':return proof
+        proof=refreshed(state,promotion,family,prior.fingerprint())
+        if proof is not None and proof.get('status')=='admitted':
+            checked_marker(promotion)
+            return proof
     # A failed later witness cannot suppress a separately valid original proof.
     def select(proof):return proof if proof.get('status')=='admitted' else independent or proof
     if family=='batting':

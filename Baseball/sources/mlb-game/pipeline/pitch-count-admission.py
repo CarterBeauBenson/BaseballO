@@ -20,12 +20,20 @@ spec=importlib.util.spec_from_file_location('count_admission_support',HERE/'batt
 B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 CONTEXT=B.module(ROOT/'scripts/pipeline/prepare-rml-context.py','count_existing_context')
 SHAPE=HERE.parent/'shacl/pitch-count-admission.ttl'
+PREVIOUS_CENSUS_FILE_SHA='4d9898aedb36463b659a96b62aa60135f27b37b6d0d521f8ef3c52d54c767cda'
 
 
-def fingerprint():
+def fingerprint(*, previous=False):
     paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',
            ROOT/'scripts/pipeline/prepare-rml-context.py',ROOT/'scripts/pipeline/validate-shacl.py']
-    return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+B.sha(p.read_bytes()) for p in paths).encode())
+    return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+(
+        PREVIOUS_CENSUS_FILE_SHA if previous and p==Path(__file__) else B.sha(p.read_bytes())) for p in paths).encode())
+
+
+def previous_fingerprint():
+    # Only the count census expands. Every other producer dependency and the
+    # static shape stay exact; retain successful old checks with their producer.
+    return fingerprint(previous=True)
 
 
 def virtual_intentional_walk(play, season, document=None):
@@ -55,7 +63,8 @@ def census(raw,game_pk):
         pa=str(play['atBatIndex']);result_type=play.get('result',{}).get('eventType')
         if result_type in B.INTERRUPTIONS:continue  # No official PA; B1 separately reconciles this exclusion.
         errors=[];selected=[];strikes=0;previous_end=None
-        if result_type not in B.RESULTS:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')
+        compound=result_type=='sac_fly_double_play' and bool(CONTEXT.sacrifice_fly_double_play_parts(play))
+        if result_type not in B.RESULTS and not compound:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')
         if [e.get('index') for e in play['playEvents']]!=list(range(len(play['playEvents']))):
             errors.append('UNRECONCILED_EVENT_MEMBERSHIP')
         if virtual_intentional_walk(play,doc['gameData']['game']['season'],doc):
@@ -96,7 +105,9 @@ def census(raw,game_pk):
             else:
                 if code in {'C','S','W','M','T','O','L'}:increment=True
                 elif code=='F':increment=strikes<2
-                elif code in {'B','*B','X','D','E','H'}:increment=False
+                # MLB's pitchCodes catalog: P is a delivered pitchout ball;
+                # I is a delivered intentional ball, distinct from VB awards.
+                elif code in {'B','*B','P','I','X','D','E','H'}:increment=False
                 else:
                     errors.append('UNACCOUNTED_PITCH_CALL');continue
                 try:

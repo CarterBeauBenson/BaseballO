@@ -47,6 +47,22 @@ def extract(data):return M.recovery_histories(M.normalize_bindings(bindings(data
 
 
 class PitchCountAdmission(unittest.TestCase):
+    def test_delivered_pitchout_and_intentional_ball_keep_count_history(self):
+        original=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
+        baseline=A.census(json.dumps(original).encode(),'566279')
+        for code in ('P','I'):
+            doc=json.loads(json.dumps(original))
+            event=next(e for p in doc['liveData']['plays']['allPlays'] for e in p['playEvents']
+                       if e.get('isPitch') is True and e.get('details',{}).get('call',{}).get('code')=='B')
+            event['details']['call']['code']=code
+            actual=A.census(json.dumps(doc).encode(),'566279')
+            self.assertEqual(actual['issues'],[])
+            expected=json.loads(json.dumps(baseline['plateAppearances']))
+            for pa in expected:
+                for selected in pa['events']:
+                    if selected.get('playId')==event['playId']:selected['call']=code
+            self.assertEqual(actual['plateAppearances'],expected)
+
     def test_missing_result_is_withheld_instead_of_crashing_the_evidence_refresh(self):
         doc=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
         play=doc['liveData']['plays']['allPlays'][-1]
