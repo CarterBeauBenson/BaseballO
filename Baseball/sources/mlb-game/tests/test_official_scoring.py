@@ -118,6 +118,27 @@ class OfficialScoring(unittest.TestCase):
         affected['credits'].append(dict(credit='f_error_dropped_ball',player=dict(id=999)))
         self.assertEqual(S.S.secondary_errors(play,witness['gamePk'],True),[])
 
+    def test_distinct_row_credit_preserves_secondary_error_after_primary_error(self):
+        play=dict(atBatIndex=44,about=dict(isComplete=True),result=dict(eventType='field_error'),
+            matchup=dict(batter=dict(id=807747)),
+            playEvents=[dict(index=0,playId='contact',details=dict(isInPlay=True))],runners=[])
+        for start,end,event,credit in [(None,'1B','field_error','f_fielding_error'),
+                ('1B','2B','error','f_throwing_error')]:
+            play['runners'].append(dict(movement=dict(start=start,end=end,isOut=False),
+                details=dict(playIndex=0,eventType=event,runner=dict(id=807747)),
+                credits=[dict(credit=credit,player=dict(id=656484))]))
+        rows=S.S.secondary_errors(play,'823701',True)
+        self.assertEqual(len(rows),1)
+        self.assertTrue(rows[0]['error'].endswith('/656484/f_throwing_error'))
+        self.assertTrue(rows[0]['resolution'].endswith('/advance/44/1'))
+        for change in ('same-error','missing-primary-credit','missing-secondary-credit','conflicting-credit'):
+            changed=copy.deepcopy(play)
+            if change=='same-error':changed['runners'][1]['credits']=changed['runners'][0]['credits']
+            elif change=='missing-primary-credit':changed['runners'][0]['credits']=[]
+            elif change=='missing-secondary-credit':changed['runners'][1]['credits']=[]
+            else:changed['runners'][1]['credits'].append(dict(credit='f_throwing_error',player=dict(id=999)))
+            with self.subTest(change=change):self.assertEqual(S.S.secondary_errors(changed,'823701',True),[])
+
     def test_two_actual_batters_have_one_official_pa_in_source_owned_shacl(self):
         source,graph=fixture();row=source['members'][0];pa=row['pa'];player2=source['roster'][1]['player']
         row.update(officialCredit=True,actualBatters=[dict(playerId='1',actIri=pa+'/batter-act'),dict(playerId='2',actIri=pa+'/batter-act/2')])

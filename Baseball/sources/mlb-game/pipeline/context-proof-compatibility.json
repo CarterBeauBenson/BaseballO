@@ -4535,16 +4535,17 @@
     "baselineCommit": "39734f5",
     "previousRepair": "reviewedWalkIndependentRunning",
     "previousContextSha256": "7f99603afb92945f6a99b5fd24baaa4e3fb3041c4d8f005f9cba3b0173955bb5",
-    "currentContextSha256": "9405cebae8be64f2b105e31290944d821ae048b0c1e5c1e161ad570f6bc36e46",
+    "currentContextSha256": "1d6f187f3ca071973df72848868dcaf4c29399ce5cc8ad3796de4c92e8da204b",
     "families": {
       "batting": {
         "previousImplementationSha256": "9698a0dd9bbd495dfe36cfc937cd3280e30c88a3fa1e6f9bd50ad24eeeee1358",
-        "currentImplementationSha256": "c6761aa52358a4a5e70deaf89dd2a3e60f6c6d6a02d4f3117ec2e73a8f4b5413",
+        "currentImplementationSha256": "5521c3970d48bb84cc488002d0decccf04e143f179b2954b77acbfe6572bdb22",
         "reuseKind": "prior-stricter-scoring-selection",
         "intermediateImplementations": {
           "5342fa8028761256dd563ab8e3b6c0a5f5c207aa6660626a0f7537dfe49afc61": "prior-stricter-scoring-selection",
           "192330c15506135a3bb4c4e4147cf9433364faf0ab022b0f5d3b7df8975c6101": "unchanged-proof-dependencies",
-          "6ae32e4ff27a25f7f807f31678935e820ce31e2789430a5c4a7e643af8a95515": "unchanged-proof-dependencies"
+          "6ae32e4ff27a25f7f807f31678935e820ce31e2789430a5c4a7e643af8a95515": "unchanged-proof-dependencies",
+          "c6761aa52358a4a5e70deaf89dd2a3e60f6c6d6a02d4f3117ec2e73a8f4b5413": "unchanged-proof-dependencies"
         }
       },
       "scoring-run": {
@@ -4557,49 +4558,58 @@
       },
       "runner-resolution": {
         "previousImplementationSha256": "d8d12fe76e49cffa26914b58effae430faaf810d163f26e0186e1dcbbba087f6",
-        "currentImplementationSha256": "514cdb73f3fa454b86987a3edefd7383472dc4be20153b45a5b40c07a9d66cad",
+        "currentImplementationSha256": "36e75d99b5df3a599a78ee5b12c4d251f4785dd130c641ea2c11269cc4c21cda",
         "reuseKind": "prior-stricter-scoring-selection",
         "intermediateImplementations": {
           "d34f52da2876c8e1dc664b846448a09e8f167660ca1ab0c5f5f56468c87f262c": "unchanged-proof-dependencies",
           "e4a4c01ff29f73a9cd667249168c64aa6a85d18e96c24f700ba2e2983af40937": "unchanged-proof-dependencies",
-          "2173b5d1f49c2f80534dcd11d47dfdd9ff770ddb01394a76e6e3e3efea0e7bcb": "unchanged-proof-dependencies"
+          "2173b5d1f49c2f80534dcd11d47dfdd9ff770ddb01394a76e6e3e3efea0e7bcb": "unchanged-proof-dependencies",
+          "514cdb73f3fa454b86987a3edefd7383472dc4be20153b45a5b40c07a9d66cad": "unchanged-proof-dependencies"
         }
       },
       "pitch-count": {
         "previousImplementationSha256": "f83d93716a53d16072207c2e62fee0c725ae6d2fd8bf408e84581625737f0245",
-        "currentImplementationSha256": "065524c5c1f7d01a9836c58d4e855db28eefe90d335f3729e36a40eb1f21a29b",
+        "currentImplementationSha256": "5cd71de50821ee65f6fa702d2aa697354c86caa811ad097002da82412af87627",
         "reuseKind": "prior-stricter-scoring-selection",
         "intermediateImplementations": {
           "b5cbaab9c302f81ac647b29fd23eec220cc089d65e08557ca108fe7e584a0a3b": "unchanged-proof-dependencies",
           "ee67412b60310ac75b637c5fd1567474dceb10d6f04fcc81f3891408117a6f37": "unchanged-proof-dependencies",
-          "26bf6f1905ca45e735165064d973eb330796a8f5aed3c51ebc8343747a6758ae": "unchanged-proof-dependencies"
+          "26bf6f1905ca45e735165064d973eb330796a8f5aed3c51ebc8343747a6758ae": "unchanged-proof-dependencies",
+          "065524c5c1f7d01a9836c58d4e855db28eefe90d335f3729e36a40eb1f21a29b": "unchanged-proof-dependencies"
         }
       },
       "runner-boundary": {
         "previousImplementationSha256": "d8b760084876f81e839fcefb3f9195736e666d4e8fc4c77c3385dd37bd94e4ae",
-        "currentImplementationSha256": "387e4bd224b128c5adc9c33495374fdb38c9516dbf597fa316dfd1b02e4028d0",
+        "currentImplementationSha256": "04d05c67ab3cb5587903bc7e034c3d7bedba3285d8a4a38fb5c06bc4bc178bb6",
         "reuseKind": "prior-stricter-scoring-selection",
         "intermediateImplementations": {
           "dd9ede440129588819ddb855cacda23ca01206090b922f9a5d12686797bf3c55": "unchanged-proof-dependencies",
           "52e937f53d4e5c4593b9b4786e3c66e52489d91896dbfb65a7463c8ea1f2bd92": "unchanged-proof-dependencies",
-          "dc685147e22e94f651910be29c213a5e81a4e140add457c14bf771a49014e835": "unchanged-proof-dependencies"
+          "dc685147e22e94f651910be29c213a5e81a4e140add457c14bf771a49014e835": "unchanged-proof-dependencies",
+          "387e4bd224b128c5adc9c33495374fdb38c9516dbf597fa316dfd1b02e4028d0": "unchanged-proof-dependencies"
         }
       },
       "defensive": {
         "previousImplementationSha256": "4c8d874b20871f1390cf6a97fd2e5b8530262062214ee355c458ce966389987f",
-        "currentImplementationSha256": "d810e6244991cd1ddab12063ce3bb3be6178aee0dfb11c5e14dcde5c92df6ea7",
+        "currentImplementationSha256": "30f9134bae223e0297d1aff8ca5ce67060b1fcddb447f5455c9e1ecd88869da4",
         "reuseKind": "unchanged-proof-dependencies",
         "intermediateImplementations": {
           "1c509fd47b874b6a380355f45af526f0c89d342174b1d4bd2a423223f28e84b9": "unchanged-proof-dependencies",
           "9c95006c9957a58052339875148142a6625a473ee9a03d47cbca768d74d3ee94": "unchanged-proof-dependencies",
-          "1bc73804524ce60e0c6c800e589a5554fb0a51aab75b5a8b9a0c8bb36c5be695": "unchanged-proof-dependencies"
+          "1bc73804524ce60e0c6c800e589a5554fb0a51aab75b5a8b9a0c8bb36c5be695": "unchanged-proof-dependencies",
+          "d810e6244991cd1ddab12063ce3bb3be6178aee0dfb11c5e14dcde5c92df6ea7": "unchanged-proof-dependencies"
         }
       }
     },
     "independentProofs": {
       "batting": {
-        "currentImplementationSha256": "8c4e5912e6eb3f8f03087b5065a77ddecbd981a386e0171c2ab3bb5688aa7beb",
+        "currentImplementationSha256": "5e30d1def00d4721fe5e6030df282b7e6924ec51019093cd3f1a181a5e14fafa",
         "previous": [
+          {
+            "previousImplementationSha256": "8c4e5912e6eb3f8f03087b5065a77ddecbd981a386e0171c2ab3bb5688aa7beb",
+            "previousSourceProducerSha256": "c6761aa52358a4a5e70deaf89dd2a3e60f6c6d6a02d4f3117ec2e73a8f4b5413",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "1bbf4a09163c06aee011d43b27f527bdfde276ab116c76ae7a1a9a56b9ca27fc",
             "previousSourceProducerSha256": "6ae32e4ff27a25f7f807f31678935e820ce31e2789430a5c4a7e643af8a95515",
@@ -4640,8 +4650,13 @@
         "requiresOriginalAdmission": false
       },
       "runner-resolution": {
-        "currentImplementationSha256": "ac1b5f286a9613acfd1ac223e99ea5ddec47664ed51bc9cbabc3e31b75a8dbea",
+        "currentImplementationSha256": "fe6de1612bbb23b2f35d8c5e9677767b348983eae04c97fe66430f66ab820dd6",
         "previous": [
+          {
+            "previousImplementationSha256": "ac1b5f286a9613acfd1ac223e99ea5ddec47664ed51bc9cbabc3e31b75a8dbea",
+            "previousSourceProducerSha256": "514cdb73f3fa454b86987a3edefd7383472dc4be20153b45a5b40c07a9d66cad",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "c0c5809ec35b442b60d512f2f42ceac2d6a0fe88d215e605887b39f6f3e53b35",
             "previousSourceProducerSha256": "2173b5d1f49c2f80534dcd11d47dfdd9ff770ddb01394a76e6e3e3efea0e7bcb",
@@ -4666,8 +4681,13 @@
         "requiresOriginalAdmission": true
       },
       "pitch-count": {
-        "currentImplementationSha256": "b2c6d063bb90fb1ea373765f3d6f9ec4ee1bf20ee6b7570c31559610cb6aebd4",
+        "currentImplementationSha256": "d5bccdc13c73cb8475444ba92ba7f36ce1a75cc4a5219ececb09e7a10ea8bd12",
         "previous": [
+          {
+            "previousImplementationSha256": "b2c6d063bb90fb1ea373765f3d6f9ec4ee1bf20ee6b7570c31559610cb6aebd4",
+            "previousSourceProducerSha256": "065524c5c1f7d01a9836c58d4e855db28eefe90d335f3729e36a40eb1f21a29b",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "fbf9a46b49832b0e7e1355d4265365690f19dc707e28a2f88c23f09f983284d1",
             "previousSourceProducerSha256": "26bf6f1905ca45e735165064d973eb330796a8f5aed3c51ebc8343747a6758ae",
@@ -4692,8 +4712,13 @@
         "requiresOriginalAdmission": true
       },
       "runner-boundary": {
-        "currentImplementationSha256": "6dac28f3b33822f531a38ee3b39df378ae410748325da3334a8358716cbe2745",
+        "currentImplementationSha256": "e16dcf624d90aae0f7b8f6112d3a8d8edfa3656fc490729f2769771d8d69ae3c",
         "previous": [
+          {
+            "previousImplementationSha256": "6dac28f3b33822f531a38ee3b39df378ae410748325da3334a8358716cbe2745",
+            "previousSourceProducerSha256": "387e4bd224b128c5adc9c33495374fdb38c9516dbf597fa316dfd1b02e4028d0",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "8449d9d177086678efaccc11d9b0d718311a8deaaabcaf2f2ac75818b7d6c003",
             "previousSourceProducerSha256": "dc685147e22e94f651910be29c213a5e81a4e140add457c14bf771a49014e835",
@@ -4718,8 +4743,13 @@
         "requiresOriginalAdmission": true
       },
       "defensive": {
-        "currentImplementationSha256": "a12ca03411d1f8f682cd2b21d637d374c61dde8c35c7fa55f72af1065ff2a1fe",
+        "currentImplementationSha256": "a1e6cce2082edffef43995e5db4b3cbb9f7fe89441aca4ba751136c8f3e4c041",
         "previous": [
+          {
+            "previousImplementationSha256": "a12ca03411d1f8f682cd2b21d637d374c61dde8c35c7fa55f72af1065ff2a1fe",
+            "previousSourceProducerSha256": "d810e6244991cd1ddab12063ce3bb3be6178aee0dfb11c5e14dcde5c92df6ea7",
+            "requiresOriginalAdmission": false
+          },
           {
             "previousImplementationSha256": "b03195b9d9474c7c0b3f9fbbccae60d924c05d95891fe9ce720132f016afbab6",
             "previousSourceProducerSha256": "1bc73804524ce60e0c6c800e589a5554fb0a51aab75b5a8b9a0c8bb36c5be695",
@@ -4746,8 +4776,9 @@
     },
     "derivedProofs": {
       "players": {
-        "currentImplementationSha256": "473a63dcf30285e0e0519e2b39e59280511d7134fa68df1ffe1d30ce41aa40dd",
+        "currentImplementationSha256": "a723e52c7401d066de4bbf6c806e5963aae7941b489d667838362c1f4bc6179f",
         "previousImplementationSha256s": [
+          "473a63dcf30285e0e0519e2b39e59280511d7134fa68df1ffe1d30ce41aa40dd",
           "47bd0ca37edd941dec44cdefc51b3b4fd5aab22e3e0e69fadd546add1e5b9413",
           "60ead0fa218c5e9c5b15c4a841ef9b766bc3013fbfd3d5eabca7debed2213c49",
           "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
@@ -4777,8 +4808,9 @@
         ]
       },
       "pa": {
-        "currentImplementationSha256": "98d9c00deae915d9d6f19fcb3336149293625373386d15d2d331110c0f0f8c77",
+        "currentImplementationSha256": "e30e9ce9475f2b83ac20006f012f7e8f2fb68247a707fe049ac6245fd7a07ce0",
         "previousImplementationSha256s": [
+          "98d9c00deae915d9d6f19fcb3336149293625373386d15d2d331110c0f0f8c77",
           "725b4cfd75994b22c7ab89d13f859f5cd8c87e57262eb8f3f1cc4802793fd54f",
           "692b0798271f1363c53237a113ba570a7c346d4633f26e8ca4c26fe4ee23e3d8",
           "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
@@ -4805,8 +4837,9 @@
         ]
       },
       "c2pa": {
-        "currentImplementationSha256": "3d33aa5d9262f5439719a2453e63a76ee75219c68e8062b81fbaf672f299357e",
+        "currentImplementationSha256": "174835adf7bac080cd6defd3f29b90499c3333abafa800eb032a8a8b4eafda0e",
         "previousImplementationSha256s": [
+          "3d33aa5d9262f5439719a2453e63a76ee75219c68e8062b81fbaf672f299357e",
           "174ca92e346744b4de40557933b251aadc38fd89750020e3f308246f11598f8b",
           "4897efe12a3642780b31e05853ef072d48d9aa0c52e38b05064f0f589c5d6dce",
           "bb8294d0935911001ddfbd5c4c3e6cdee17a14bc73b0d022263a52a9a4eef8cc",
@@ -4834,8 +4867,9 @@
         ]
       },
       "retained-batting": {
-        "currentImplementationSha256": "639d5b7f8878156fb069bae5c02fd70f0da3d3368b1368a57dbc432c19951c5c",
+        "currentImplementationSha256": "e93b9cfb9cf384deb7954f56dd3f208adc0e285439bbebf4d6d54eab04662cb0",
         "previousImplementationSha256s": [
+          "639d5b7f8878156fb069bae5c02fd70f0da3d3368b1368a57dbc432c19951c5c",
           "8772b7763e9268fad5fd97cacfa16e8d1db8b08cabcec959129351012726e6a6",
           "aeb4b85652358a0e5acaf1c7a53bfb6d66b6e2fee292d59950d73bc9401c0687",
           "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
@@ -4863,7 +4897,8 @@
     ],
     "notes": [
       "EG2 contact-prefix completion changes only contact_continuation_supported. The six source census producers and derived proof contracts do not call that selector; their immediately preceding fingerprints remain equivalent without broadening older restricted reuse.",
-      "EG5 recognizes the explicit f_error_dropped_ball scoring credit through the existing secondary-error selection and identity. This affects only secondaryErrors; the six census and derived proof contracts do not use that error-credit set."
+      "EG5 recognizes the explicit f_error_dropped_ball scoring credit through the existing secondary-error selection and identity. This affects only secondaryErrors; the six census and derived proof contracts do not use that error-credit set.",
+      "EG5 distinguishes a separately credited secondary error at the primary-error event by its unique row credit and a distinct known primary credit. No census producer or derived proof uses secondary_error_rows; prior proof outcomes remain unchanged."
     ]
   }
 }

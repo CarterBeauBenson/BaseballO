@@ -2952,26 +2952,40 @@ def secondary_error_rows(play, game_pk, reviews_reconciled):
     events = play.get('playEvents', [])
     if [e.get('index') for e in events] != list(range(len(events))):
         return []
-    credits = defaultdict(set)
-    primary_events = {r.get('details', {}).get('playIndex') for r in play.get('runners', [])
+    credits, primary_credits, row_credits = defaultdict(set), defaultdict(set), {}
+    primary_rows = {i for i, r in enumerate(play.get('runners', []))
         if play.get('result', {}).get('eventType') == 'field_error'
         and r.get('details', {}).get('eventType') == 'field_error'
         and r.get('details', {}).get('runner', {}).get('id') == play.get('matchup', {}).get('batter', {}).get('id')
         and r.get('movement', {}).get('start') is None}
-    for row in play.get('runners', []):
+    primary_events = {play['runners'][i]['details']['playIndex'] for i in primary_rows}
+    for index, row in enumerate(play.get('runners', [])):
         event = row.get('details', {}).get('playIndex')
         if type(event) is not int or not 0 <= event < len(events):
             continue
+        row_credits[index] = set()
         for credit in row.get('credits', []):
             kind, person = credit.get('credit'), credit.get('player', {}).get('id')
             if kind in SCORING_ERROR_KINDS and type(person) is int and person > 0:
                 credits[event].add((str(person), kind))
+                row_credits[index].add((str(person), kind))
+                if index in primary_rows:
+                    primary_credits[event].add((str(person), kind))
     pa = SCORING_BASE+f'data/game/{game_pk}/plate-appearance/{play["atBatIndex"]}'
     output = []
     for index, row in enumerate(play.get('runners', [])):
         details, movement = row.get('details', {}), row.get('movement', {})
         event = details.get('playIndex')
-        if event in primary_events or details.get('eventType') not in SCORING_ERROR_EVENTS or len(credits[event]) != 1:
+        if index in primary_rows or details.get('eventType') not in SCORING_ERROR_EVENTS:
+            continue
+        # An explicit row credit identifies its error even when another row at
+        # this event records a different error. Never duplicate the primary PA
+        # error or guess which error an uncredited row describes.
+        selected_credits = row_credits.get(index) or credits[event]
+        if len(selected_credits) != 1:
+            continue
+        if event in primary_events and (len(primary_credits[event]) != 1
+                or not row_credits.get(index) or selected_credits & primary_credits[event]):
             continue
         if type(movement.get('isOut')) is not bool or type(details.get('runner', {}).get('id')) is not int:
             continue
@@ -2982,7 +2996,7 @@ def secondary_error_rows(play, game_pk, reviews_reconciled):
                 'reach' if start is None and end == '1B' else 'advance' if start in {'1B', '2B', '3B'} and end in {'2B', '3B'} else None)
         if kind is None or (kind == 'score' and details.get('isScoringEvent') is not True):
             continue
-        person, error_kind = next(iter(credits[event]))
+        person, error_kind = next(iter(selected_credits))
         stem = pa+f'/secondary-error/{event}/{person}/{error_kind}'
         # Runner indices are source-array indices, never indices in a subset.
         resolution = SCORING_BASE+f'data/game/{game_pk}/runner-resolution/{kind}/{play["atBatIndex"]}/{index}'
