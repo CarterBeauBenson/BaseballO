@@ -50,9 +50,10 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
-| Dashboard build, October 12 at 01:29 UTC | `20261012T011456Z-dashboard-offense-d204c753` published | All four families have independent publications |
-| Published dashboard, October 11 at 21:29 Eastern | 628 of 662 Empty Games hitters complete (94.9%); 34 incomplete, 35 held player-games across 33 games | The reader correction and five targeted additions have published; zero incomplete remains the finish line |
-| EG5 completion, awaiting publication | Recognize explicit dropped-ball error credits, retry omitted scoring selections and preserve explicit counted RBI independently of path reconstruction | Five retained games have newly supported scoring additions, including the distinct secondary error in 823701; publication must demonstrate the gain |
+| Dashboard build, October 12 at 02:44 UTC | `20261012T021601Z-dashboard-offense-dd6784f6` published | All four families have independent publications |
+| Published dashboard, October 11 at 22:44 Eastern | 628 of 662 Empty Games hitters complete (94.9%); 34 incomplete, 35 held player-games across 33 games | Unchanged from 21:29; the captured inputs predate the next five additions; zero incomplete remains the finish line |
+| EG5 completion, additions complete | Five repairs added 65 missing scoring triples at 22:45-22:49 Eastern, including the distinct secondary error in 823701 | Offensive admissions are available; the next offensive publication must demonstrate the gain |
+| Repair publication priority | A newly completed Empty Games repair receives one offensive build attempt before normal family rotation | Preserve active builds, bounded retries and independent sibling publication |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
 | EG2 contact selection repair, published | Four cases select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Targeted additions completed; their gains are included in the 628 complete hitters |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
@@ -110,7 +111,8 @@ parallel heavy processes or change the ingestion topology.
 
 **October 11 decision checkpoint:** the latest measured population is 628/662
 complete hitters (94.9%), with 35 held player-games across 33 games. Published
-EG5 engineering fixes have five newly selected additive repairs. The
+EG5 engineering fixes completed all five selected additive repairs; their
+offensive admissions are available for the next publication. The
 [EG6 review](proposals/mlb-game-empty-game-final-boundaries/README.md) captures
 the remaining shared attribution, generic selection and called-game census
 boundaries with the retained witnesses. EG6A/B/C await separate decisions;

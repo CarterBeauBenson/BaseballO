@@ -1,6 +1,8 @@
 """A defensive failure must not hold offensive publication or reads hostage."""
 import sqlite3
+import json
 import unittest
+from datetime import datetime, timezone
 from contextlib import closing
 from unittest.mock import patch
 
@@ -81,6 +83,35 @@ class DashboardFamilies(unittest.TestCase):
         self.assertEqual(self.pointer()['families']['defense'],defense)
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT COUNT(DISTINCT family) FROM dashboard_family_checkpoint').fetchone()[0],4)
+
+    def test_completed_empty_game_repair_gets_one_turn_then_rotation_resumes(self):
+        owner=D.module(D.ROOT/'serving/family_build.py','test_repair_priority')
+        families=['offense','defense','combined','other']
+        published={'offense':dict(buildId='offense-before-repair',
+            sourceSnapshotCapturedAtUtc='2026-10-12T02:17:55+00:00',familyNotificationKey='old')}
+        control=self.args.state_root/'pipeline/control/mlb-game'
+        (control/'empty-game-addition').mkdir(parents=True,exist_ok=True)
+        plan=dict(publicationId='offense-before-repair',families=[dict(games=[dict(gamePk='101')])])
+        (control/'empty-game-repair-plan.json').write_text(json.dumps(plan))
+        receipt=control/'empty-game-addition/101.json'
+        receipt.write_text(json.dumps(dict(gamePk='101',status='complete',checkedAtUtc='2026-10-12T02:45:28Z')))
+        repaired=owner.completed_offense_repair(self.args.state_root,published)
+        self.assertEqual(repaired,datetime(2026,10,12,2,45,28,tzinfo=timezone.utc))
+        attempts={f:dict(notification='old',attempts=1,attemptedAtUtc=t) for f,t in [
+            ('offense','2026-10-12T02:16:01Z'),('defense','2026-10-12T01:41:00Z'),
+            ('combined','2026-10-12T01:50:27Z'),('other','2026-10-12T02:07:08Z')]}
+        self.assertEqual(owner.choose(families,published,attempts,'new','auto',False,repaired_offense=repaired),'offense')
+        attempts['offense']=dict(notification='new',attempts=1,attemptedAtUtc='2026-10-12T03:00:00Z',status='family-failed')
+        self.assertEqual(owner.choose(families,published,attempts,'new','auto',False,repaired_offense=repaired),'defense')
+        attempts['offense'].update(attempts=3,attemptedAtUtc='2026-10-12T02:20:00Z')
+        self.assertEqual(owner.choose(families,published,attempts,'new','auto',False,repaired_offense=repaired),'defense')
+        self.assertEqual(owner.choose(families,published,attempts,'new','other',False,repaired_offense=repaired),'other')
+        published['offense']['buildId']='newer-offense'
+        self.assertIsNone(owner.completed_offense_repair(self.args.state_root,published))
+        published['offense']['buildId']='offense-before-repair'
+        for status in ('failed','already-present'):
+            receipt.write_text(json.dumps(dict(gamePk='101',status=status,checkedAtUtc='2026-10-12T02:45:28Z')))
+            self.assertIsNone(owner.completed_offense_repair(self.args.state_root,published))
 
     def test_legacy_offensive_values_survive_migration_without_a_graph_read(self):
         del self.args.family

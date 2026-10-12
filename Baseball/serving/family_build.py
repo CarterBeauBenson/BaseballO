@@ -30,11 +30,40 @@ def composition(published, attempts):
         for family,value in attempts.items()})
 
 
-def choose(families, published, attempts, notification, requested, force):
+def completed_offense_repair(state, published):
+    """A scheduling hint from the existing repair owner, never an admission."""
+    offense=published.get('offense',{})
+    captured=offense.get('sourceSnapshotCapturedAtUtc')
+    path=state/'pipeline/control/mlb-game/empty-game-repair-plan.json'
+    if not captured or not path.is_file():return None
+    plan=json.loads(path.read_text(encoding='utf-8'))
+    if plan.get('publicationId')!=offense.get('buildId'):return None
+    latest=datetime.fromisoformat(captured.replace('Z','+00:00'))
+    for family in plan.get('families',[]):
+        for game in family.get('games',[]):
+            pk=game.get('gamePk','')
+            if not isinstance(pk,str) or not pk.isdecimal():continue
+            receipt=path.parent/'empty-game-addition'/(pk+'.json')
+            if not receipt.is_file():continue
+            row=json.loads(receipt.read_text(encoding='utf-8'))
+            if row.get('gamePk')!=pk or row.get('status')!='complete':continue
+            completed=row.get('checkedAtUtc')
+            if completed:latest=max(latest,datetime.fromisoformat(completed.replace('Z','+00:00')))
+    return latest if latest>datetime.fromisoformat(captured.replace('Z','+00:00')) else None
+
+
+def choose(families, published, attempts, notification, requested, force, *, repaired_offense=None):
     if requested!='auto':return requested
     pending=[f for f in families if force or published.get(f,{}).get('familyNotificationKey')!=notification]
     ready=[f for f in pending if attempts.get(f,{}).get('notification')!=notification or
            attempts[f].get('attempts',0)<3]
+    # Publish completed Empty Games repairs once before continuing rotation.
+    # A failed attempt consumes that priority too; it cannot monopolize the
+    # worker while independent families remain ready. Retry limits still apply.
+    attempted=attempts.get('offense',{}).get('attemptedAtUtc')
+    if ('offense' in ready and repaired_offense is not None and (not attempted or
+            datetime.fromisoformat(attempted.replace('Z','+00:00'))<repaired_offense)):
+        return 'offense'
     # Round robin prevents a continuously changing offensive inventory or a
     # repeatedly failing family from starving the other independently ready work.
     return min(ready,key=lambda f:(attempts.get(f,{}).get('attemptedAtUtc',''),list(families).index(f))) if ready else None
@@ -101,7 +130,8 @@ def build(d, args, state, serving, work):
     notification=d.digest([notification,d.SOURCE.sha256_file(Path(__file__)),d.SOURCE.sha256_file(Path(f.__file__))])
     attempts_path=work/'family-attempts.json'
     attempts=d.RELEASE.read(attempts_path) if attempts_path.is_file() else {}
-    family=choose(f.FAMILIES,published,attempts,notification,args.family,args.force)
+    family=choose(f.FAMILIES,published,attempts,notification,args.family,args.force,
+                  repaired_offense=completed_offense_repair(state,published))
     if family is None:return dict(status='unchanged',families=list(published),failures={k:v for k,v in attempts.items() if v.get('error')})
     if time.time_ns()-latest<args.quiet_seconds*1_000_000_000:return dict(status='waiting-for-source',family=family)
     selected=f.FAMILIES[family]

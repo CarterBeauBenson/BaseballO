@@ -21,16 +21,16 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 11 at 21:29 Eastern
+## Latest measured publication: October 11 at 22:44 Eastern
 
-Offense publication `20261012T011456Z-dashboard-offense-d204c753` contains all
+Offense publication `20261012T021601Z-dashboard-offense-dd6784f6` contains all
 2,429 selected regular-season games. **628 of 662 eligible hitters are complete
 (94.9%)**, with **34 incomplete hitters and 35 held player-games in 33 games**.
 The four EG2 contact additions and 823136's forced-walk addition completed and
-the corrected reader is published. This is a gain of 20 complete hitters from
-the preceding measurement, not completion of the metric.
+the corrected reader is published. Coverage is unchanged from the 21:29
+publication, which gained 20 complete hitters over the preceding measurement.
 
-The next EG5 repair recognizes the explicitly scored `f_error_dropped_ball`
+The published EG5 repair recognizes the explicitly scored `f_error_dropped_ball`
 through the existing Error Process/judgment/decision pattern. NiFi compares new
 secondary-error and RBI selections against previous selected facts; a prior
 successful receipt cannot hide an omitted supported credit. Retained inputs
@@ -40,7 +40,16 @@ secondary throwing error alongside the primary fielding error. An explicit credi
 counted run now establishes binary RBI credit independently of reconstructing
 the runner's earlier path. Numeric progress and unknown running remain separate.
 Focused source, retry, binary-reader and existing proof-compatibility checks pass.
-These five additions and their subsequent dashboard effects are pending.
+All five additions completed at 22:45-22:49 Eastern, adding 65 missing triples
+with no recorded repair failure. Their offensive admissions are available.
+The 22:44 publication captured its input before these additions; their dashboard
+effects remain unmeasured until the next offensive publication.
+
+The family scheduler now gives newly completed repairs from the current Empty
+Games work list one offensive attempt ahead of normal rotation. That priority
+is consumed even by a failed attempt; existing retry limits and independent
+family publication remain. It does not interrupt an active build. This removes
+the extra wait behind every older family after an approved repair completes.
 
 The [EG6 package](../proposals/mlb-game-empty-game-final-boundaries/README.md)
 records the remaining shared semantic boundaries with all 33 retained game
