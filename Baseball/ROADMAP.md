@@ -36,8 +36,9 @@ permission is not a standing rebuild instruction.
 
 ## 1. Complete the nineteen metrics: execution plan
 
-Updated October 9, 2026. Empty Games is the sole primary delivery milestone
-until its complete player population reaches the UI. The execution sequence
+Updated October 12, 2026. Empty Games reached its complete published player
+population at 21:36 UTC. Continue with the offensive rate/contribution families
+and the shared count/history repairs; keep the nineteen-population finish line. The execution sequence
 below replaces the earlier immediate-work list; prior versions remain in Git.
 [Metric readiness](serving/METRIC-READINESS.md) retains
 publication measurements. [The gap register](sparql/metrics/gap-register.json),
@@ -55,19 +56,22 @@ authorization or make the Empty Games inventory the inventory for every metric.
 ### Starting point and finish line
 
 October 12 population follow-through: completion means **100% of each metric's
-applicable population**, not a passing subset. The 19:41 UTC offense publication
-has 650/662 complete Empty Games hitters, with twelve held player-games in twelve
-games. The reader now applies EG6 attribution per PA before pooling positives;
-the query index canonicalizes the approved sacrifice-fly double play; partial
-contact-dependency checks preserve independently source-supported existing links.
-These repairs require NiFi publication before any population gain is claimed.
-The two targeted additions and called-game scoped resolution refreshes are now
-complete. The latest reader restores EG3 running entry credit and resolves all
-twelve games in the current remainder using retained SQL evidence. Next: measure
-the newly published full-season Empty Games result, and repair any actual
-remainder without reopening successful source work. Independent count, actor, source-revision and reference-reader
-corrections are published; see the
-[audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12).
+applicable population**, not a passing subset. Publication
+`20261012T203817Z-dashboard-offense-61dcb86a` now serves **662/662 eligible
+Empty Games hitters**, 49,627 eligible player-games and all 2,429 regular-season
+games. Fourteen eligible hitters have zero Empty Games and remain included.
+The total is 11,757 Empty Games. The live full-season dashboard response reports
+complete Empty Games coverage and no population gaps. Its prepared SQL request
+took 1,348 ms in the measured call; that is one observation, not a load benchmark.
+
+The dashboard still has only **six populated qualified leaderboards and one
+complete population out of nineteen**. The next primary work is offensive
+attribution/PA completeness, using the approved K1 and H5 repairs and the now
+implemented M1 error-step arithmetic. F9 counted-foul additions and P1 count
+ordering proceed through their existing owners. Complete the two review
+integrations and defensive coverage independently. Never undo the published
+Empty Games result merely because those families remain unfinished.
+See the [audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12).
 
 H5 history alignment is now accepted in decision commit `01afdcdb` and implemented
 with passing focused discovery/recovery checks. NiFi can discover separate missing
@@ -93,7 +97,7 @@ are unchanged.
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
 | Dashboard build, October 12 at 10:38 UTC | `20261012T102243Z-dashboard-offense-92574551` published | All four families have independent publications |
-| Published dashboard, October 12 at 06:38 Eastern | 631 of 662 Empty Games hitters complete (95.3%); 31 incomplete, 32 held player-games across 30 games | Three more hitters are complete; zero incomplete remains the finish line |
+| Published dashboard, October 12 at 21:36 UTC | 662/662 Empty Games hitters; 49,627 eligible player-games; 14 zero totals included | Complete Empty Games population is served; eighteen other populations remain incomplete |
 | EG5 completion, published | Five repairs added 65 missing scoring triples; 823331, 823664 and 823855 have cleared | 823701 and 824992 retain the reviewed mixed-error boundary; no unapplied approved repair remains in the current work list |
 | Repair publication priority | A newly completed Empty Games repair receives one offensive build attempt before normal family rotation | Preserve active builds, bounded retries and independent sibling publication |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
@@ -266,7 +270,9 @@ SHACL bookkeeping. Research source/rule uncertainty before asking the user.
   measured request overhead without delaying a correct coverage publication.
 
 Record these outcomes in the existing [readiness document](serving/METRIC-READINESS.md).
-Until then, milestone 1 remains open and is the next primary task on continuation.
+The complete population was published at 21:36 UTC October 12 and verified
+through the live dashboard response. Continue the remaining metric milestones;
+do not reopen this population repair because a sibling metric is incomplete.
 
 The four counted-foul exceptions (823013, 823804, 824118 and 824744) have a prepared
 [F9 repair](archive/design-records/mlb-game-counted-foul-edge-completion/README.md) accepted and implemented on October 12. NiFi owns their targeted additions. They belong to the later count-history milestone; neither that review

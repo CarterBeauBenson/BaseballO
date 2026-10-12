@@ -28,6 +28,29 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
+## October 12 at 21:36 UTC: complete Empty Games publication
+
+The live dashboard serves publication
+`20261012T203817Z-dashboard-offense-61dcb86a`: **662/662 eligible hitters**,
+**49,627 eligible player-games**, and all **2,429 regular-season games**.
+There are **11,757 Empty Games**. All fourteen eligible hitters with zero
+Empty Games remain in the ranking. The API reports `populationComplete: true`,
+`playerRecordsComplete: true`, no player-summary gaps and 662 qualified rows;
+gross counts have no appearance minimum. The selected period ends September 27.
+The measured prepared-SQL response took 1,348 ms.
+
+Across the full public dashboard, **six of nineteen cards have qualified rows;
+only Empty Games has a complete population**. The other eighteen populations
+remain incomplete; thirteen cards still have no qualified ranking. F9, M1 and
+P1 are implemented and pushed after their separate acceptance records. Their
+new effects are not claimed in this already running build. NiFi's counted-foul
+repair and dashboard processors and the counted-foul timer are RUNNING, with
+no processor validation errors. Repairs are waiting for the shared heavy lease
+when another owner occupies it; existing published snapshots remain readable.
+
+The following entries are dated history, not instructions to repeat finished
+Empty Games repairs.
+
 ## October 12: EG6 implementation and reader follow-through
 
 Publication `20261012T175930Z-dashboard-offense-2ef1923d`, promoted at 19:41 UTC,
