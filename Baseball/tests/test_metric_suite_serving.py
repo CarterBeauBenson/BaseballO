@@ -318,7 +318,12 @@ ex:otherOut a base:OutProcess ; obo:BFO_0000132 ex:otherPA .
         self.assertEqual(len(ids),len(set(ids)))
         for metric in M.catalog()['metrics']:
             self.assertTrue(set(metric['requires'])<=set(ids))
-        self.assertTrue(all(g['status']=='open' for g in M.gaps()['gaps']))
+        for gap in M.gaps()['gaps']:
+            self.assertIn(gap['status'],{'open','resolved'})
+            if gap['status']=='resolved':
+                self.assertTrue(gap.get('decisionRecords'))
+                self.assertTrue(all((ROOT/path).is_file() for path in gap['decisionRecords']))
+                self.assertFalse(any(gap['id'] in metric['requires'] for metric in M.catalog()['metrics']))
 
     def test_serving_route_requires_the_new_evidence_contract(self):
         spec=importlib.util.spec_from_file_location('adapter', ROOT/'scripts/pipeline/query-serving-layer.py')

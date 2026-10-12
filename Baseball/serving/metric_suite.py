@@ -31,6 +31,9 @@ VERSION = '2.1.0'
 _block_spec = importlib.util.spec_from_file_location('baseballo_metric_blocks', ROOT/'serving/metric_blocks.py')
 _blocks = importlib.util.module_from_spec(_block_spec)
 _block_spec.loader.exec_module(_blocks)
+_kernel_spec=importlib.util.spec_from_file_location('baseballo_kernel_execution',ROOT/'serving/kernel_execution.py')
+_kernels=importlib.util.module_from_spec(_kernel_spec)
+_kernel_spec.loader.exec_module(_kernels)
 
 
 def _block_api():
@@ -69,7 +72,7 @@ def policies():
 
 
 def fingerprint():
-    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/metric-suite-schema.sql',
+    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/kernel_execution.py', ROOT / 'serving/metric-suite-schema.sql',
              METRICS / 'metric-catalog.json', METRICS / 'gap-register.json',
              METRICS / 'batch-release-policy.json', METRICS / 'trajectory-origin-policy.json']
     paths.extend(sorted(METRICS.glob('*.rq')))
@@ -107,7 +110,7 @@ def calculation_fingerprint():
     calculation over identical validated inputs. The serving manifest retains
     the broader fingerprint above, as do the build guard and SQL reader.
     """
-    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/metric-suite-schema.sql',
+    paths = [Path(__file__), ROOT / 'serving/metric_blocks.py', ROOT / 'serving/kernel_execution.py', ROOT / 'serving/metric-suite-schema.sql',
              *sorted(METRICS.glob('*.json')), *sorted(METRICS.glob('*.rq'))]
     paths.extend(ROOT / e['authoritativeQuery'] for e in [*catalog()['metrics'], *catalog().get('components', [])])
     return _hash('\n'.join(p.relative_to(ROOT).as_posix() + ':' + hashlib.sha256(p.read_bytes()).hexdigest()
@@ -175,18 +178,7 @@ def run_kernel(metric_id, rows):
     if entry is None:
         raise EvidenceError('Unknown metric')
     columns = entry['inputColumns']
-    values = []
-    for row in rows:
-        values.append('(' + ' '.join('UNDEF' if row.get(c) is None else Literal(row[c]).n3()
-                                   for c in columns) + ')')
     query = (ROOT / entry['authoritativeQuery']).read_text(encoding='utf-8')
-    query = query.replace('# INPUT_ROWS', '\n'.join(values))
-    # Peer VALUES use the same ordered values, with independently named variables.
-    query = query.replace('# PEER_ROWS', '\n'.join(values))
-    if not rows:
-        from rdflib.plugins.sparql.processor import prepareQuery
-        prepareQuery(query)
-        return []
     # RDFLib promotes numeric products through Python Decimal. Its ambient
     # 28-digit context can turn distinct large integer cross-products into
     # ties. The percentile kernels multiply two admitted integer components;
@@ -196,8 +188,7 @@ def run_kernel(metric_id, rows):
             digits=max((len(str(abs(row[c]))) for row in rows for c in columns
                         if type(row.get(c)) is int),default=1)
             context.prec=max(context.prec,2*digits+10)
-        return [{str(k): v.toPython() for k, v in row.asdict().items()}
-                for row in Graph().query(query)]
+        return _kernels.execute(query,columns,rows)
 
 
 def trajectory_origin(row, batter):
