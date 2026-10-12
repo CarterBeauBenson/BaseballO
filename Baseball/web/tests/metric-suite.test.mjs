@@ -265,7 +265,8 @@ test('player rankings sort exact scores, share tie ranks, and preserve all detai
   assert.equal(displayed.rows.length, 8);
   assert.equal(displayed.rows[0].context, '25 PA · minimum 22 PA');
   const worse = playerLeaderboard(result, { ...leaderboardMetric, higherIs: 'worse' }, leaderboardScope);
-  assert.equal(worse.rows[0].name, 'Player 8');
+  assert.equal(worse.order, 'Highest scores first');
+  assert.deepEqual(worse.rows, board.rows);
 });
 
 test('incomplete scores, mismatched dates, duplicate players and partial plays cannot become leaders', () => {

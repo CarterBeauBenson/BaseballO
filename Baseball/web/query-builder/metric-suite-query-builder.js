@@ -101,7 +101,7 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
   const board = { status: 'unavailable', rows: [], qualification,
     summaryKind: metric.id === 'empty-game-rate' ? 'count' : 'mean',
     unit: metric.id === 'empty-game-rate' ? 'games' : metric.unit,
-    order: metric.higherIs === 'worse' ? 'Lowest scores first' : 'Highest scores first' };
+    order: 'Highest scores first' };
   if (!count && !batting && !policy) return { ...board, gaps: ['ROLE_QUALIFICATION'],
     message: 'Player rankings await a defined participation minimum and complete player scores.' };
   // Only the trusted serving adapter can supply these aggregates. Award
@@ -158,7 +158,7 @@ export function playerLeaderboard(result, metric, dateScope, mechanism = null) {
     const difference = BigInt(a.value.numerator) * BigInt(b.value.denominator) - BigInt(b.value.numerator) * BigInt(a.value.denominator);
     return difference < 0n ? -1 : difference > 0n ? 1 : 0;
   };
-  rows.sort((a, b) => (metric.higherIs === 'worse' ? 1 : -1) * compare(a, b) || a.player.localeCompare(b.player));
+  rows.sort((a, b) => -compare(a, b) || a.player.localeCompare(b.player));
   rows.forEach((row, index) => { row.rank = index && compare(row, rows[index - 1]) === 0 ? rows[index - 1].rank : index + 1; });
   const excluded = result.rankingCoverage?.excludedPlayers ?? 0;
   return { ...board, status: rows.length ? 'available' : 'empty', rows, belowMinimum, gaps: [],
