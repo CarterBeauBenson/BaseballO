@@ -581,7 +581,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
     return participation,records
 
 
-def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
+def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None, *, contribution_inputs_current=False):
     initialize(db);version=fingerprint();changed=0;zero_pa_repairs=0
     # The player dashboard serves only these game sets. Exhibition/WBC roster
     # patterns must not participate in, or block, MLB dashboard preparation.
@@ -727,8 +727,9 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
                 inputs['ambiguousEmptyPositivePlayers']=ambiguous_progress_players(evidence,inputs['progress'],positive_only=True,
                     excluded_result_types=m.policies()['batterProgressExcludedResultTypes'])
         if needs_contribution:
-            inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
-                runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
+            if not contribution_inputs_current:
+                inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
+                    runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
             inputs['contribution']['zeroIndependentDamagePlayers']=sorted(
                 zero_independent_damage_players(evidence,inputs['contribution'],proofs['resolution']))
         runs={metric:m.read_results(db,graph,metric)[0] for metric in RUNS}
@@ -761,7 +762,11 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None):
 def prepare_family(m, db, family, metric_ids, player_admissions, checkpoint=None):
     """Nonoffensive projections never execute offensive scoring or histories."""
     if family=='offense':
-        return prepare(m,db,checkpoint=checkpoint,player_admissions=player_admissions,metric_ids=metric_ids)
+        # The family checkpoint already binds these inputs to this exact
+        # individual proof. An incomplete result is not a request to repeat
+        # the same calculation again during player projection.
+        return prepare(m,db,checkpoint=checkpoint,player_admissions=player_admissions,
+            metric_ids=metric_ids,contribution_inputs_current=True)
     changed=0;version=fingerprint()
     inventory=db.execute('SELECT g.graph_iri,g.official_date,g.game_set,c.input_sha256 '
         'FROM game_dimension g JOIN dashboard_family_checkpoint c USING(graph_iri) '

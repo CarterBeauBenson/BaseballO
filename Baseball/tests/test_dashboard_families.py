@@ -29,6 +29,21 @@ class DashboardFamilies(unittest.TestCase):
         return D.SOURCE._reader.query_dashboard(self.args,dict(view='dashboard',gameSet='regular_season',
             dateScope=dict(preset='custom',startDate='2026-08-01',endDate='2026-08-01')),self.pointer())
 
+    def test_player_projection_does_not_repeat_current_incomplete_game_calculation(self):
+        original=D.METRICS.contribution_game_inputs
+        def calculate(*args,**kwargs):
+            return dict(original(*args,**kwargs),complete=False)
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            paBoundaries=dict(plateAppearances=[]))
+        with patch.object(D.ADMISSION_EVIDENCE,'player_admission',return_value=individual), \
+             patch.object(D.METRICS,'contribution_game_inputs',side_effect=calculate) as compute:
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published',result)
+        self.assertEqual(compute.call_count,1)
+        with closing(sqlite3.connect(self.working())) as db:
+            retained,=D.METRICS.read_results(db,self.graphs[0],'tfs')
+            self.assertFalse(retained['contributionInputs']['complete'])
+
     def test_offense_publishes_and_reads_while_defense_fails_then_retries(self):
         with (patch.object(D.METRICS,'defensive_game_inputs',side_effect=ValueError('broken defense')),
               patch.object(D.METRICS,'defensive_players',side_effect=ValueError('broken defensive projection'))):
