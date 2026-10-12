@@ -156,6 +156,10 @@ subsequent publication.
 - Known final bases and out ownership can supply the erosion component when
   only safe progress ownership is unknown. The original contribution score
   remains withheld; no unknown positive progress is published as zero.
+- History discovery's bounded retained-receipt inspection now runs before the
+  heavy-worker lease when its existing 256 MiB reserve is available. Dashboard
+  execution no longer prevents that metadata queue from advancing. Mapping,
+  source recovery and SHACL still wait for the shared resource budget.
 
 A2's numerical error-step allocation awaits the explicit
 [M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an
