@@ -2991,7 +2991,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 contact_attributed=True
                 independent_only=(runner!=batter and all(independent_running_act(r) and not r.get('contactPlay')
                     and not r.get('award') and r.get('hasOutType')=='false' for r in members))
-                uncredited_only=(runner!=batter and (complete_award or (excluded and no_actual_outs))
+                uncredited_only=((runner!=batter and complete_award or excluded and no_actual_outs)
                     and all(not r.get('contactPlay') and not r.get('award') and not independent_running_act(r)
                             and r.get('hasOutType')=='false' for r in members))
                 if independent_only or uncredited_only:
@@ -3033,7 +3033,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                     credit=runner==batter or allocation['kind']=='hit-and-run'
                 elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
                     supports.add(('strikeout',pa));credit=True
-                elif runner!=batter and terminal!='out' and end!=start and (independent_running_act(row) or complete_award or (excluded and no_actual_outs)):
+                elif terminal!='out' and end!=start and ((runner!=batter and (independent_running_act(row) or complete_award))
+                        or (excluded and no_actual_outs)):
                     # Existing outcome values still determine erosion. Complete
                     # award membership proves that an unlinked movement isn't
                     # an omitted forced award; excluded positive batting credit
@@ -3048,7 +3049,13 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 reasons.append('UNSUPPORTED_PROGRESS_BOUNDARY')
             participants.append(dict(participant=runner,start=start,end=end,terminal=terminal,
                 creditProgress=credit and not excluded,creditOut=credit and terminal=='out',attributed=credit))
-        if len(supports)!=1:reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
+        # The accepted excluded-result policy fixes batting progress at zero.
+        # With an admitted complete no-out census, destruction and erosion are
+        # also zero, regardless of who caused the safe advances. Their actual
+        # positions and unresolved channels remain separate evidence; do not
+        # require a contact/award link just to reproduce that known zero.
+        if len(supports)!=1 and not (excluded and no_actual_outs):
+            reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
         actual_outs=sum(r['terminal']=='out' for r in participants)
         attributed_outs=sum(r['creditOut'] for r in participants)
         if actual_outs!=attributed_outs and allocation['status']!='available':reasons.append('UNRESOLVED_OUT_OWNERSHIP')

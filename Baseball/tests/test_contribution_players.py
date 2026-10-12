@@ -43,6 +43,30 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_excluded_safe_result_needs_no_invented_batting_attribution(self):
+        rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'InterferenceProcess'
+        rows[-1].update(hasOutType='false',hasSafeType='true',destinationCode='1B',
+            destinationBase=GAME+'/base/1',safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision')
+        result=inputs(rows)
+        self.assertTrue(result['complete'],result)
+        item,=result['plateAppearances']
+        self.assertEqual(item['score']['value'],M.exact(0))
+        self.assertEqual(item['existingRunnerOuts'],0)
+        self.assertIsNone(item['comparisonState'])
+        self.assertTrue(item['unattributedNonbattingEpisodes'])
+        for metric in M.CONTRIBUTION_METRICS-{'empty-game-damage'}:
+            score=M.contribution_players(metric,[result],qualification=qualification(result),date_scope=SCOPE)
+            self.assertEqual(score['value'],M.exact(0),metric)
+        # Neither a credited HBP with a missing award nor an unattributed out
+        # can use this mathematical zero. Missing census proof still blocks.
+        rows[0]['paResultType']=BASE+'HitByPitchProcess'
+        self.assertFalse(inputs(rows)['complete'])
+        rows[0]['paResultType']=BASE+'InterferenceProcess'
+        self.assertFalse(inputs(rows,runner_resolution_admission={'status':'withheld'})['complete'])
+        rows[-1].update(hasOutType='true',hasSafeType='false')
+        self.assertFalse(inputs(rows)['complete'])
+
     def test_every_individually_admitted_pa_completes_the_game_inputs(self):
         rows=fixture();pa=rows[0]['entity'];expected=inputs(rows)
         individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
