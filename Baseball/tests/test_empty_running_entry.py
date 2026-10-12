@@ -27,6 +27,8 @@ class EmptyRunningEntry(unittest.TestCase):
         for kind in ('WildPitchProcess','PassedBallProcess'):
             rows=self.rows(kind)
             self.assertEqual(self.read(rows),{'pa':[U+'1']})
+            scoring=P.empty_scoring_inputs(M,rows,dict(unresolvedPlateAppearances=[dict(plateAppearance='pa')]))
+            self.assertEqual(scoring['pa'],dict(positivePlayers=[U+'1'],possiblePositivePlayers=[]))
             self.assertIsNone(M.independent_running_act(rows[1]))  # no new scalar weight
             for missing in ('safeDecision','record','independentRunningJudgment','independentRunningDecision'):
                 broken=copy.deepcopy(rows);broken[1].pop(missing)
@@ -56,10 +58,16 @@ class EmptyRunningEntry(unittest.TestCase):
             with patch.object(P,'qualification',return_value=q):
                 _,records=P.project(M,graph=G+'1',scope=SCOPE,rows=rows,
                     proofs=dict(batting={},run={},players=dict(rosterComplete=True),resolution=dict(status='admitted',sourceReconciled=True,graphConforms=True) if admitted else {}),
-                    inputs=dict(contribution={},progress=progress,emptyRunningEntries=self.read(rows)),
+                    inputs=dict(contribution={},progress=progress,emptyRunningEntries=self.read(rows),
+                        emptyScoring=P.empty_scoring_inputs(M,rows,progress)),
                     runs={},run_people={},metric_ids={'empty-game-rate'})
             record=records[0];aggregate=json.loads(record[4])
             self.assertEqual((record[3],aggregate['count'],aggregate['eligibleGames']),expected)
+
+    def test_error_attribution_still_prevents_entry_credit(self):
+        rows=self.rows();rows[1].update(secondaryError='error',errorJudgment='error-judgment',errorDecision='error-decision')
+        scoring=P.empty_scoring_inputs(M,rows,dict(unresolvedPlateAppearances=[dict(plateAppearance='pa')]))
+        self.assertEqual(scoring['pa'],dict(positivePlayers=[],possiblePositivePlayers=[]))
 
 
 if __name__=='__main__':unittest.main()

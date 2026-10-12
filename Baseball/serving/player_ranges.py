@@ -270,6 +270,7 @@ def empty_scoring_inputs(m, rows, progress):
     scoring annotation is needed. This never supplies a missing attribution.
     """
     rows=m.consequence_movements(rows,m.consequence_actors(rows))
+    running_entries=empty_running_entries(m,rows,progress)
     unresolved={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])}
     unresolved.update(p['plateAppearance'] for p in progress.get('plateAppearances',[])
                       if p.get('independentPositiveGaps') or p.get('unresolvedRunningPositivePlayers'))
@@ -354,7 +355,12 @@ def empty_scoring_inputs(m, rows, progress):
                      for k in ('rbiPlayer','rbiJudgment','rbiDecision','rbiRecord')))
                 if rbi:positive.add(row['rbiPlayer'])
                 contact=bool(row.get('contactPlay'));award=bool(row.get('award') and row.get('awardRule'))
-                running=bool(m.independent_running_act(row))
+                # EG3 supplies binary running credit for the separately
+                # supported uncaught-strike entry. Its HOME-to-first path has
+                # no numeric running weight, so the numeric channel helper
+                # intentionally does not recognize it.
+                running=bool(m.independent_running_act(row) or
+                    runner in running_entries.get(pa,[]) and start==0 and end==1)
                 error=all(row.get(k) for k in ('secondaryError','errorJudgment','errorDecision','record'))
                 if error:continue  # EG6A: this step adds no credit; retain the RBI above.
                 if sum((contact,award,running))>1:
