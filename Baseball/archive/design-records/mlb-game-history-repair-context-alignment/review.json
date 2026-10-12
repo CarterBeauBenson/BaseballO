@@ -1,0 +1,44 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-history-repair-context-alignment",
+  "title": "H5 targeted history repair context alignment",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "8811fec9ff8decb16998a11dec4ce859e917eb8adc286b5bfe55a96ce96b0422"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "8811fec9ff8decb16998a11dec4ce859e917eb8adc286b5bfe55a96ce96b0422"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "8811fec9ff8decb16998a11dec4ce859e917eb8adc286b5bfe55a96ce96b0422"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "8811fec9ff8decb16998a11dec4ce859e917eb8adc286b5bfe55a96ce96b0422"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-12",
+    "rationale": "User explicitly answered \"Approve H5 targeted history alignment\" to the named H5 question in this conversation. Reuse accepted uncaught-strike reconciliation in the targeted history owner; preserve identities and unrelated RDF. No new ontology terms, object properties or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/sources/mlb-game/pipeline/history-selection-candidates.json"
+    ]
+  }
+}

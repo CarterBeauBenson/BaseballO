@@ -1,8 +1,10 @@
 # H5: align targeted history repair with the accepted current source selectors
 
-Status: **under review**, October 12, 2026. No approval is implied.
+Status: **accepted** by Carter Beau Benson on October 12, 2026.
+The named decision was "Approve H5 targeted history alignment." See
+[user decision](user-decision.md). Implementation follows this decision commit.
 
-## Decision requested
+## Accepted decision
 
 Allow the existing H3 history repair owner to use the current, already accepted
 MLB context when diagnosing and adding missing C1 histories. This extends the
@@ -24,7 +26,7 @@ correctly refuses the new context; it is not evidence of damaged RDF.
 Approve replacing only the H3 execution pin and its transitive signature with
 those of this exact accepted context. Preserve the prior pin in Git and its
 original validation provenance. No semantic-freeze or ontology file changes.
-The prepared [pin change](selection.patch) is inactive until acceptance.
+The prepared [pin change](selection.patch) is the accepted implementation scope; it remains inactive until the separate implementation commit.
 
 ## Targeted execution and witnesses
 
@@ -72,7 +74,7 @@ temporal relations; this diagram introduces none. No new object properties.
 | Missing raw response | Operational recovery under September 30 answer 1; never reconstruct it from a validation census |
 | Unexplained transition or invalid time | Unresolved; no replacement value or inferred movement |
 
-Competency answers requested: may the existing history owner reuse the exact
+Accepted competency answers: may the existing history owner reuse the exact
 accepted EG2 selector? **Yes.** Does earlier completion prove all other histories
 complete? **No.** May it replace a game or rebuild the season? **No.** May it
 relabel an old proof as current? **No.**
