@@ -913,11 +913,16 @@ def build_locked(args, state, serving, work):
         if missing_rosters and old_pointer and not publication_issue:
             # A prior usable publication can legitimately use an older metric
             # implementation. Validate it with its own paired reader.
-            prior_root=RELEASE.resolve_pointer_release(state,old_pointer)
-            prior_reader=(module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_dashboard_reader')
-                          if prior_root else SOURCE._reader)
-            with prior_reader.dashboard_database(state,old_pointer) as (previous,_):
-                prior_rosters_complete=not default_roster_gaps(previous)
+            prior_rosters_complete=False
+            try:
+                prior_root=RELEASE.resolve_pointer_release(state,old_pointer)
+                prior_reader=(module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_dashboard_reader')
+                              if prior_root else SOURCE._reader)
+                with prior_reader.dashboard_database(state,old_pointer) as (previous,_):
+                    prior_rosters_complete=not default_roster_gaps(previous)
+            except (OSError, ValueError, sqlite3.Error) as error:
+                publication_issue=str(error)
+                checkpoint(previousPublicationIssue=publication_issue)
             if prior_rosters_complete:
                 checkpoint(status='waiting-for-source',reason='Captured game roster checks are pending',
                            pendingRosterGames=missing_rosters,publicationBuildId=old_pointer['buildId'])

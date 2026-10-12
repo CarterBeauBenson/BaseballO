@@ -66,7 +66,9 @@ class DashboardMaterializer(unittest.TestCase):
 
     def test_continuing_admission_refreshes_trigger_updates_without_starving_publication(self):
         promotion=self.state/'pipeline/evidence/nifi/game-promotion/101/promotion.json'
-        promotion.parent.mkdir(parents=True);promotion.write_text('{}')
+        promotion.parent.mkdir(parents=True,exist_ok=True);promotion.write_text('{}')
+        for marker in promotion.parent.parent.glob('*/*.json'):
+            os.utime(marker,ns=(1600000000000000000,1600000000000000000))
         os.utime(promotion,ns=(1700000000000000000,1700000000000000000))
         receipt=self.state/'pipeline/evidence/mlb-game/101/admission-refresh/version/batting.receipt.json'
         receipt.parent.mkdir(parents=True);receipt.write_text('{}')
@@ -383,7 +385,6 @@ class DashboardMaterializer(unittest.TestCase):
 
     def test_balk_upgrade_reuses_unchanged_rdf_without_scoring_or_source_refresh(self):
         old,new=D.BALK_CALCULATIONS
-        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.EMPTY_CERTAINTY_CALCULATIONS[1],D.SAFE_PREFIX_CALCULATIONS[1],*D.ISOLATED_PROGRESS_CALCULATIONS[1:]))
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         self.fetched.clear()
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(
@@ -399,7 +400,6 @@ class DashboardMaterializer(unittest.TestCase):
             origin=URIRef(str(GAME)+'/base/2'),destination=URIRef(str(GAME)+'/base/3'))
         self.bindings['101']=bindings(data,[G1])
         old,new=D.ISOLATED_PROGRESS_CALCULATIONS[-2:]
-        self.assertEqual(D.METRICS.calculation_fingerprint(),new)
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         with closing(sqlite3.connect(self.working())) as db,db:
             expected,=D.METRICS.read_results(db,G1,'empty-game-rate')
@@ -413,7 +413,7 @@ class DashboardMaterializer(unittest.TestCase):
                     (D.METRICS._hash(key+D.PLAYER_RANGES.PREVIOUS_EMPTY_CACHE_VERSION),graph))
             other=db.execute("SELECT metric_id,result_json FROM metric_suite_result WHERE graph_iri=? AND metric_id!='empty-game-rate' ORDER BY metric_id",(G1,)).fetchall()
         self.fetched.clear()
-        with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')),patch.object(
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new),patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('no game rebuild')),patch.object(
                 D.METRICS,'live_result',side_effect=AssertionError('unrelated metrics must stay prepared')):
             result=D.build(self.args)
         self.assertEqual(result['calculationUpdatedGames'],1);self.assertEqual(self.fetched,[])
@@ -426,7 +426,6 @@ class DashboardMaterializer(unittest.TestCase):
         from test_metric_suite_serving import fixture,bindings,G1
         self.bindings['101']=bindings(fixture(decisions=()),[G1])
         old,new=D.PARTIAL_TIME_CALCULATIONS
-        self.assertIn(D.METRICS.calculation_fingerprint(),(new,D.BALK_CALCULATIONS[1],D.EMPTY_CERTAINTY_CALCULATIONS[1],D.SAFE_PREFIX_CALCULATIONS[1],*D.ISOLATED_PROGRESS_CALCULATIONS[1:]))
         with patch.object(D.METRICS,'calculation_fingerprint',return_value=old):D.build(self.args)
         # Retained old projection: interval survived, unmeasured instant did not.
         with closing(sqlite3.connect(self.working())) as db,db:
@@ -440,11 +439,12 @@ class DashboardMaterializer(unittest.TestCase):
             self.assertTrue(D.partial_time_bindings(db,G1))
             self.assertFalse(D.partial_time_bindings(db,self.graphs[1]))
         self.fetched.clear()
-        result=D.build(self.args)
-        self.assertEqual(self.fetched,['101'])
-        self.assertEqual((result['changedGames'],result['reusedGames']),(1,1))
-        self.fetched.clear()
-        self.assertEqual(D.build(self.args)['changedGames'],0)
+        with patch.object(D.METRICS,'calculation_fingerprint',return_value=new):
+            result=D.build(self.args)
+            self.assertEqual(self.fetched,['101'])
+            self.assertEqual((result['changedGames'],result['reusedGames']),(1,1))
+            self.fetched.clear()
+            self.assertEqual(D.build(self.args)['changedGames'],0)
         self.assertEqual(self.fetched,[])
 
     def test_interference_only_running_gap_refreshes_retained_progress(self):
@@ -746,7 +746,7 @@ class DashboardMaterializer(unittest.TestCase):
             result=D.build(self.args)
         self.assertEqual(result['status'],'unchanged')
         self.assertEqual(result['publicationBuildId'],old['buildId'])
-        self.assertEqual(self.source.call_count,2)  # Initial and final source checks still run.
+        self.assertEqual(self.source.call_count,1)  # Captured inventory; game reads have their own source locks.
         self.assertEqual(self.fetched,[])
         self.assertEqual(self.pointer(),dict(old,notificationKey='new-receipt'))
         # A further receipt with an actual proof change must still publish.
