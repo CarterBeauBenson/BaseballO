@@ -36,7 +36,7 @@ RESULTS = {
 }
 INTERRUPTIONS = {'caught_stealing_2b', 'caught_stealing_3b', 'caught_stealing_home',
                  'pickoff_1b', 'pickoff_2b', 'pickoff_3b', 'pickoff_caught_stealing_2b',
-                 'pickoff_caught_stealing_3b', 'pickoff_caught_stealing_home'}
+                 'pickoff_caught_stealing_3b', 'pickoff_caught_stealing_home', 'other_out'}
 
 
 def module(path, name):
@@ -199,6 +199,9 @@ def census(raw, game_pk):
             counts[player] += 1
         else:
             runners = play.get('runners', [])
+            # MLB also labels a non-batter's inning-ending out as other_out.
+            # The label alone cannot exclude a PA: require the same unfinished
+            # count, distinct runner, third out, no contact and official totals.
             interruption = (event_type in INTERRUPTIONS and play.get('count', {}).get('outs') == 3
                             and play.get('count', {}).get('strikes', 3) < 3
                             and play.get('count', {}).get('balls', 4) < 4

@@ -217,7 +217,7 @@ def needs_compound_refresh(proof, *, implementation=None):
         or (proof.get('rosterComplete') is False
         and proof.get('retainedSourceEvidence',{}).get('kind')=='retained-source-response')
         or any((i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code') in RUN_TOTAL_ISSUES)
-               or (i.get('code')=='UNRESOLVED_COMPLETED_RESULT' and i.get('eventType')=='game_advisory')
+               or (i.get('code')=='UNRESOLVED_COMPLETED_RESULT' and i.get('eventType') in {'game_advisory','other_out'})
                for p in proof.get('players',[]) for i in p.get('issues',[])))
 
 
@@ -290,7 +290,13 @@ def retained_source(evidence,state,promotion):
                             if projected.get('administrativeRecords'):
                                 witness.update(rmlManifestSha256=marker['rmlManifestSha256'],
                                     administrativeDecision=ADMINISTRATIVE_DECISION)
-                return projected,witness
+                # An old census does not retain the runner/count facts needed
+                # to resolve other_out. Re-read an available retained response
+                # through B1, keeping its distinct hash and normal graph checks.
+                retry_source=any(i.get('code')=='UNRESOLVED_COMPLETED_RESULT'
+                    and i.get('eventType')=='other_out' for i in projected.get('issues',[]))
+                if not retry_source or not any((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json')):
+                    return projected,witness
     candidates=sorted((Path(state)/'pipeline/quarantine/mlb-game'/promotion['gamePk']).glob('*/input.json'))
     if not candidates:return None
     # Prefer original bytes; otherwise retain the later response's distinct hash.

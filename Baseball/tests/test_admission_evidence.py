@@ -163,6 +163,36 @@ class AdmissionEvidence(unittest.TestCase):
         old['implementationSha256']=owner.fingerprint()
         self.assertFalse(owner.needs_compound_refresh(old))
 
+    def test_unknown_runner_out_uses_retained_response_without_inventing_census_facts(self):
+        owner=E.PLAYER_PARTICIPATION
+        issue=dict(code='UNRESOLVED_COMPLETED_RESULT',eventType='other_out',atBatIndex=1)
+        old=dict(implementationSha256='earlier',eligiblePlayers=[],rosterComplete=True,
+                 players=[dict(status='withheld',issues=[issue])])
+        self.assertTrue(owner.needs_compound_refresh(old))
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);promotion=dict(gamePk='1',rawSha256='original',authoritativeRdfSha256='rdf')
+            path=state/'pipeline/evidence/mlb-game/1/old/batting.json'
+            source=dict(gamePk='1',sourceSha256='original',members=[],issues=[issue])
+            E.atomic(path.with_suffix('.source.json'),source)
+            E.atomic(path,dict(gamePk='1',sourceSha256='original',authoritativeRdfSha256='rdf',
+                implementationSha256=owner.B.fingerprint(),sourceCensusSha256=E.sha(path.with_suffix('.source.json'))))
+            marker=dict(battingAdmission=str(path),battingAdmissionSha256=E.sha(path))
+            with patch.object(E,'checked_marker',return_value=marker):
+                # A census lacking runner/count facts cannot resolve itself.
+                selected,witness=owner.retained_source(E,state,promotion)
+                self.assertEqual(selected,source)
+                self.assertEqual(witness['kind'],'retained-b1-census')
+                raw=state/'pipeline/quarantine/mlb-game/1/retained/input.json';E.atomic(raw,{'gamePk':1})
+                corrected=dict(source,sourceSha256=E.sha(raw),issues=[])
+                with patch.object(owner.B,'census',return_value=corrected) as census:
+                    selected,witness=owner.retained_source(E,state,promotion)
+                    census.assert_called_once_with(raw.read_bytes(),'1')
+                self.assertEqual(selected,corrected)
+                self.assertEqual(witness['kind'],'retained-source-response')
+                self.assertEqual(witness['sha256'],E.sha(raw))
+        old['implementationSha256']=owner.fingerprint()
+        self.assertFalse(owner.needs_compound_refresh(old))
+
     def test_ambiguous_roster_does_not_starve_independent_families_or_become_admitted(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);promotion=dict(gamePk='1',promotionManifestSha256='promotion')

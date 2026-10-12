@@ -160,6 +160,16 @@ subsequent publication.
   heavy-worker lease when its existing 256 MiB reserve is available. Dashboard
   execution no longer prevents that metadata queue from advancing. Mapping,
   source recovery and SHACL still wait for the shared resource budget.
+- B1 now applies its existing interrupted-turn checks to `other_out`, rather
+  than rejecting that provider label before reconciling the facts. Game 822701
+  PA 69 is another runner's third out during an unfinished noncontact turn;
+  the retained response now reconciles all 72 official PAs. Matches
+  [MLB's PA definition](https://www.mlb.com/glossary/standard-stats/plate-appearance).
+  Older censuses lack the detailed runner/count facts for this decision, so
+  affected player checks use an available retained response with its own hash.
+  Successful prior checks remain reusable; NiFi refreshes affected negative
+  checks against unchanged RDF. This source-census result is not yet a measured
+  dashboard population gain.
 
 A2's numerical error-step allocation awaits the explicit
 [M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an

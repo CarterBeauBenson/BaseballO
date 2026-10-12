@@ -101,6 +101,24 @@ class SourceAdmission(unittest.TestCase):
         people[1]['stats']['batting']['plateAppearances']-=1
         self.assertIn('PLAYER_PA_MISMATCH',{i['code'] for i in census(doc)['issues']})
 
+    def test_generic_runner_out_uses_the_existing_unfinished_turn_checks(self):
+        doc=raw('822693','2026-08-25')
+        original=census(doc)
+        index=int(original['interrupted'][0].rsplit('/',1)[-1])
+        doc['liveData']['plays']['allPlays'][index]['result']['eventType']='other_out'
+        result=census(doc)
+        self.assertEqual(result['issues'],[])
+        self.assertEqual(result['interrupted'],original['interrupted'])
+        self.assertEqual(result['roster'],original['roster'])
+        for fault in ('batter-out','third-strike','fourth-ball','second-out','contact'):
+            changed=copy.deepcopy(doc);play=changed['liveData']['plays']['allPlays'][index]
+            if fault=='batter-out':play['runners'][0]['details']['runner']['id']=play['matchup']['batter']['id']
+            elif fault=='third-strike':play['count']['strikes']=3
+            elif fault=='fourth-ball':play['count']['balls']=4
+            elif fault=='second-out':play['count']['outs']=2
+            else:play['playEvents'][-1]['details']['isInPlay']=True
+            self.assertIn('UNRESOLVED_COMPLETED_RESULT',{i['code'] for i in census(changed)['issues']},fault)
+
     def test_empty_stat_block_requires_zero_residual(self):
         doc=raw();doc['liveData']['boxscore']['teams']['away']['teamStats']['batting']['plateAppearances']+=1
         self.assertIn('UNRECONCILED_TEAM_PA_TOTAL',{i['code'] for i in census(doc)['issues']})
