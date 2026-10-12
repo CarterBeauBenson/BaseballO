@@ -99,6 +99,25 @@ class DashboardFamilies(unittest.TestCase):
         with closing(sqlite3.connect(self.working())) as db:
             self.assertEqual(db.execute('SELECT COUNT(DISTINCT family) FROM dashboard_family_checkpoint').fetchone()[0],4)
 
+    def test_damaged_family_snapshot_is_republished_from_prepared_work(self):
+        D.build(self.args);old=self.pointer()['families']['offense']
+        fixture.Path(old['databasePath']).write_bytes(b'damaged snapshot')
+        self.args.force=False;self.fetched.clear()
+        with patch.object(D.METRICS,'materialize_game',side_effect=AssertionError('prepared games must survive')):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published',result)
+        self.assertNotEqual(self.pointer()['families']['offense']['buildId'],old['buildId'])
+        self.assertEqual(self.fetched,[])
+        with D.SOURCE._reader.dashboard_database(self.state,self.pointer()['families']['offense']):pass
+
+    def test_damaged_prior_family_cannot_block_a_partial_roster_replacement(self):
+        D.build(self.args);old=self.pointer()['families']['offense']
+        fixture.Path(old['databasePath']).write_bytes(b'damaged snapshot')
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value={'status':'withheld'}):
+            result=D.build(self.args)
+        self.assertEqual(result['status'],'published',result)
+        with D.SOURCE._reader.dashboard_database(self.state,self.pointer()['families']['offense']):pass
+
     def test_completed_empty_game_repair_gets_one_turn_then_rotation_resumes(self):
         owner=D.module(D.ROOT/'serving/family_build.py','test_repair_priority')
         families=['offense','defense','combined','other']

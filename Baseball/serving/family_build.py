@@ -266,14 +266,22 @@ def build(d, args, state, serving, work):
         input_set=d.digest([family,expected,coverage,d.PLAYER_RANGES.fingerprint(),d.REFERENCES.fingerprint(),
             d.SOURCE.sha256_file(Path(d.SOURCE._reader._range_query.__file__))])
         prior=published.get(family,{})
+        publication_issue=None
         if not args.force and prior.get('inputSetSha256')==input_set and prior.get('runtimeRelease')==release:
-            prior=dict(prior,familyNotificationKey=notification);published[family]=prior
-            attempt.update(status='unchanged');attempt.pop('error',None)
-            d.RELEASE.atomic(attempts_path,attempts)
-            if not args.no_promote and not args.max_games:
-                d.RELEASE.atomic(pointer_path,composition(published,attempts))
-            checkpoint(status='unchanged',publicationBuildId=prior['buildId'])
-            return progress
+            try:
+                d.RELEASE.resolve_pointer_release(state,prior)
+                with d.SOURCE._reader.dashboard_database(state,prior):pass
+            except (OSError,ValueError,sqlite3.Error) as error:
+                publication_issue=str(error)
+                checkpoint(previousPublicationIssue=publication_issue)
+            else:
+                prior=dict(prior,familyNotificationKey=notification);published[family]=prior
+                attempt.update(status='unchanged');attempt.pop('error',None)
+                d.RELEASE.atomic(attempts_path,attempts)
+                if not args.no_promote and not args.max_games:
+                    d.RELEASE.atomic(pointer_path,composition(published,attempts))
+                checkpoint(status='unchanged',publicationBuildId=prior['buildId'])
+                return progress
         checkpoint(phase='reference-ranks',completedGames=len(expected),changedGames=changed,reusedGames=reused)
         reference_ids=set(d.PLAYER_RANGES.REFERENCES)&selected
         references=[]
@@ -287,11 +295,15 @@ def build(d, args, state, serving, work):
         checkpoint(phase='player-ranges')
         player_ranges=d.PLAYER_RANGES.prepare_family(m,db,family,selected,players,checkpoint)
         missing_rosters=roster_gaps(db,family)
-        if missing_rosters and prior:
-            prior_root=d.RELEASE.resolve_pointer_release(state,prior)
-            reader=d.module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_family_reader') if prior_root else d.SOURCE._reader
-            with reader.dashboard_database(state,prior) as (previous,_):
-                previously_complete=not roster_gaps(previous,prior.get('family','offense'))
+        if missing_rosters and prior and not publication_issue:
+            previously_complete=False
+            try:
+                prior_root=d.RELEASE.resolve_pointer_release(state,prior)
+                reader=d.module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_family_reader') if prior_root else d.SOURCE._reader
+                with reader.dashboard_database(state,prior) as (previous,_):
+                    previously_complete=not roster_gaps(previous,prior.get('family','offense'))
+            except (OSError,ValueError,sqlite3.Error) as error:
+                checkpoint(previousPublicationIssue=str(error))
             if previously_complete:
                 attempt['attempts']=max(0,attempt['attempts']-1)
                 d.RELEASE.atomic(attempts_path,attempts)
