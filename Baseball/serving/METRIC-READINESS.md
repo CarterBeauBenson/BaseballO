@@ -33,21 +33,23 @@ Follow-through at 18:36 UTC: the 825010 and 824622 targeted additions are
 complete. The called-game scoped resolution evidence for 824295/824807 is
 refreshed. The current Empty Games reader resolves every eligible hitter in
 the bounded 824295 projection, including its previously held player. This is
-not yet a full-season publication measurement: the running offensive build
-has completed 900 of 2,455 active game products (2,429 selected regular-season
-games). Its captured release predates some later fixes.
+not yet a full-season publication measurement. NiFi's progress record tracks
+the active build; its captured release predates some later fixes.
 
 Published consumer corrections now cover EG6 error-credit replacement,
 actual contact/award actors, official Recovery PA credit, canonical compound
 results, count-history termination, retained source-revision selection and
 complete scoped PA references. Prepared SPARQL execution reduces repeated
-formula parsing. NiFi owns the remaining calculation and publication; no RDF
+formula parsing. Numeric out/erosion observations now avoid unrelated missing
+positive-progress weights, and Contribution Mix uses the complete team offensive
+census. These changes preserve unresolved weights and denominators. NiFi owns
+the remaining calculation and publication; no RDF
 rebuild or API reacquisition was started for these fixes. The
 [audit follow-through](RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12)
 records the component changes and their limits.
 
-F9's five missing counted strikes and M1's numerical error-step policy still
-await named decisions. Neither is needed to finish Empty Games. All nineteen
+F9's five missing counted strikes, M1's numerical error-step policy and P1's
+overlapping pitch intervals still await named decisions. None is needed to finish Empty Games. All nineteen
 metrics remain open until the published applicable populations are complete.
 
 The user accepted EG6A/B/C together in decision commit `cb62852c`, before
@@ -71,7 +73,16 @@ provenance; changed RDF and cases requiring new query facts are re-read.
 NiFi owns the additions, proof refresh and prepared SQL publication. The last
 measured UI population below is still the delivery baseline, not a claimed gain.
 
-## Latest measured publication: October 12 at 06:38 Eastern
+## Latest measured publication: October 12 offense build 173033Z
+
+Publication `20261012T173033Z-dashboard-offense-884a63e7` contains all 2,429
+selected regular-season games. Empty Games has **620 of 662 eligible hitters
+complete (93.7%)**; 42 incomplete hitters cover 43 held player-games in five
+games. It predates the completed targeted additions and latest player-reader
+corrections described above. A local successful projection is not a replacement
+for measuring their next full-season publication.
+
+## Earlier measured publication: October 12 at 06:38 Eastern
 
 Offense publication `20261012T102243Z-dashboard-offense-92574551` contains all
 2,429 selected regular-season games. **631 of 662 eligible hitters are complete

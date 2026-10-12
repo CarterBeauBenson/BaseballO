@@ -134,10 +134,26 @@ subsequent publication.
   comparison covers exact fractions, large percentile inputs, nulls and
   independent concurrent populations. No scores or source facts are cached by
   this optimization.
+- A complete no-out resolution census supplies zero out-driven erosion without
+  requiring a positive progress weight. Excluded safe batting results likewise
+  have zero contribution without an invented contact/award attribution;
+  unresolved comparison states and channels remain unresolved.
+- Runner Out Rate and Runner Loss per PA use their own prepared observations.
+  Complete no-out turns still require known runner-on-base eligibility. A
+  directly contact-attributed existing-runner out can establish occurrence
+  without claiming its unknown path weight. The rate may resolve while the
+  weighted loss remains withheld.
+- Contribution Mix accepts a player's complete team offensive census. It still
+  includes teammates' and interrupted turns, preserves running uncertainty and
+  rejects the called-game Empty Games-only exception for numeric products.
+- Player projection no longer repeats the contribution calculations already
+  prepared in that same family build. Known no-out turns also retain zero
+  independent damage without resolving their unknown positive running values.
 
 A2's numerical error-step allocation awaits the explicit
 [M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an
-operating constraint. Defense, review populations and remaining history/count
+operating constraint. [P1's overlapping pitch intervals](../proposals/metric-count-overlapping-intervals/README.md)
+also await a named decision. Defense, review populations and remaining history/count
 coverage still have independent work. The detailed probes below are the dated
 audit findings that motivated these changes, not a claim that fixed defects
 remain in the current implementation.
