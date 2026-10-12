@@ -43,6 +43,17 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_every_individually_admitted_pa_completes_the_game_inputs(self):
+        rows=fixture();pa=rows[0]['entity'];expected=inputs(rows)
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            paBoundaries=dict(plateAppearances=[dict(plateAppearance=pa,status='admitted')]),
+            paResolutions=dict(plateAppearances=[dict(plateAppearance=pa,status='admitted')]))
+        args=dict(runner_boundary_admission=dict(status='withheld'),
+            runner_resolution_admission=dict(status='withheld'),player_admission=individual)
+        self.assertEqual(inputs(rows,**args),expected)
+        individual['paBoundaries']['plateAppearances'][0]['status']='withheld'
+        self.assertFalse(inputs(rows,**args)['complete'])
+
     def test_compound_strategy_comes_from_rdf_record_and_preserves_separate_damage(self):
         rows=fixture(outs=1,runner_base=1);pa=rows[0]['entity'];batter_out=rows[-1]
         result=rows[0];result.update(paResultType=BASE+'DoublePlayProcess',paResultRecord=pa+'/result-record',

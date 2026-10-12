@@ -14,6 +14,28 @@ R=importlib.util.module_from_spec(spec);spec.loader.exec_module(R)
 
 
 class References(unittest.TestCase):
+    def test_complete_pa_checks_support_references_without_rewriting_whole_game_proof(self):
+        db=self.complete_database();graph=db.execute('SELECT graph_iri FROM game_dimension LIMIT 1').fetchone()[0]
+        graphs=[r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE official_date BETWEEN ? AND ? ORDER BY graph_iri',
+            (SEASON_SCOPE['startDate'],SEASON_SCOPE['endDate']))]
+        expected={metric:M.query_sql(db,{'metricId':metric},SEASON_SCOPE,_use_blocks=False)['metric']
+                  for metric in ('paq-2','paq-a','paq-2.1')}
+        individual=self.individual(db,graph)
+        contribution,=M.read_results(db,graph,'tfs')
+        members=[dict(plateAppearance=p['plateAppearance'],status='admitted')
+                 for p in contribution['contributionInputs']['plateAppearances']]
+        individual.update(paBoundaries=dict(plateAppearances=copy.deepcopy(members)),
+                          paResolutions=dict(plateAppearances=copy.deepcopy(members)))
+        text=M._json(dict(status='withheld'))
+        for table in ('metric_suite_boundary_admission','metric_suite_runner_resolution_admission'):
+            db.execute(f'UPDATE {table} SET proof_json=?,proof_sha256=? WHERE graph_iri=?',(text,M._hash(text),graph))
+        R.prepare(M,db,player_admissions={graph:individual})
+        for metric,wanted in expected.items():
+            self.assert_same_player_scores(Q.reference_players(M,db,metric,SEASON_SCOPE,graphs),wanted)
+        individual['paResolutions']['plateAppearances'][0]['status']='withheld'
+        results=R.prepare(M,db,player_admissions={graph:individual})
+        self.assertTrue(all(not r['populationComplete'] for r in results if r['metricId'] in expected))
+
     def test_combined_refresh_rebuilds_internal_recovery_ranks_and_preserves_offense(self):
         db=self.complete_database()
         R.prepare(M,db)

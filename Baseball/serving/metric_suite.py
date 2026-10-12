@@ -1085,6 +1085,21 @@ def complete_batting_admission(proof, individual=None):
         and all(p.get('status') == 'admitted' for p in people))
 
 
+def complete_reference_admission(table, proof, individual, inputs):
+    """Reuse the same complete per-PA admissions that produced the inputs."""
+    if complete_batting_admission(proof,individual if table=='metric_suite_admission' else None):
+        return True
+    field={'metric_suite_boundary_admission':'paBoundaries',
+           'metric_suite_runner_resolution_admission':'paResolutions'}.get(table)
+    if not field or not individual or inputs.get('complete') is not True:return False
+    if not individual.get('rosterComplete') or not individual.get('plateAppearanceInventoryComplete'):return False
+    required={p['plateAppearance'] for p in inputs.get('plateAppearances',[])}
+    checks=(individual.get(field) or {}).get('plateAppearances',[])
+    admitted={p['plateAppearance'] for p in checks if p.get('status')=='admitted'}
+    withheld={p['plateAppearance'] for p in checks if p.get('status')!='admitted'}
+    return bool(required) and required<=admitted and not required.intersection(withheld)
+
+
 def officially_credited_player(row):
     fields=('creditedPlayer','creditJudgment','creditDecision','creditRecord')
     if any(row.get(k) for k in fields):
@@ -2651,20 +2666,21 @@ def season_rank_players(connection, *, metric_id, graphs, qualification, date_sc
         for graph in reference_graphs:
             proof_tables=(['metric_suite_count_admission','metric_suite_admission'] if recovery else
                 ['metric_suite_boundary_admission','metric_suite_runner_resolution_admission','metric_suite_admission'])
-            admitted=True
+            proofs={}
             for table in proof_tables:
                 proof_record=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
                 if proof_record and _hash(proof_record[0])!=proof_record[1]:
                     raise EvidenceError('Metric SQL reference admission checksum mismatch')
                 proof=json.loads(proof_record[0]) if proof_record else {}
-                admitted=admitted and complete_batting_admission(proof,
-                    (player_admissions or {}).get(graph) if table=='metric_suite_admission' else None)
+                proofs[table]=proof
             if _use_blocks:
                 inputs=retained_inputs[graph]
             else:
                 results=read_results(connection,graph,'recovery-quality' if recovery else 'tfs')
                 if len(results)!=1:raise EvidenceError('Season reference build lacks a game')
                 inputs=results[0].get('recoveryInputs' if recovery else 'contributionInputs',{})
+            admitted=all(complete_reference_admission(table,proof,(player_admissions or {}).get(graph),inputs)
+                         for table,proof in proofs.items())
             if inputs.get('complete') is not True or not admitted:
                 withheld.append(graph);continue
             observations.extend(inputs['plateAppearances'])
@@ -2780,19 +2796,20 @@ def paq21_players(connection, *, graphs, qualification, date_scope, _use_blocks=
         season=[];withheld=[]
         retained_inputs = _blocks.read_inputs(_block_api(),connection,'paq21',reference_graphs) if _use_blocks else {}
         for graph in reference_graphs:
-            admitted=True
+            proofs={}
             for table in proof_tables:
                 record=connection.execute(f'SELECT proof_json,proof_sha256 FROM {table} WHERE graph_iri=?',(graph,)).fetchone()
                 if record and _hash(record[0])!=record[1]:raise EvidenceError('Metric SQL PAQ-2.1 admission checksum mismatch')
                 proof=json.loads(record[0]) if record else {}
-                admitted=admitted and complete_batting_admission(proof,
-                    (player_admissions or {}).get(graph) if table=='metric_suite_admission' else None)
+                proofs[table]=proof
             if _use_blocks:
                 inputs=retained_inputs[graph]
             else:
                 retained=read_results(connection,graph,'paq-2.1')
                 if len(retained)!=1:raise EvidenceError('PAQ-2.1 reference build lacks a game')
                 inputs=retained[0].get('paq21Inputs',{})
+            admitted=all(complete_reference_admission(table,proof,(player_admissions or {}).get(graph),inputs)
+                         for table,proof in proofs.items())
             if not admitted or inputs.get('complete') is not True:withheld.append(graph);continue
             if any(row['graph']!=graph for row in inputs['plateAppearances']):
                 raise EvidenceError('PAQ-2.1 reference escaped its game graph')
@@ -3083,9 +3100,10 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             **(dict(independentRunningScores=score['independentRunningScores']) if allocation['status']=='available' else {}),
             existingRunnerOuts=len(existing),existingDestruction=exact(sum((Fraction(1,4-r['start']) for r in existing),Fraction())),
             participants=participants,score=score))
-    return dict(complete=bool(pas) and not withheld and not denied,plateAppearances=completed,
-        independentDamageComplete=independent_coverage and bool(pas) and not withheld and not denied and len(completed)==len(pas),
-        unresolvedPlateAppearances=withheld,gaps=sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
+    complete=bool(completed) and not withheld
+    return dict(complete=complete,plateAppearances=completed,
+        independentDamageComplete=independent_coverage and complete and len(completed)==len(pas),
+        unresolvedPlateAppearances=withheld,gaps=[] if complete else sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
 
 
 def contribution_players(metric_id, inputs, *, qualification, date_scope):
