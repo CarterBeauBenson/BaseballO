@@ -182,6 +182,19 @@ class DashboardFamilies(unittest.TestCase):
                 metric.pop('freshness')
                 self.assertEqual(metric,before[metric['metricId']])
 
+    def test_builder_repair_gets_one_offensive_retry_then_resumes_rotation(self):
+        owner=D.module(D.ROOT/'serving/family_build.py','test_builder_repair_priority')
+        families=['offense','defense','combined','other']
+        published={'offense':dict(familyNotificationKey='old',builderImplementationSha256='broken')}
+        attempts={'offense':dict(notification='old',attempts=1,attemptedAtUtc='2026-10-12T20:00:00Z',
+            status='failed',builderImplementationSha256='broken')}
+        choose=lambda:owner.choose(families,published,attempts,'new','auto',False,builder_implementation='fixed')
+        self.assertEqual(choose(),'offense')
+        attempts['offense'].update(notification='new',builderImplementationSha256='fixed')
+        self.assertEqual(choose(),'defense')
+        attempts['offense']['notification']='later-source'
+        self.assertEqual(choose(),'defense')
+
     def test_player_projection_failure_keeps_previous_publication_and_resumes_checkpoint(self):
         D.build(self.args);self.args.family='defense';D.build(self.args)
         old=self.pointer()['families']['defense']

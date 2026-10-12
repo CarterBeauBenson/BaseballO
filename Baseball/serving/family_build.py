@@ -53,7 +53,7 @@ def completed_offense_repair(state, published):
 
 
 def choose(families, published, attempts, notification, requested, force, *, repaired_offense=None,
-           offense_implementation=None):
+           offense_implementation=None, builder_implementation=None):
     if requested!='auto':return requested
     pending=[f for f in families if force or published.get(f,{}).get('familyNotificationKey')!=notification]
     ready=[f for f in pending if attempts.get(f,{}).get('notification')!=notification or
@@ -66,12 +66,13 @@ def choose(families, published, attempts, notification, requested, force, *, rep
             datetime.fromisoformat(attempted.replace('Z','+00:00'))<repaired_offense)):
         return 'offense'
     # Empty Games remains the primary delivery milestone. A newly committed
-    # calculation/player-reader correction gets one offensive attempt, just as
+    # calculation/player-reader or builder correction gets one offensive attempt, just as
     # a completed source repair does. Source-only notifications keep ordinary
     # rotation, and a failure consumes this priority without resetting retries.
-    if ('offense' in ready and offense_implementation is not None
-            and published.get('offense',{}).get('playerCalculationSha256')!=offense_implementation
-            and attempts.get('offense',{}).get('playerCalculationSha256')!=offense_implementation):
+    versions=(('playerCalculationSha256',offense_implementation),('builderImplementationSha256',builder_implementation))
+    if ('offense' in ready and any(value is not None
+            and published.get('offense',{}).get(key)!=value
+            and attempts.get('offense',{}).get(key)!=value for key,value in versions)):
         return 'offense'
     # Round robin prevents a continuously changing offensive inventory or a
     # repeatedly failing family from starving the other independently ready work.
@@ -155,13 +156,16 @@ def build(d, args, state, serving, work):
     attempts_path=work/'family-attempts.json'
     attempts=d.RELEASE.read(attempts_path) if attempts_path.is_file() else {}
     player_calculation=d.digest([m.fingerprint(),d.PLAYER_RANGES.fingerprint()])
+    builder_implementation=d.digest([d.SOURCE.sha256_file(Path(d.__file__)),d.SOURCE.sha256_file(Path(__file__))])
     family=choose(f.FAMILIES,published,attempts,notification,args.family,args.force,
-                  repaired_offense=completed_offense_repair(state,published),offense_implementation=player_calculation)
+                  repaired_offense=completed_offense_repair(state,published),offense_implementation=player_calculation,
+                  builder_implementation=builder_implementation)
     if family is None:return dict(status='unchanged',families=list(published),failures={k:v for k,v in attempts.items() if v.get('error')})
     if time.time_ns()-latest<args.quiet_seconds*1_000_000_000:return dict(status='waiting-for-source',family=family)
     selected=f.FAMILIES[family]
     previous_attempt=attempts.get(family,{})
-    attempt=dict(notification=notification,attemptedAtUtc=now(),playerCalculationSha256=player_calculation,attempts=
+    attempt=dict(notification=notification,attemptedAtUtc=now(),playerCalculationSha256=player_calculation,
+        builderImplementationSha256=builder_implementation,attempts=
         previous_attempt.get('attempts',0)+1 if previous_attempt.get('notification')==notification else 1)
     attempts[family]=attempt;d.RELEASE.atomic(attempts_path,attempts)
     build_id=datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-dashboard-'+family+'-'+uuid.uuid4().hex[:8]
@@ -326,6 +330,7 @@ def build(d, args, state, serving, work):
             databasePath=str(path),databaseSha256=sha,corpusFingerprint=snapshot['fingerprint'],inputSetSha256=input_set,
             metricSuiteSha256=m.fingerprint(),schemaSha256=d.SOURCE.sha256_file(d.SCHEMA),runtimeRelease=release,
             playerCalculationSha256=player_calculation,
+            builderImplementationSha256=builder_implementation,
             familyNotificationKey=notification,sourceSnapshotCapturedAtUtc=captured,
             sourceSnapshotPolicy='captured-promotions-with-game-read-locks',gameCount=len(expected),promotedAtUtc=now())
         evidence=dict(progress,pointer=pointer,publication=publication,playerRanges=player_ranges,references=references)
