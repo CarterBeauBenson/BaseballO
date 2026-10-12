@@ -1,0 +1,36 @@
+{
+  "$schema": "../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-error-step-credit",
+  "title": "M1 partial offensive credit with separately adjudicated error steps",
+  "status": "under-review",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "fc49790ba4259ce84a2f3d601eaf8fb9aeddbece5cd5cbe1bb2b5939a518946f"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "fc49790ba4259ce84a2f3d601eaf8fb9aeddbece5cd5cbe1bb2b5939a518946f"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "fc49790ba4259ce84a2f3d601eaf8fb9aeddbece5cd5cbe1bb2b5939a518946f"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "fc49790ba4259ce84a2f3d601eaf8fb9aeddbece5cd5cbe1bb2b5939a518946f"
+      }
+    ]
+  },
+  "ontologistDecision": null
+}
