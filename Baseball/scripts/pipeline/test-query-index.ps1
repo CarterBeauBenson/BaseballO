@@ -134,6 +134,8 @@ Assert-EquivalentRows -Name 'Plate-appearance results' -Variables @('result', 'p
     (<${base}DoublePlayProcess> "double_play") (<${base}GroundedIntoDoublePlayProcess> "grounded_into_double_play")
     (<${base}BalkProcess> "balk") (<${base}InterferenceProcess> "catcher_interf")
   }
+  FILTER(?outcomeClass != <${base}DoublePlayProcess>
+         || NOT EXISTS { ?result a <${base}SacrificeFlyProcess> })
 "@ -IndexPattern @"
   ?result a <${idx}PlateAppearanceResultFact> ; <${idx}plateAppearance> ?plateAppearance ; <${idx}agent> ?player ; <${idx}outcomeClass> ?outcomeClass ; <${idx}sourceEventType> ?eventType ; <${idx}game> ?game .
   VALUES ?game { <$gameIri> }

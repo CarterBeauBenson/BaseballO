@@ -354,6 +354,8 @@ def fingerprint():
         +Path(D2.__file__).read_bytes()+D2.SHAPE.read_bytes()
         +Path(SCORING.__file__).read_bytes()+SCORING.SHAPE.read_bytes()
         +(HERE.parent/'shacl/authoritative.ttl').read_bytes()
+        +(ROOT/'sparql/query-index/components/20-plate-appearance-results.rq').read_bytes()
+        +(ROOT/'scripts/pipeline/test-query-index.ps1').read_bytes()
         +SCORING.B.fingerprint().encode()
         +R.fingerprint().encode()+INVENTORY.read_bytes()).hexdigest()
 

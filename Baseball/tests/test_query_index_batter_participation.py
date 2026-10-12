@@ -13,7 +13,7 @@ ACTS = [URIRef(str(PA) + '/batter/' + str(i)) for i in (1, 2)]
 PLAYERS = [BASE['data/player/' + str(i)] for i in (1, 2)]
 
 
-def constructed(hit=False, compound=False):
+def constructed(hit=False, compound=False, source=False):
     dataset = Dataset()
     graph = dataset.graph(URIRef('urn:baseball:query-index:source-graph'))
     graph.parse(data='''
@@ -49,6 +49,7 @@ def constructed(hit=False, compound=False):
         graph.add((act, bfo.BFO_0000132, PA))
         graph.add((act, bfo.BFO_0000057, player))
         graph.add((player, RDF.type, cco.ont00001262))
+    if source:return graph
     output = Graph().parse(data=GRAPH_HEADER + HOME + AWAY, format='turtle')
     for component in ('15-plate-appearances.rq', '20-plate-appearance-results.rq', '30-hits.rq'):
         query = (ROOT / 'sparql/query-index/components' / component).read_text()
@@ -77,6 +78,20 @@ class BattingParticipationIndexTests(unittest.TestCase):
         self.check(graph,True)
         self.assertEqual(list(graph.objects(RESULT,IDX.outcomeClass)),[BASE.SacrificeFlyProcess])
         self.assertEqual([str(v) for v in graph.objects(RESULT,IDX.sourceEventType)],['sac_fly'])
+        # Exercise the actual owning equivalence check too, so a valid compact
+        # index cannot fail promotion against a different source projection.
+        script=(ROOT/'scripts/pipeline/test-query-index.ps1').read_text()
+        block=script.split("Assert-EquivalentRows -Name 'Plate-appearance results'",1)[1]
+        full=block.split('-FullPattern @"',1)[1].split('"@ -IndexPattern @"',1)[0]
+        compact=block.split('"@ -IndexPattern @"',1)[1].split('"@',1)[0]
+        substitutions={'base':str(BASE),'obo':'http://purl.obolibrary.org/obo/',
+            'cco':'https://www.commoncoreontologies.org/','idx':str(IDX)}
+        def query(pattern,game):
+            for key,value in substitutions.items():pattern=pattern.replace('${'+key+'}',value)
+            return 'SELECT DISTINCT ?result ?plateAppearance ?player ?outcomeClass ?eventType WHERE {'+pattern.replace('$gameIri',game)+'}'
+        expected=set(constructed(compound=True,source=True).query(query(full,'urn:baseball:query-index:game')))
+        actual=set(graph.query(query(compact,str(GAME))))
+        self.assertEqual(actual,expected)
 
     def test_no_unsupported_or_omitted_actor(self):
         for fact in (PA, RESULT):
