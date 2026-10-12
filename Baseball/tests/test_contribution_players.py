@@ -43,6 +43,24 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_actual_end_erosion_does_not_require_positive_progress_ownership(self):
+        for outs,expected in ((1,Fraction(1,2)),(2,Fraction(1))):
+            rows=fixture(outs=outs,runner_base=2);pa=rows[0]['entity']
+            rows.append(dict(rows[-1],runner=RUNNER,entity=pa+'/safe',resolution=pa+'/safe',
+                act=pa+'/runner-act',episode=pa+'/runner-episode',metricOrigin='2',
+                originDesignation=pa+'/origin',originBase=GAME+'/base/2',originCode='2B',
+                originRecord=pa+'/runner-record',hasOutType='false',hasSafeType='true',
+                destinationCode='3B',destinationBase=GAME+'/base/3',
+                safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision'))
+            result=inputs(rows)
+            self.assertFalse(result['complete'])
+            self.assertEqual(result['plateAppearances'],[])
+            self.assertEqual(result['erosionPlateAppearances'],[dict(graph=G1,game=GAME,
+                plateAppearance=pa,player=BATTER,erosion=M.exact(expected))])
+            self.assertEqual(inputs(rows,runner_boundary_admission={})['erosionPlateAppearances'],[])
+            rows[-1].pop('safeDecision')
+            self.assertEqual(inputs(rows)['erosionPlateAppearances'],[])
+
     def test_direct_runner_out_occurrence_does_not_assert_a_missing_path_weight(self):
         rows=fixture(outs=1,runner_base=1,contact=True);pa=rows[0]['entity']
         safe=dict(rows[-1],runner=RUNNER,entity=pa+'/runner-safe',resolution=pa+'/runner-safe',
@@ -189,7 +207,7 @@ class ContributionPlayers(unittest.TestCase):
         # Without the optional individual proof, the established full-game
         # entry point still withholds every contribution and any unknown zero.
         self.assertEqual(inputs(rows,batting_admission={'status':'withheld'}),dict(complete=False,
-            plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=[],runnerOutPlateAppearances=[],
+            plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=[],runnerOutPlateAppearances=[],erosionPlateAppearances=[],
             gaps=['OFFICIAL_PA_POPULATION']))
 
     def test_multiple_noncontact_advances_preserve_ends_without_batter_credit(self):

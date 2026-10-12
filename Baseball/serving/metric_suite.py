@@ -2916,7 +2916,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
     no_out_turns=complete_no_out_turns(rows,runner_resolution_admission,player_admission or {})
     missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=no_out_turns,
-                 runnerOutPlateAppearances=[])
+                 runnerOutPlateAppearances=[],erosionPlateAppearances=[])
     proofs=(('OFFICIAL_PA_POPULATION',batting_admission),
             ('COMPLETE_RUNNER_RESOLUTION_POPULATION',runner_resolution_admission),
             ('COMPLETE_RUNNER_BOUNDARIES',runner_boundary_admission))
@@ -2947,6 +2947,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         elif row['kind']=='runner_history':histories[(graph,row['trajectory'])].append(row)
     completed,withheld=[],[]
     runner_out_observations=[]
+    erosion_observations=[]
     independent_coverage=True
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode','originRecord',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
@@ -3112,6 +3113,16 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         if outs_before+actual_outs==3:
             for row in participants:
                 if row['terminal']=='safe':row['terminal']='stranded'
+        if set(reasons)=={'UNRESOLVED_CONSEQUENCE_ATTRIBUTION'}:
+            # All boundaries, final states and out ownership are complete;
+            # only ownership of safe progress is unknown. The accepted erosion
+            # formula uses actual end states and attributed outs, independently
+            # of positive credit. Retain only that component, never the score
+            # or the temporary zero for unknown positive progress.
+            component=trajectories(participants,outs_before,attributed_outs)
+            if component['status']=='available':
+                erosion_observations.append(dict(graph=graph,game=game,plateAppearance=pa,player=batter,
+                    erosion=component['components']['erosion']))
         if reasons:
             withheld.append(dict(plateAppearance=pa,gaps=sorted(set(reasons))));continue
         participants.sort(key=lambda r:r['participant'])
@@ -3146,6 +3157,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     complete=bool(completed) and not withheld
     return dict(complete=complete,plateAppearances=completed,zeroOutPlateAppearances=no_out_turns,
         runnerOutPlateAppearances=runner_out_observations,
+        erosionPlateAppearances=erosion_observations,
         independentDamageComplete=independent_coverage and complete and len(completed)==len(pas),
         unresolvedPlateAppearances=withheld,gaps=[] if complete else sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
 

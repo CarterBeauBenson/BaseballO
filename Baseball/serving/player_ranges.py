@@ -571,6 +571,9 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
                     # progress weight or base path cannot make this zero
                     # unknown; every other PA still needs its scored component.
                     values={p['plateAppearance']:m.fraction(p['score']['components']['erosion']) for p in own_contrib}
+                    values.update({p['plateAppearance']:m.fraction(p['erosion'])
+                        for p in contrib.get('erosionPlateAppearances',[])
+                        if p['plateAppearance'] in own and p['player']==player and p['plateAppearance'] not in values})
                     values.update({pa:Fraction() for pa in own & zero_out_turns if pa not in values})
                     complete=set(values)==own
                     aggregate=mean(m,list(values.values()))

@@ -67,6 +67,24 @@ class PlayerRanges(unittest.TestCase):
         self.assertEqual(result['rally-kill-rate'][3],1)
         self.assertEqual(json.loads(result['rally-kill-rate'][4]),dict(kind='mean',sum=M.exact(1),count=1))
 
+    def test_independent_erosion_component_keeps_the_same_pa_denominator(self):
+        from test_contribution_players import fixture, inputs, qualification, BATTER, PROOF, G1
+        evidence=fixture();score=inputs(evidence);q=qualification(score);pa=evidence[0]['entity']
+        evidence.append(dict(kind='player_team_game',graph=G1,game='game',player=BATTER,team='team',teamRole='role'))
+        score.update(complete=False,plateAppearances=[],erosionPlateAppearances=[dict(
+            plateAppearance=pa,player=BATTER,erosion=M.exact(M.Fraction(1,2)))])
+        for owner,expected in ((BATTER,1),(U+'another',0)):
+            score['erosionPlateAppearances'][0]['player']=owner
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G1,scope=SCOPE,rows=evidence,
+                    proofs=dict(batting=PROOF,run={},resolution={}),inputs=dict(contribution=score,progress={}),
+                    runs={},run_people={},metric_ids={'opportunity-erosion','tfs'})
+            result={r[2]:r for r in records}
+            self.assertEqual(result['tfs'][3],0)
+            self.assertEqual(result['opportunity-erosion'][3],expected)
+            if expected:self.assertEqual(json.loads(result['opportunity-erosion'][4]),
+                dict(kind='mean',sum=M.exact(M.Fraction(1,2)),count=1))
+
     def test_empty_negative_needs_every_team_turn_but_not_opponents(self):
         graph=G+'1';game='game'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)
@@ -136,7 +154,7 @@ class PlayerRanges(unittest.TestCase):
         text=M._json(dict(status='withheld'))
         db.execute('INSERT INTO metric_suite_runner_resolution_admission VALUES (?,?,?)',(graph,text,M._hash(text)))
         with patch.object(M._blocks,'read_scope',return_value=[]) as read, \
-             patch.object(M._blocks,'read_inputs',return_value={graph:{}}), \
+             patch.object(M._blocks,'read_inputs',return_value={graph:dict(independentDamageComplete=True)}), \
              patch.object(M,'read_results',return_value=[{}]), \
              patch.object(P,'project',return_value=([],[])):
             self.assertEqual(P.prepare(M,db,player_admissions={graph:individual})['preparedGames'],1)
@@ -188,7 +206,7 @@ class PlayerRanges(unittest.TestCase):
         for table in ('metric_suite_admission','metric_suite_run_admission','metric_suite_runner_resolution_admission','metric_suite_boundary_admission'):
             db.execute(f'CREATE TABLE {table}(graph_iri TEXT,proof_json TEXT,proof_sha256 TEXT)')
         with patch.object(M._blocks,'read_scope',return_value=[]) as read, \
-             patch.object(M._blocks,'read_inputs',return_value={G+'1':{}}), \
+             patch.object(M._blocks,'read_inputs',return_value={G+'1':dict(independentDamageComplete=True)}), \
              patch.object(M,'read_results',return_value=[{}]), \
              patch.object(P,'project',return_value=([],[])) as project:
             self.assertEqual(P.prepare(M,db)['preparedGames'],1)
@@ -780,7 +798,7 @@ class PlayerRanges(unittest.TestCase):
         movement=M._json(dict(kind='runner_movement',resolution='run',runner=U+'1'))
         db.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)',(G+'1',movement,M._hash(movement)))
         with patch.object(M._blocks,'read_scope',return_value=[]), \
-             patch.object(M._blocks,'read_inputs',return_value={G+'1':{}}), \
+             patch.object(M._blocks,'read_inputs',return_value={G+'1':dict(independentDamageComplete=True)}), \
              patch.object(M,'read_results',return_value=[dict(unresolvedRuns=[dict(run='run')])]), \
              patch.object(P,'project',return_value=([],[])) as project:
             result=P.prepare(M,db,player_admissions={G+'1':proof})
