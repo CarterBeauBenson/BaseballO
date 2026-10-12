@@ -158,6 +158,30 @@ coverage still have independent work. The detailed probes below are the dated
 audit findings that motivated these changes, not a claim that fixed defects
 remain in the current implementation.
 
+Bounded follow-through also confirmed remaining graph/source gaps independently
+of the SQL reader:
+
+- In 824385 PA 35, the retained original B1 census expects the accepted compound
+  Double Play classification. The promoted result has its institutional-process
+  type and adjudication/record links, but lacks that classification. The player's
+  official-PA check consequently fails. A different known positive can already
+  settle Empty Games; it cannot supply that missing PA to an average.
+- In 822685, scoring episode 17/2 and its Run Process exist, but the queried C1
+  personal-history whole does not contain that episode. Retained raw inputs were
+  not available for this game or the sampled 822732/822754 history gaps. These
+  are not repaired by changing a SQL join or extending EG1's authorized inventory.
+- The retained original 822753 response records PA 49's terminal ball from
+  21:52:44.346 to 21:52:35.327 UTC. T1 correctly supplies neither invalid bound.
+  C1 currently withholds the affected half's histories. Distinguishing missing
+  internal timing from independently supported whole-history endpoints would
+  require a concrete source-selection review; P1's overlapping-pitch proposal
+  does not authorize using an inverted interval.
+
+These examples identify generic ownership and evidence boundaries, not a new
+game-by-game repair queue. The pending F9/M1/P1 decisions do not by themselves
+certify all nineteen populations. Defensive act/agent completeness and review
+mechanism/eligible-decision populations remain separate as described below.
+
 1. **Count repairs help materially, but do not finish the two-strike population.**
    [F9](../proposals/mlb-game-counted-foul-edge-completion/README.md) remains an
    under-review, unimplemented selection package for five strikes in four
