@@ -34,11 +34,21 @@ The next EG5 repair recognizes the explicitly scored `f_error_dropped_ball`
 through the existing Error Process/judgment/decision pattern. NiFi compares new
 secondary-error and RBI selections against previous selected facts; a prior
 successful receipt cannot hide an omitted supported credit. Retained inputs
-identify additions in 823331, 823664, 823855 and 824992. An explicit credited
+identify additions in 823331, 823664, 823855 and 824992. The same owner also
+selects 823701 after the EG5 selector preserves its explicitly distinct
+secondary throwing error alongside the primary fielding error. An explicit credited
 counted run now establishes binary RBI credit independently of reconstructing
 the runner's earlier path. Numeric progress and unknown running remain separate.
 Focused source, retry, binary-reader and existing proof-compatibility checks pass.
-These four additions and their subsequent dashboard effects are pending.
+These five additions and their subsequent dashboard effects are pending.
+
+The [EG6 package](../proposals/mlb-game-empty-game-final-boundaries/README.md)
+records the remaining shared semantic boundaries with all 33 retained game
+witnesses. EG6A proposes the mixed-error binary credit rule; EG6B separates a
+replaced batter's count participation from the replacement's positive result;
+EG6C covers the remaining generic selections and a narrowly independent census
+for the rain-shortened game. These choices are under review, not implemented.
+Neither the coverage target nor successful source validation grants approval.
 
 ## Earlier measured publication: October 11 at 19:06 Eastern
 

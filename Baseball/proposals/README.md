@@ -62,6 +62,11 @@ semantic approval. The accepted source-independent MLB review remains in
 
 ## Active reviews
 
+The [EG6 Empty Games package](mlb-game-empty-game-final-boundaries/README.md)
+collects the remaining mixed-error credit, substituted-batter contribution,
+generic source-selection and called-game census decisions. Its three slices
+are independently reviewable; none is approved by the coverage target.
+
 The packages below are all **under review** with a null ontologist decision.
 They are design-only and authorize no ontology, RML, SHACL, acquisition, RDF,
 SQL, or UI change. Each link keeps one answerable modeling boundary visible;
