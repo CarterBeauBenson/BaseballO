@@ -269,7 +269,7 @@ Record these outcomes in the existing [readiness document](serving/METRIC-READIN
 Until then, milestone 1 remains open and is the next primary task on continuation.
 
 The four counted-foul exceptions (823013, 823804, 824118 and 824744) have a prepared
-[F9 repair](proposals/mlb-game-counted-foul-edge-completion/README.md) awaiting named
+[F9 repair](archive/design-records/mlb-game-counted-foul-edge-completion/README.md) awaiting named
 approval. They belong to the later count-history milestone; neither that review
 nor the unfinished review metrics should hold this Empty Games plan open.
 

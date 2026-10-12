@@ -1,6 +1,6 @@
 # F9: five missing counted-foul strikes in four games
 
-Status: **under review**. The executable context is unchanged. The proposed
+Status: **accepted October 12, 2026**. The executable context is unchanged. The proposed
 generic selector repair passed five focused checks over the retained inputs.
 
 ## Concrete decision
@@ -45,8 +45,8 @@ participants and movements come from the four retained game responses.
 
 ## Reused world-side pattern
 
-Reuse the already accepted [M3/M4 source-independent shape](../../archive/design-records/mlb-game-counted-foul-completion/source-independent-mermaid.md)
-and [source-specific projection](../../archive/design-records/mlb-game-counted-foul-completion/source-specific-mermaid.md).
+Reuse the already accepted [M3/M4 source-independent shape](../mlb-game-counted-foul-completion/source-independent-mermaid.md)
+and [source-specific projection](../mlb-game-counted-foul-completion/source-specific-mermaid.md).
 The Pitch Act, bunt/contact/foul processes where applicable, operative Strike
 Process, Strike Judgment Act, Strike Decision ICE, Strike Rule, containment
 and source record support retain their existing types and relations. The
@@ -54,7 +54,7 @@ candidate changes source selection only; it adds no review or pickoff pattern.
 
 ## Focused check and execution
 
-`python -B Baseball/proposals/mlb-game-counted-foul-edge-completion/check.py`
+`python -B Baseball/archive/design-records/mlb-game-counted-foul-edge-completion/check.py`
 loads the candidate in a temporary module. All five exact strikes pass the
 existing foul worker's selection against the promoted source census. Negative
 checks reject incomplete/extra reviews, contradictory runner effects, broken

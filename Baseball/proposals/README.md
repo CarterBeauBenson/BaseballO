@@ -161,3 +161,7 @@ Generated Mermaid from finished RML is a regression artifact, not a substitute
 for pre-implementation review. The current semantic baseline is frozen and
 unratified; an existing executable artifact is not itself evidence that its
 pattern was accepted.
+
+F9 counted-foul completion, M1 error-step credit, and P1 count-interval ordering
+were accepted together on October 12, 2026 and moved to the design-record archive.
+Implementation follows the separate acceptance commit.

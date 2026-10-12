@@ -172,8 +172,8 @@ subsequent publication.
   dashboard population gain.
 
 A2's numerical error-step allocation awaits the explicit
-[M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an
-operating constraint. [P1's overlapping pitch intervals](../proposals/metric-count-overlapping-intervals/README.md)
+[M1 decision](../archive/design-records/metric-error-step-credit/README.md). A4 remains an
+operating constraint. [P1's overlapping pitch intervals](../archive/design-records/metric-count-overlapping-intervals/README.md)
 also await a named decision. Defense, review populations and remaining history/count
 coverage still have independent work. The detailed probes below are the dated
 audit findings that motivated these changes, not a claim that fixed defects
@@ -220,7 +220,7 @@ certify all nineteen populations. Defensive act/agent completeness and review
 mechanism/eligible-decision populations remain separate as described below.
 
 1. **Count repairs help materially, but do not finish the two-strike population.**
-   [F9](../proposals/mlb-game-counted-foul-edge-completion/README.md) remains an
+   [F9](../archive/design-records/mlb-game-counted-foul-edge-completion/README.md) remains an
    under-review, unimplemented selection package for five strikes in four
    games. It is not included in the implemented-fix total. Separately,
    the earlier `RECOVERY_BATTER_ASSIGNMENT` defect has been corrected by

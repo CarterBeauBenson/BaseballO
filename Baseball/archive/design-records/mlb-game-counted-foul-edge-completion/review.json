@@ -1,22 +1,22 @@
 {
-  "$schema": "../../governance/proposal-review.schema.json",
+  "$schema": "../../../governance/proposal-review.schema.json",
   "artifactType": "baseballo-semantic-proposal-review",
   "schemaVersion": 1,
   "proposalId": "mlb-game-counted-foul-edge-completion",
   "title": "F9 counted-foul review and substitution edge completion",
-  "status": "under-review",
+  "status": "accepted",
   "proposedIris": [],
   "artifacts": {
     "competencyQuestions": [
       {
         "path": "README.md",
-        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+        "sha256": "caa6483c6f21cfd6668e38ae2a20bbe7c9a2430f8af959ca2c460abd49752790"
       }
     ],
     "sourceEvidence": [
       {
         "path": "README.md",
-        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+        "sha256": "caa6483c6f21cfd6668e38ae2a20bbe7c9a2430f8af959ca2c460abd49752790"
       },
       {
         "path": "evidence.json",
@@ -34,15 +34,20 @@
     "fieldSelectionInventory": [
       {
         "path": "README.md",
-        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+        "sha256": "caa6483c6f21cfd6668e38ae2a20bbe7c9a2430f8af959ca2c460abd49752790"
       }
     ],
     "sourceIndependentMermaid": [
       {
         "path": "README.md",
-        "sha256": "caf51b39f3883209394b430b4a246f0e5637c5171ad4cb99af843aba8d64f37f"
+        "sha256": "caa6483c6f21cfd6668e38ae2a20bbe7c9a2430f8af959ca2c460abd49752790"
       }
     ]
   },
-  "ontologistDecision": null
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-12",
+    "rationale": "User answered \"Approve\" to the immediately preceding outstanding decisions F9, M1 and P1. Accept this package as written, including targeted additions and scoped context fingerprints for F9, analytical error-step credit for M1, and analytical strict endpoint ordering for P1. Preserve unrelated RDF; no new classes, object properties, acquisition or rebuild."
+  }
 }

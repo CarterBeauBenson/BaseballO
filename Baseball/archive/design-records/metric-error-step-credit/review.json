@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-error-step-credit",
+  "title": "M1 partial offensive credit with separately adjudicated error steps",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "d56adde6c80b975ec5290be5d06e8c1e921f6b3862ab42fd0010ff259812fa4d"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "d56adde6c80b975ec5290be5d06e8c1e921f6b3862ab42fd0010ff259812fa4d"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "d56adde6c80b975ec5290be5d06e8c1e921f6b3862ab42fd0010ff259812fa4d"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "d56adde6c80b975ec5290be5d06e8c1e921f6b3862ab42fd0010ff259812fa4d"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-12",
+    "rationale": "User answered \"Approve\" to the immediately preceding outstanding decisions F9, M1 and P1. Accept this package as written, including targeted additions and scoped context fingerprints for F9, analytical error-step credit for M1, and analytical strict endpoint ordering for P1. Preserve unrelated RDF; no new classes, object properties, acquisition or rebuild."
+  }
+}

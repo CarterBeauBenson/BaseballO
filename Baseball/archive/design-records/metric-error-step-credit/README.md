@@ -1,8 +1,8 @@
 # M1: error-step credit across offensive metrics
 
-Status: **under review**. This is an analytical policy proposal over existing
+Status: **accepted October 12, 2026**. This is an analytical policy proposal over existing
 promoted RDF. It introduces no ontology terms, object properties, RML changes,
-source acquisition, or graph rebuild. No approval or implementation is implied.
+source acquisition, or graph rebuild. The user approved M1 together with F9 and P1; implementation follows this decision record.
 
 ## Decision
 
@@ -36,11 +36,11 @@ changing their existing reference, qualification, or aggregation rules.
 
 ## Existing evidence and scope
 
-- [EG6A](../../archive/design-records/mlb-game-empty-game-final-boundaries/README.md)
+- [EG6A](../mlb-game-empty-game-final-boundaries/README.md)
   accepts the binary exclusion and explicitly supplies no numeric weights.
-- [The existing contact policy](../../sparql/metrics/contact-progress-policy.json)
+- [The existing contact policy](../../../sparql/metrics/contact-progress-policy.json)
   leaves secondary errors during otherwise credited hits unresolved.
-- [The cross-metric audit, A2](../../serving/RML-CROSS-METRIC-AUDIT.md)
+- [The cross-metric audit, A2](../../../serving/RML-CROSS-METRIC-AUDIT.md)
   reproduces numerical credit for an error-classified contact step.
 - EG6's retained cases 822945/61, 823623/34, 824018/86, 824429/18,
   824576/9, 824744/58 and /65, and 825062/87 contain the existing error

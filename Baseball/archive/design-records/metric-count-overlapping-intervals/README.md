@@ -1,8 +1,8 @@
 # P1: ordered count calculations with overlapping recorded pitch intervals
 
-Status: under review. No implementation or approval is recorded.
+Status: **accepted October 12, 2026**. The user approved P1 together with F9 and M1. Implementation follows this decision record.
 
-## Decision requested
+## Accepted decision
 
 For count calculations, allow overlapping pitch intervals when both their
 beginning instants and ending instants strictly increase in the same order,
@@ -22,7 +22,7 @@ There are no new classes, properties, RML selections, source requests or rebuild
 
 ## Why this needs an explicit decision
 
-The accepted [F8 contract](../../archive/design-records/mlb-game-foul-defense-selection-repair/README.md)
+The accepted [F8 contract](../mlb-game-foul-defense-selection-repair/README.md)
 says to "still reject pitch-to-pitch overlap." P1 changes that analytical
 ordering restriction only. It does not broaden F8's executable foul selector,
 declare all overlap reliable, or replace the separate F9 selection proposal.

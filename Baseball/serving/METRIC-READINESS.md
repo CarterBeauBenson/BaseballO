@@ -440,7 +440,7 @@ failure checkpoint preserved.
 At 18:50 UTC, NiFi build `20261008T184417Z-dashboard-190f433e6f77` had reached
 input refresh. The live pointer still identified the October 6 publication
 below. The four recorded counted-foul exceptions (823013, 823804, 824118,
-824744) now have a prepared [F9 selector repair](../proposals/mlb-game-counted-foul-edge-completion/README.md)
+824744) now have a prepared [F9 selector repair](../archive/design-records/mlb-game-counted-foul-edge-completion/README.md)
 awaiting named approval. Five retained-case checks pass; the active mapping is
 unchanged while review is pending.
 

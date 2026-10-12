@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "metric-count-overlapping-intervals",
+  "title": "P1 analytical count order with overlapping recorded pitch intervals",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "bca554b8111d192386dcbdd32d3c4f1262e25bf469961f955af23afe9ad3f7a1"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "README.md",
+        "sha256": "bca554b8111d192386dcbdd32d3c4f1262e25bf469961f955af23afe9ad3f7a1"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "bca554b8111d192386dcbdd32d3c4f1262e25bf469961f955af23afe9ad3f7a1"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "bca554b8111d192386dcbdd32d3c4f1262e25bf469961f955af23afe9ad3f7a1"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-12",
+    "rationale": "User answered \"Approve\" to the immediately preceding outstanding decisions F9, M1 and P1. Accept this package as written, including targeted additions and scoped context fingerprints for F9, analytical error-step credit for M1, and analytical strict endpoint ordering for P1. Preserve unrelated RDF; no new classes, object properties, acquisition or rebuild."
+  }
+}
