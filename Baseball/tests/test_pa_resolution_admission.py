@@ -177,6 +177,15 @@ class PaResolution(unittest.TestCase):
                 self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.PREVIOUS_LOOKUP_IMPLEMENTATION)
                 write_proof(P.fingerprint())
                 self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.fingerprint())
+                # The same producer can first see only legacy censuses, then
+                # gain an independent raw witness on a later NiFi tick.
+                scoped=copy.deepcopy(source)
+                source.pop('reconciliationScopes')
+                write_proof(P.fingerprint())
+                with patch.object(P,'retained_source',return_value=None):
+                    self.assertEqual(P.load(E,state,promotion)['implementationSha256'],P.fingerprint())
+                with patch.object(P,'retained_source',return_value=(scoped,[])):
+                    self.assertIsNone(P.load(E,state,promotion))
 
     def test_later_retained_witness_keeps_its_distinct_source_identity(self):
         from test_admission_evidence import E
