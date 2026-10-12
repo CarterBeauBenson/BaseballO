@@ -2915,7 +2915,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     """
     if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
     no_out_turns=complete_no_out_turns(rows,runner_resolution_admission,player_admission or {})
-    missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=no_out_turns)
+    missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=no_out_turns,
+                 runnerOutPlateAppearances=[])
     proofs=(('OFFICIAL_PA_POPULATION',batting_admission),
             ('COMPLETE_RUNNER_RESOLUTION_POPULATION',runner_resolution_admission),
             ('COMPLETE_RUNNER_BOUNDARIES',runner_boundary_admission))
@@ -2945,6 +2946,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             if row.get('trajectory'):history_movements[(graph,row['trajectory'])].append(row)
         elif row['kind']=='runner_history':histories[(graph,row['trajectory'])].append(row)
     completed,withheld=[],[]
+    runner_out_observations=[]
     independent_coverage=True
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode','originRecord',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
@@ -2996,6 +2998,24 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             by_runner[row['runner']].append(row)
         if batter not in by_runner:reasons.append('MISSING_BATTER_RESOLUTION')
         if set(by_runner)-{batter}-set(starts):reasons.append('UNSUPPORTED_WITHIN_PA_ENTRY')
+        if not reasons and pa in no_out_turns:
+            # With a complete start/resolution census, an unchanged runner or
+            # an all-safe path remains on base. A scoring path might finish
+            # independently before the batter consequence, so it cannot prove
+            # this denominator without the full attribution below.
+            on_base=any(not by_runner.get(runner) or all(r.get('hasSafeType')=='true'
+                for r in by_runner[runner]) for runner in starts)
+            if on_base or not starts:
+                runner_out_observations.append(dict(graph=graph,game=game,plateAppearance=pa,player=batter,
+                    runnerOnBase=on_base,runnerOutOccurred=False,existingDestruction=exact(0)))
+        elif not reasons and any(r.get('hasOutType')=='true' and r.get('contactPlay')
+                and not r.get('award') and not independent_running_act(r)
+                for runner,members in by_runner.items() if runner in starts for r in members):
+            # One explicitly contact-attributed existing-runner out establishes
+            # occurrence. Missing path coalescence can still prevent measuring
+            # its weighted loss; no out count or destruction weight is supplied.
+            runner_out_observations.append(dict(graph=graph,game=game,plateAppearance=pa,player=batter,
+                runnerOnBase=True,runnerOutOccurred=True))
         allocation=(compound_out_confirmation(observations,by_runner,batter)
                     if result_type.endswith('/DoublePlayProcess') else dict(status='unavailable'))
         participants=[];supports=set();comparison_starts=dict(starts)
@@ -3078,8 +3098,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         # also zero, regardless of who caused the safe advances. Their actual
         # positions and unresolved channels remain separate evidence; do not
         # require a contact/award link just to reproduce that known zero.
-        if len(supports)!=1 and not (excluded and no_actual_outs):
-            reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
+        if len(supports)!=1:
+            if excluded and no_actual_outs:boundary_complete=False
+            else:reasons.append('MIXED_CONSEQUENCE_BOUNDARY')
         actual_outs=sum(r['terminal']=='out' for r in participants)
         attributed_outs=sum(r['creditOut'] for r in participants)
         if actual_outs!=attributed_outs and allocation['status']!='available':reasons.append('UNRESOLVED_OUT_OWNERSHIP')
@@ -3124,6 +3145,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             participants=participants,score=score))
     complete=bool(completed) and not withheld
     return dict(complete=complete,plateAppearances=completed,zeroOutPlateAppearances=no_out_turns,
+        runnerOutPlateAppearances=runner_out_observations,
         independentDamageComplete=independent_coverage and complete and len(completed)==len(pas),
         unresolvedPlateAppearances=withheld,gaps=[] if complete else sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
 

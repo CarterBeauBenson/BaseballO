@@ -43,6 +43,22 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_direct_runner_out_occurrence_does_not_assert_a_missing_path_weight(self):
+        rows=fixture(outs=1,runner_base=1,contact=True);pa=rows[0]['entity']
+        safe=dict(rows[-1],runner=RUNNER,entity=pa+'/runner-safe',resolution=pa+'/runner-safe',
+            act=pa+'/runner-act',episode=pa+'/runner-episode',metricOrigin='1',originDesignation=pa+'/origin',
+            originBase=GAME+'/base/1',originCode='1B',originRecord=pa+'/record',hasOutType='false',hasSafeType='true',
+            destinationCode='2B',destinationBase=GAME+'/base/2',safeJudgment='safe-judgment',safeDecision='safe-decision')
+        out=dict(safe,entity=pa+'/runner-out',resolution=pa+'/runner-out',act=pa+'/later-act',episode=pa+'/later-episode',
+            metricOrigin='2',originBase=GAME+'/base/2',originCode='2B',hasOutType='true',hasSafeType='false')
+        rows.extend([safe,out])
+        result=inputs(rows)
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['runnerOutPlateAppearances'],[dict(graph=G1,game=GAME,
+            plateAppearance=pa,player=BATTER,runnerOnBase=True,runnerOutOccurred=True)])
+        out.pop('contactPlay');out['independentStealAct']=out['act']
+        self.assertEqual(inputs(rows)['runnerOutPlateAppearances'],[])
+
     def test_complete_no_out_census_does_not_need_unknown_progress_or_boundaries(self):
         rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
         rows[0]['paResultType']=BASE+'HitByPitchProcess'
@@ -52,6 +68,11 @@ class ContributionPlayers(unittest.TestCase):
         self.assertFalse(result['complete'])
         self.assertEqual(result['zeroOutPlateAppearances'],[pa])
         self.assertEqual(result['plateAppearances'],[])
+        self.assertEqual(result['runnerOutPlateAppearances'],[])
+        result=inputs(rows)
+        self.assertFalse(result['complete'])  # The missing HBP award stays missing.
+        self.assertEqual(result['runnerOutPlateAppearances'],[dict(graph=G1,game=GAME,
+            plateAppearance=pa,player=BATTER,runnerOnBase=True,runnerOutOccurred=False,existingDestruction=M.exact(0))])
         individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
             paResolutions=dict(plateAppearances=[dict(plateAppearance=pa,status='admitted')]))
         self.assertEqual(M.complete_no_out_turns(rows,{},individual),[pa])
@@ -83,6 +104,22 @@ class ContributionPlayers(unittest.TestCase):
         self.assertFalse(inputs(rows,runner_resolution_admission={'status':'withheld'})['complete'])
         rows[-1].update(hasOutType='true',hasSafeType='false')
         self.assertFalse(inputs(rows)['complete'])
+
+    def test_known_zero_does_not_supply_a_mixed_consequence_comparison_state(self):
+        rows=fixture(outs=0,runner_base=2);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'ErrorProcess'
+        rows[-1].update(hasOutType='false',hasSafeType='true',destinationCode='1B',
+            destinationBase=GAME+'/base/1',safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision',
+            contactPlay=pa+'/first-contact')
+        rows.append(dict(rows[-1],runner=RUNNER,act=pa+'/runner-act',episode=pa+'/runner-episode',
+            entity=pa+'/runner-safe',resolution=pa+'/runner-safe',record=pa+'/runner-record',
+            metricOrigin='2',originCode='2B',originBase=GAME+'/base/2',originRecord=pa+'/origin-record',
+            originDesignation=pa+'/origin',destinationBase=GAME+'/base/3',destinationCode='3B',
+            contactPlay=pa+'/second-contact'))
+        result=inputs(rows);self.assertTrue(result['complete'],result)
+        item,=result['plateAppearances']
+        self.assertEqual(item['score']['value'],M.exact(0))
+        self.assertIsNone(item['comparisonState'])
 
     def test_every_individually_admitted_pa_completes_the_game_inputs(self):
         rows=fixture();pa=rows[0]['entity'];expected=inputs(rows)
@@ -151,7 +188,8 @@ class ContributionPlayers(unittest.TestCase):
         # Without the optional individual proof, the established full-game
         # entry point still withholds every contribution and any unknown zero.
         self.assertEqual(inputs(rows,batting_admission={'status':'withheld'}),dict(complete=False,
-            plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=[],gaps=['OFFICIAL_PA_POPULATION']))
+            plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=[],runnerOutPlateAppearances=[],
+            gaps=['OFFICIAL_PA_POPULATION']))
 
     def test_multiple_noncontact_advances_preserve_ends_without_batter_credit(self):
         for mode in ('independent','excluded','award'):

@@ -417,6 +417,8 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
     contrib=inputs['contribution'];progress=inputs['progress'];defense=inputs.get('defense',{})
     by_pa={p['plateAppearance']:p for p in contrib.get('plateAppearances',[])}
     zero_out_turns=set(contrib.get('zeroOutPlateAppearances',[]))
+    out_by_pa={p['plateAppearance']:p for p in contrib.get('runnerOutPlateAppearances',[])}
+    out_by_pa.update(by_pa)
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
               if p['status']=='admitted'}
@@ -547,7 +549,18 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
                 reason='OFFENSIVE_ELIGIBILITY' if empty_eligible is None else 'COMPLETE_EMPTY_GAME_CLASSIFICATION'
             elif person is not None:
                 reason='COMPLETE_PA_CONTRIBUTIONS'
-                if metric=='opportunity-erosion':
+                if metric in {'rally-kill-rate','rally-kill-severity'}:
+                    observations=[out_by_pa[pa] for pa in own if pa in out_by_pa and out_by_pa[pa]['player']==player]
+                    complete=len(observations)==len(own) and all(type(p['runnerOnBase']) is bool for p in observations)
+                    values=[]
+                    for p in observations:
+                        if p['runnerOnBase'] is not True:continue
+                        value=(p.get('runnerOutOccurred',p['existingRunnerOuts']>0 if 'existingRunnerOuts' in p else None)
+                            if metric=='rally-kill-rate' else p.get('existingDestruction'))
+                        if value is None:complete=False
+                        else:values.append(Fraction(value) if metric=='rally-kill-rate' else m.fraction(value))
+                    aggregate=mean(m,values)
+                elif metric=='opportunity-erosion':
                     # No actual outs means no out-driven erosion. A missing
                     # progress weight or base path cannot make this zero
                     # unknown; every other PA still needs its scored component.

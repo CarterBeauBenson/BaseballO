@@ -39,6 +39,34 @@ class PlayerRanges(unittest.TestCase):
                 self.assertEqual(json.loads(result['opportunity-erosion'][4]),
                     dict(kind='mean',sum=M.exact(1),count=2))
 
+    def test_runner_out_metrics_do_not_require_an_unknown_progress_weight(self):
+        from test_contribution_players import fixture, inputs, qualification, BATTER, PROOF, G1
+        evidence=fixture();score=inputs(evidence);q=qualification(score)
+        pa=evidence[0]['entity']
+        evidence.append(dict(kind='player_team_game',graph=G1,game='game',player=BATTER,team='team',teamRole='role'))
+        score.update(complete=False,plateAppearances=[],runnerOutPlateAppearances=[dict(
+            plateAppearance=pa,player=BATTER,runnerOnBase=True,existingRunnerOuts=0,existingDestruction=M.exact(0))])
+        for on_base,complete,count in [(True,1,1),(False,1,0),(None,0,0)]:
+            score['runnerOutPlateAppearances'][0]['runnerOnBase']=on_base
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G1,scope=SCOPE,rows=evidence,
+                    proofs=dict(batting=PROOF,run={},resolution={}),inputs=dict(contribution=score,progress={}),
+                    runs={},run_people={},metric_ids={'rally-kill-rate','rally-kill-severity','tfs'})
+            result={r[2]:r for r in records}
+            self.assertEqual(result['tfs'][3],0)
+            for metric in ('rally-kill-rate','rally-kill-severity'):
+                self.assertEqual(result[metric][3],complete)
+                self.assertEqual(json.loads(result[metric][4]),dict(kind='mean',sum=M.exact(0),count=count))
+        score['runnerOutPlateAppearances']=[dict(plateAppearance=pa,player=BATTER,runnerOnBase=True,runnerOutOccurred=True)]
+        with patch.object(P,'qualification',return_value=q):
+            _,records=P.project(M,graph=G1,scope=SCOPE,rows=evidence,
+                proofs=dict(batting=PROOF,run={},resolution={}),inputs=dict(contribution=score,progress={}),
+                runs={},run_people={},metric_ids={'rally-kill-rate','rally-kill-severity'})
+        result={r[2]:r for r in records}
+        self.assertEqual(result['rally-kill-severity'][3],0)
+        self.assertEqual(result['rally-kill-rate'][3],1)
+        self.assertEqual(json.loads(result['rally-kill-rate'][4]),dict(kind='mean',sum=M.exact(1),count=1))
+
     def test_empty_negative_needs_every_team_turn_but_not_opponents(self):
         graph=G+'1';game='game'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)
