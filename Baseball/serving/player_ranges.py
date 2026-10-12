@@ -730,10 +730,11 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None, *, 
             if admitted(proofs['resolution']) or p['plateAppearance'] in empty_resolved]
             for kind in ('plateAppearances','unresolvedPlateAppearances')}
         needs_contribution=individual.get('paBoundaries') and not inputs['contribution'].get('complete')
+        needs_damage=(metric_ids is None or 'empty-game-damage' in metric_ids) and not inputs['contribution'].get('independentDamageComplete')
         needs_channels=admitted(proofs['resolution']) and any(p.get('independentEpisodeGaps') for p in inputs['progress'].get('plateAppearances',[]))
         needs_ambiguity=any(p.get('gaps')==['AMBIGUOUS_BATTING_CONTRIBUTOR']
                             for p in inputs['progress'].get('unresolvedPlateAppearances',[]))
-        if needs_contribution or needs_channels or needs_ambiguity or any(empty_progress.values()) or help_progress['unresolvedPlateAppearances']:
+        if needs_contribution or needs_damage or needs_channels or needs_ambiguity or any(empty_progress.values()) or help_progress['unresolvedPlateAppearances']:
             evidence=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
                 'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
             saved_proof=json.loads(db.execute('SELECT proof_json FROM dashboard_checkpoint WHERE graph_iri=?',(graph,)).fetchone()[0])
@@ -754,6 +755,7 @@ def prepare(m, db, checkpoint=None, player_admissions=None, metric_ids=None, *, 
             if not contribution_inputs_current:
                 inputs['contribution']=m.contribution_game_inputs(evidence,graph=graph,batting_admission=proofs['batting'],
                     runner_resolution_admission=proofs['resolution'],runner_boundary_admission=proofs['boundary'],player_admission=individual)
+        if needs_damage:
             inputs['contribution']['zeroIndependentDamagePlayers']=sorted(
                 zero_independent_damage_players(evidence,inputs['contribution'],proofs['resolution']))
         runs={metric:m.read_results(db,graph,metric)[0] for metric in RUNS}

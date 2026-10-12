@@ -93,6 +93,7 @@ class ContributionPlayers(unittest.TestCase):
         self.assertEqual(item['existingRunnerOuts'],0)
         self.assertIsNone(item['comparisonState'])
         self.assertTrue(item['unattributedNonbattingEpisodes'])
+        self.assertTrue(result['independentDamageComplete'])
         for metric in M.CONTRIBUTION_METRICS-{'empty-game-damage'}:
             score=M.contribution_players(metric,[result],qualification=qualification(result),date_scope=SCOPE)
             self.assertEqual(score['value'],M.exact(0),metric)
@@ -242,7 +243,7 @@ class ContributionPlayers(unittest.TestCase):
         self.assertEqual(M.fraction(item['score']['value']),Fraction(1,4))
         self.assertTrue(item['runnerOnBase'])
         self.assertIsNone(item['comparisonState'])  # Do not invent the movement's time relative to the walk.
-        self.assertFalse(result['independentDamageComplete'])
+        self.assertTrue(result['independentDamageComplete'])  # A complete no-out census establishes zero damage.
         q=qualification(result)
         reach=M.contribution_players('offensive-reach',[result],qualification=q,date_scope=SCOPE)
         self.assertEqual(M.fraction(reach['value']),1)

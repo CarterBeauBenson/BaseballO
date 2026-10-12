@@ -3129,7 +3129,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         # and no attributed out. They contribute no independent damage, but
         # their runner's positive contribution still prevents an Empty Game.
         # Unknown ownership and interrupted turns remain separately withheld.
-        if unattributed:independent_coverage=False
+        if unattributed and pa not in no_out_turns:independent_coverage=False
         runner_present=any(r['participant']!=batter and (r.get('attributed') or r['creditOut']
             or (r['start'] in (1,2,3) and r['terminal'] in {'safe','stranded'})) for r in participants)
         runner_on_base=True if runner_present else False if not starts else None
