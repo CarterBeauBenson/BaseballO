@@ -79,12 +79,12 @@ def code_equivalence(family,previous,current,*,_context=None):
     if family=='pitch-count':
         adapter=module(HERE/'pitch-count-admission.py','count_census_compatibility')
         if current==adapter.fingerprint():
-            prior=adapter.previous_fingerprint()
-            reused=(dict(kind='unchanged-admission-census') if previous==prior else
-                    code_equivalence(family,previous,prior,_context=_context))
-            if reused is not None:
-                return dict(reused,kind='prior-stricter-count-census',
-                    previousImplementationSha256=previous,currentImplementationSha256=current)
+            for prior in adapter.previous_fingerprints():
+                reused=(dict(kind='unchanged-admission-census') if previous==prior else
+                        code_equivalence(family,previous,prior,_context=_context))
+                if reused is not None:
+                    return dict(reused,kind='prior-stricter-count-census',
+                        previousImplementationSha256=previous,currentImplementationSha256=current)
     record=read(COMPATIBILITY_PATH)
     compound=record.get('compoundResultRepair',{})
     groundout=record.get('defensiveGroundoutRepair',{})
@@ -370,14 +370,15 @@ def load(adapter,state,promotion,family):
     if retained is not None and (independent is None or independent.get('status')!='admitted'):independent=retained
     if independent is not None and independent.get('status')=='admitted':return independent
     if family=='pitch-count' and hasattr(adapter,'previous_fingerprint'):
-        prior=SimpleNamespace(**{**vars(adapter),'fingerprint':adapter.previous_fingerprint})
-        for owner in (EXISTING_GRAPH,RETAINED_CENSUS):
-            proof=owner.load(SimpleNamespace(**globals()),state,promotion,family,prior)
-            if proof is not None and proof.get('status')=='admitted':return proof
-        proof=refreshed(state,promotion,family,prior.fingerprint())
-        if proof is not None and proof.get('status')=='admitted':
-            checked_marker(promotion)
-            return proof
+        for version in adapter.previous_fingerprints():
+            prior=SimpleNamespace(**{**vars(adapter),'fingerprint':lambda:version})
+            for owner in (EXISTING_GRAPH,RETAINED_CENSUS):
+                proof=owner.load(SimpleNamespace(**globals()),state,promotion,family,prior)
+                if proof is not None and proof.get('status')=='admitted':return proof
+            proof=refreshed(state,promotion,family,version)
+            if proof is not None and proof.get('status')=='admitted':
+                checked_marker(promotion)
+                return proof
     # A failed later witness cannot suppress a separately valid original proof.
     def select(proof):return proof if proof.get('status')=='admitted' else independent or proof
     if family=='batting':

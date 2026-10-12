@@ -33,13 +33,15 @@ class AdmissionEvidence(unittest.TestCase):
         current=adapter.fingerprint();prior=adapter.previous_fingerprint()
         self.assertNotEqual(current,prior)
         self.assertEqual(E.code_equivalence('pitch-count',prior,current)['kind'],'prior-stricter-count-census')
+        for version in adapter.previous_fingerprints():
+            self.assertEqual(E.code_equivalence('pitch-count',version,current)['kind'],'prior-stricter-count-census')
         self.assertIsNone(E.code_equivalence('pitch-count','unknown-producer',current))
         proof=dict(status='admitted',implementationSha256='original-independent-producer',
                    sourceProducerSha256=prior,proofSha256='unchanged-proof')
         def independent(api,state,promotion,family,selected):
             return proof if selected.fingerprint()==prior else None
         with patch.object(E.EXISTING_GRAPH,'load',side_effect=independent), \
-             patch.object(E.RETAINED_CENSUS,'load',return_value=None):
+             patch.object(E.RETAINED_CENSUS,'load',return_value=None),patch.object(E,'refreshed',return_value=None):
             self.assertEqual(E.load(adapter,'state',{},'pitch-count'),proof)
 
     def test_whole_game_batting_refresh_precedes_missing_individual_fallback(self):

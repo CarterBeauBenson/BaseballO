@@ -3,6 +3,7 @@ import importlib.util
 import json
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from pyshacl import validate
 from rdflib import Literal,RDF,URIRef,XSD
@@ -47,6 +48,24 @@ def extract(data):return M.recovery_histories(M.normalize_bindings(bindings(data
 
 
 class PitchCountAdmission(unittest.TestCase):
+    def test_interference_ends_a_reconciled_count_without_a_contact_call(self):
+        doc=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
+        play=next(p for p in doc['liveData']['plays']['allPlays'] if p['result']['eventType']=='field_out'
+            and p['count']['strikes']==2 and p['playEvents'][-1].get('isPitch') is True)
+        play['result']['eventType']='catcher_interf'
+        play['playEvents'][-1]['details']['call']['code']='F'
+        pa=A.B.BASE+'data/game/566279/plate-appearance/'+str(play['atBatIndex'])
+        with patch.object(A.B.SOURCE,'reconcile',return_value=dict(blockingIssues=[],sourceRevision='fixture')):
+            census=A.census(json.dumps(doc).encode(),'566279')
+        self.assertNotIn(dict(code='UNSUPPORTED_PA_TERMINATION',plateAppearance=pa),census['issues'])
+        self.assertTrue(next(p for p in census['plateAppearances'] if p['pa']==pa)['interferenceResult'])
+        data,source=pitch_fixture();source['plateAppearances'][0]['interferenceResult']=True
+        result=URIRef(source['plateAppearances'][0]['pa']+'/result');g=data.graph(G1)
+        self.assertFalse(validate(g,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0])
+        g.add((result,RDF.type,BASE.InterferenceProcess))
+        g.add((result,BFO.BFO_0000132,URIRef(source['plateAppearances'][0]['pa'])))
+        self.assertTrue(validate(g,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0])
+
     def test_delivered_pitchout_and_intentional_ball_keep_count_history(self):
         original=json.loads((M.ROOT/'data/raw/game-566279.json').read_bytes())
         baseline=A.census(json.dumps(original).encode(),'566279')

@@ -21,19 +21,25 @@ B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 CONTEXT=B.module(ROOT/'scripts/pipeline/prepare-rml-context.py','count_existing_context')
 SHAPE=HERE.parent/'shacl/pitch-count-admission.ttl'
 PREVIOUS_CENSUS_FILE_SHA='4d9898aedb36463b659a96b62aa60135f27b37b6d0d521f8ef3c52d54c767cda'
+PITCHOUT_CENSUS_FILE_SHA='8eaad86c814a30fd7e200671b21ffb526d3012c7f14fb541bc9b0278a1a789b8'
 
 
-def fingerprint(*, previous=False):
+def fingerprint(*, previous=False, census_sha=None):
     paths=[Path(__file__),SHAPE,HERE/'batting-admission.py',HERE/'reconcile-metric-source.py',
            ROOT/'scripts/pipeline/prepare-rml-context.py',ROOT/'scripts/pipeline/validate-shacl.py']
     return B.sha('\n'.join(p.relative_to(ROOT).as_posix()+':'+(
-        PREVIOUS_CENSUS_FILE_SHA if previous and p==Path(__file__) else B.sha(p.read_bytes())) for p in paths).encode())
+        (census_sha or PREVIOUS_CENSUS_FILE_SHA) if (previous or census_sha) and p==Path(__file__)
+        else B.sha(p.read_bytes())) for p in paths).encode())
 
 
 def previous_fingerprint():
     # Only the count census expands. Every other producer dependency and the
     # static shape stay exact; retain successful old checks with their producer.
     return fingerprint(previous=True)
+
+
+def previous_fingerprints():
+    return (fingerprint(census_sha=PITCHOUT_CENSUS_FILE_SHA), previous_fingerprint())
 
 
 def virtual_intentional_walk(play, season, document=None):
@@ -64,6 +70,8 @@ def census(raw,game_pk):
         if result_type in B.INTERRUPTIONS:continue  # No official PA; B1 separately reconciles this exclusion.
         errors=[];selected=[];strikes=0;previous_end=None
         compound=result_type=='sac_fly_double_play' and bool(CONTEXT.sacrifice_fly_double_play_parts(play))
+        interference=(result_type=='catcher_interf' and play.get('about',{}).get('isComplete') is True
+            and not CONTEXT.accounted_runner_history_reviews(play)['issues'])
         if result_type not in B.RESULTS and not compound:errors.append('UNKNOWN_OFFICIAL_PA_RESULT')
         if [e.get('index') for e in play['playEvents']]!=list(range(len(play['playEvents']))):
             errors.append('UNRECONCILED_EVENT_MEMBERSHIP')
@@ -129,12 +137,14 @@ def census(raw,game_pk):
             terminal=(strikes==3 and result_type in {'strikeout','strikeout_double_play'}
                 or result_type in {'walk','intent_walk'} and (final_award or last.get('balls')==4 or last.get('award',{}).get('ballsAfter')==4)
                 or result_type=='hit_by_pitch' and call=='H'
+                or interference
                 or result_type not in {'strikeout','strikeout_double_play','walk','intent_walk','hit_by_pitch','catcher_interf'} and call in {'X','D','E'})
             if not terminal:errors.append('UNSUPPORTED_PA_TERMINATION')
             for first,second in zip(selected,selected[1:]):
                 if first['kind']==second['kind']=='award':errors.append('UNORDERED_ADJACENT_AWARDS')
         for error in sorted(set(errors)):issues.append(dict(code=error,plateAppearance=game+'/plate-appearance/'+pa))
         row=dict(pa=game+'/plate-appearance/'+pa,events=selected)
+        if interference:row['interferenceResult']=True
         if final_award:
             row['intentionalWalkAward']=True
             if not selected:row['zeroPitchIntentionalWalk']=True
@@ -169,6 +179,8 @@ def shape_text(source):
             'sh:property [ sh:path [ sh:inversePath obo:BFO_0000132 ] ; sh:qualifiedValueShape [ sh:class base:PitchAct ] ; sh:qualifiedMinCount '+str(len(pitch_ids))+' ; sh:qualifiedMaxCount '+str(len(pitch_ids))+' ]'])
         if pa.get('zeroPitchIntentionalWalk') or pa.get('intentionalWalkAward'):
             node(pa['pa']+'/result',['sh:class base:WalkProcess',prop('obo:BFO_0000132',B.iri(pa['pa']))])
+        if pa.get('interferenceResult'):
+            node(pa['pa']+'/result',['sh:class base:InterferenceProcess',prop('obo:BFO_0000132',B.iri(pa['pa']))])
         for e in pa['events']:
             if e['kind']=='award':
                 a=e['award']
