@@ -237,7 +237,7 @@ def _trajectory_kernel_result(kernel_identity, numeric_rows):
     states. Fresh ordinal participants preserve multiplicity. Both the query
     and its catalog contract enter the key; only immutable scalars leave it.
     """
-    fields=('start','end','terminal','creditProgress','creditOut','outsBefore','attributedOuts')
+    fields=('start','end','terminal','creditProgress','creditedDistance','creditOut','outsBefore','attributedOuts')
     inputs=[dict(key='consequence',participant=str(index),**dict(zip(fields,row)))
             for index,row in enumerate(numeric_rows)]
     result,=run_kernel('tfs',inputs)
@@ -284,19 +284,23 @@ def trajectories(participants, outs_before, attributed_outs, *, batter=None, bat
         # catcher_interf. This is a credit exclusion, not an inferred cause.
         if exclude_progress:
             progress = False
+        distance = row.get('creditedDistance', max(0,end-start) if end is not None else 0)
+        _integer(distance, 'credited forward distance', 0, 4-start)
+        if end is not None and distance > max(0,end-start):
+            raise EvidenceError('Credited distance exceeds the supported physical path')
         credit_out = _boolean(row.get('creditOut'), 'out attribution')
         if credit_out and outcome != 'out':
             raise EvidenceError('Out attribution requires an out')
         evidence.extend(row.get('evidence', []))
         inputs.append(dict(key='consequence', participant=row['participant'],
                            start=start, end=end, terminal=outcome,
-                           creditProgress=progress, creditOut=credit_out,
+                           creditProgress=progress, creditedDistance=distance, creditOut=credit_out,
                            outsBefore=outs_before, attributedOuts=attributed_outs))
     if sum(r['creditOut'] for r in inputs) != attributed_outs:
         raise EvidenceError('Distinct attributed out count disagrees with participant evidence')
     entry=next(e for e in catalog()['metrics'] if e['id']=='tfs')
     kernel_identity=_hash(_json(entry)+(ROOT/entry['authoritativeQuery']).read_text(encoding='utf-8'))
-    fields=('start','end','terminal','creditProgress','creditOut','outsBefore','attributedOuts')
+    fields=('start','end','terminal','creditProgress','creditedDistance','creditOut','outsBefore','attributedOuts')
     numeric_rows=tuple(sorted((tuple(row[k] for k in fields) for row in inputs),key=_json))
     numerator,denominator,progress,destruction,erosion=_trajectory_kernel_result(kernel_identity,numeric_rows)
     components = {k: exact(Fraction(value, 36)) for k,value in
@@ -1894,7 +1898,7 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
                       'trajectoryHalf', 'trajectoryInterval')
             states = {tuple(r.get(f) for f in fields) for r in candidates}
             if metric_id == 'run-construction-breadth':
-                states = {tuple(r.get(f) for f in (*fields, 'batter','metricOrigin','plateAppearance','contactPlay','award','awardRule','independentStealAct',*INDEPENDENT_RUNNING_FIELDS))
+                states = {tuple(r.get(f) for f in (*fields, 'batter','metricOrigin','plateAppearance','contactPlay','award','awardRule','independentStealAct',*ERROR_STEP_FIELDS,*INDEPENDENT_RUNNING_FIELDS))
                           for r in candidates}
             if len(states) != 1:
                 failures[key] = 'CONFLICTING_SEGMENT_STATE'
@@ -1927,7 +1931,10 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
                 failures[key] = 'UNSUPPORTED_SEGMENT_ORIGIN'
                 break
             inputs.append(dict(key=key[1], episode=episode, changesState=start != end))
-            if metric_id == 'run-construction-breadth' and start != end:
+            classification=error_step(row) if metric_id=='run-construction-breadth' else False
+            if classification is None:
+                failures[key]='UNRESOLVED_ERROR_ATTRIBUTION';break
+            if metric_id == 'run-construction-breadth' and start != end and not classification:
                 if end <= start:
                     failures[key] = 'UNSUPPORTED_CONTRIBUTION_DIRECTION'
                     break
@@ -2122,6 +2129,15 @@ def loaded_award_consequences(rows, *, metric_id='tfs'):
 PROGRESS_METRICS = {'offensive-reach','hidden-help-rate','empty-game-rate','contribution-path-diversity'}
 
 
+ERROR_STEP_FIELDS=('secondaryError','errorJudgment','errorDecision')
+
+
+def error_step(row):
+    """Existing adjudicated error membership; incomplete joins stay unknown."""
+    if not any(row.get(k) for k in ERROR_STEP_FIELDS):return False
+    return True if all(row.get(k) for k in (*ERROR_STEP_FIELDS,'record')) else None
+
+
 def contact_progress_path(members, history_rows, movement_rows):
     """Evaluate B2's nonbranching path inside an existing admitted C1 whole.
 
@@ -2131,14 +2147,20 @@ def contact_progress_path(members, history_rows, movement_rows):
     or new episode identities are produced. Independent channels stay separate.
     """
     states = [row for row, _ in members]
-    contacts={r.get('contactPlay') for r in states}
-    if len(contacts)!=1 or None in contacts or any(r.get('award') or independent_running_act(r) for r in states):
+    contacts={r['contactPlay'] for r in states if r.get('contactPlay')}
+    if (len(contacts)!=1 or any(error_step(r) is None or
+            (not r.get('contactPlay') and error_step(r) is not True)
+            or r.get('award') or independent_running_act(r) for r in states)):
         return dict(status='unavailable',gap='COMPLETE_CONSEQUENCE_COALESCENCE')
     path=runner_progress_path(states,history_rows,movement_rows)
-    if path['status']=='available' and any(r.get('contactPlay') not in contacts or r.get('award') or independent_running_act(r)
+    if path['status']=='available' and any((r.get('contactPlay') not in contacts and error_step(r) is not True) or r.get('award') or independent_running_act(r)
             for r in movement_rows[(states[0]['graph'],path['trajectory'])] if r['plateAppearance']==states[0]['plateAppearance']):
         return dict(status='unavailable',gap='COMPLETE_CONSEQUENCE_COALESCENCE')
-    return dict(path,contactPlay=next(iter(contacts))) if path['status']=='available' else path
+    if path['status']!='available':return path
+    credited={r['episode'] for r in states if error_step(r) is False}
+    distance=(sum(r['end']-r['start'] for r in path['segments'] if r['episode'] in credited)
+              if path['end'] is not None else 0)
+    return dict(path,contactPlay=next(iter(contacts)),creditedDistance=distance,positive=distance>0)
 
 
 def runner_progress_path(states, history_rows, movement_rows):
@@ -2223,7 +2245,7 @@ def contact_progress_with_unknown_safe_steps(states, history_rows, movement_rows
     path = runner_progress_path(states, history_rows, movement_rows)
     if path['status'] != 'available':
         return denied
-    contact_episodes = {r['episode'] for r in states if r.get('contactPlay')}
+    contact_episodes = {r['episode'] for r in states if r.get('contactPlay') and error_step(r) is False}
     if not any(r['episode'] in contact_episodes and r['end'] > r['start'] for r in path['segments']):
         return denied
     return dict(path, contactPlay=next(iter(contacts)), positive=True,
@@ -2251,7 +2273,7 @@ def batting_progress_evidence(rows):
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
             'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
-            'trajectory','trajectoryHalf','trajectoryInterval',*INDEPENDENT_RUNNING_FIELDS)
+            'trajectory','trajectoryHalf','trajectoryInterval',*ERROR_STEP_FIELDS,*INDEPENDENT_RUNNING_FIELDS)
     for (graph,pa), observations in sorted(pas.items()):
         reasons=[]
         players={actors[(graph,pa)]};games={r.get('game') for r in observations}
@@ -2289,6 +2311,10 @@ def batting_progress_evidence(rows):
                 if start is None or end is None or end<start:
                     reasons.append('UNSUPPORTED_PROGRESS_BOUNDARY');continue
                 positive=end>start
+            classification=error_step(row)
+            if classification is None:
+                reasons.append('UNRESOLVED_ERROR_ATTRIBUTION');continue
+            if classification is True:positive=False
             if positive:positive_runners.add(runner)
             if outcome[1]=='true' and not supports:
                 unsupported_outs.add(runner)
@@ -2311,6 +2337,11 @@ def batting_progress_evidence(rows):
             if supports:
                 channel,support=supports[0]
                 channels[(runner,channel,support)].append((row,positive))
+        for runner in {r.get('runner') for group in resolutions.values() for r in group}:
+            states=[group[0] for group in resolutions.values() if group[0].get('runner')==runner]
+            if len(states)>1 and any(error_step(r) is True for r in states):
+                path=contact_progress_path([(r,False) for r in states],histories,history_movements)
+                if path['status']=='available':contact_paths[(runner,path['contactPlay'])]=path
         for runner in sorted({r['runner'] for r in unattributed_positive}):
             members=[candidates[0] for candidates in resolutions.values() if candidates[0].get('runner')==runner]
             path=contact_progress_with_unknown_safe_steps(members,histories,history_movements) if not excluded else None
@@ -2334,7 +2365,7 @@ def batting_progress_evidence(rows):
                     for row,_ in members):
                 reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
             if channel=='contact' and (runner,support) in contact_paths:
-                path=contact_paths[(runner,support)];positive=True;coalesced.append(path);row=members[0][0]
+                path=contact_paths[(runner,support)];positive=path['positive'];coalesced.append(path);row=members[0][0]
             elif len(members)!=1:
                 path=(contact_progress_path(members,histories,history_movements) if channel=='contact'
                       else dict(status='unavailable'))
@@ -2349,7 +2380,7 @@ def batting_progress_evidence(rows):
                     if origins and all(origin is not None for origin in origins):
                         mixed=split_steal_contact_path(all_members,histories,history_movements,min(origins))
                         if mixed['status']=='available' and mixed['contactPlay']==support:
-                            path=dict(mixed,positive=mixed['end'] is not None and mixed['end']>mixed['start'],
+                            path=dict(mixed,positive=mixed['creditedDistance']>0,
                                 player=runner,trajectory=all_members[0]['trajectory'])
                 if path['status']!='available':
                     reasons.append('COMPLETE_CONSEQUENCE_COALESCENCE');continue
@@ -2855,7 +2886,7 @@ def split_steal_contact_path(members, histories, movements, start):
     if any((r.get('game'),r.get('runner'),r.get('trajectoryHalf'),r.get('trajectoryInterval'))!=(game,runner,half,interval) for r in observed):return denied
     if {r['episode'] for r in observed if r['plateAppearance']==pa}!={r['episode'] for r in members}:return denied
     if len({r['episode'] for r in members})!=len(members):return denied
-    edges={};prefix=[];contact=None;contact_start=None;position=start
+    edges={};prefix=[];contact=None;contact_start=None;position=start;distance=0
     for row in members:
         origin=segment_origin(row)
         if origin is None or origin in edges:return denied
@@ -2865,18 +2896,24 @@ def split_steal_contact_path(members, histories, movements, start):
         end=(None if row.get('hasOutType')=='true' else 4 if row.get('hasRunType')=='true' else
              int(row['destinationCode'][0]) if row.get('destinationCode') in {'1B','2B','3B'} else None)
         if end is not None and end<=position:return denied
+        classification=error_step(row)
+        if classification is None:return denied
         if row.get('contactPlay') and not independent_running_act(row) and not row.get('award'):
             if contact is None:contact=row['contactPlay'];contact_start=position
             if row['contactPlay']!=contact:return denied
+            if end is not None and not classification:distance+=end-position
         elif (contact is None and independent_running_act(row) and not row.get('award')
                 and row.get('hasSafeType')=='true' and end in (1,2,3)
                 and all(row.get(f) for f in ('safeJudgment','safeDecision','destinationBase'))):
-            prefix.append(dict(player=runner,episode=row['episode'],act=row['act'],start=position,end=end))
+            if not classification:prefix.append(dict(player=runner,episode=row['episode'],act=row['act'],start=position,end=end))
+        elif contact is not None and classification and not row.get('award'):
+            pass  # Retain the physical error continuation, with no positive credit.
         else:return denied
         position=end
         if end is None or end==4:break
     if edges or not prefix or contact is None:return denied
-    return dict(status='available',start=contact_start,end=position,contactPlay=contact,independentPrefix=prefix)
+    return dict(status='available',start=contact_start,end=position,contactPlay=contact,independentPrefix=prefix,
+                creditedDistance=distance if position is not None else 0)
 
 
 def complete_no_out_turns(rows, resolution, individual):
@@ -2952,7 +2989,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     fields=('runner','act','episode','resolution','originDesignation','originBase','originCode','originRecord',
             'metricOrigin','destinationBase','destinationCode','safeJudgment','safeDecision',
             'hasSafeType','hasOutType','hasRunType','contactPlay','award','awardRule','independentStealAct',
-            'trajectory','trajectoryHalf','trajectoryInterval',*INDEPENDENT_RUNNING_FIELDS)
+            'trajectory','trajectoryHalf','trajectoryInterval',*ERROR_STEP_FIELDS,*INDEPENDENT_RUNNING_FIELDS)
     for pa,observations in sorted(pas.items()):
         types={r['paResultType'] for r in observations if r.get('recognizedBattingResult') in ('true','1')}
         if not types:continue  # B1 separately verifies interrupted, uncredited turns.
@@ -3026,17 +3063,19 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
         for runner,members in sorted(by_runner.items()):
             start=0 if runner==batter else starts.get(runner)
             terminal,end,credit=None,None,False
+            distance=0
             for row in members:
                 flags=(row.get('hasSafeType'),row.get('hasOutType'),row.get('hasRunType'))
                 if flags not in {('true','false','false'),('false','true','false'),('false','false','true')}:
                     reasons.append('UNSUPPORTED_SEGMENT_END')
+                if error_step(row) is None:reasons.append('UNRESOLVED_ERROR_ATTRIBUTION')
                 evidence.update(row[f] for f in ('act','resolution','episode','record','originDesignation','originRecord',
-                    'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule',*INDEPENDENT_RUNNING_FIELDS) if row.get(f))
+                    'safeJudgment','safeDecision','trajectory','trajectoryInterval','contactPlay','award','awardRule',*ERROR_STEP_FIELDS,*INDEPENDENT_RUNNING_FIELDS) if row.get(f))
             if len(members)>1:
                 contact_attributed=True
                 independent_only=(runner!=batter and all(independent_running_act(r) and not r.get('contactPlay')
                     and not r.get('award') and r.get('hasOutType')=='false' for r in members))
-                uncredited_only=((runner!=batter and complete_award or excluded and no_actual_outs)
+                uncredited_only=((runner!=batter and complete_award or excluded and no_actual_outs or all(error_step(r) is True for r in members))
                     and all(not r.get('contactPlay') and not r.get('award') and not independent_running_act(r)
                             and r.get('hasOutType')=='false' for r in members))
                 if independent_only or uncredited_only:
@@ -3047,7 +3086,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                         if independent_only:
                             by_episode={r['episode']:r for r in members}
                             independent.extend(dict(player=runner,episode=r['episode'],act=by_episode[r['episode']]['act'],
-                                start=r['start'],end=r['end']) for r in path['segments'] if r['end']>r['start'])
+                                start=r['start'],end=r['end']) for r in path['segments'] if r['end']>r['start'] and error_step(by_episode[r['episode']]) is False)
                         else:unattributed.extend(sorted(r['episode'] for r in members))
                 elif any(independent_running_act(r) for r in members):
                     path=split_steal_contact_path(members,histories,history_movements,start)
@@ -3059,6 +3098,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                 end=path['end'];terminal='out' if end is None else 'scored' if end==4 else 'safe'
                 if contact_attributed:
                     supports.add(('contact',path['contactPlay']));credit=True
+                    distance=path['creditedDistance']
             else:
                 row=members[0];origin=segment_origin(row)
                 if origin!=start or start is None:reasons.append('UNSUPPORTED_IMMEDIATE_ORIGIN')
@@ -3073,27 +3113,29 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                     reasons.append('AMBIGUOUS_CONSEQUENCE_ATTRIBUTION')
                 if channels:
                     supports.update(channels);credit=True
+                    if end is not None and start is not None and error_step(row) is False:distance=max(0,end-start)
                 elif allocation['status']=='available' and terminal=='out':
                     supports.add(('compound',pa))
                     credit=runner==batter or allocation['kind']=='hit-and-run'
                 elif runner==batter and terminal=='out' and result_type.endswith('/StrikeoutProcess'):
                     supports.add(('strikeout',pa));credit=True
                 elif terminal!='out' and end!=start and ((runner!=batter and (independent_running_act(row) or complete_award))
-                        or (excluded and no_actual_outs)):
+                        or (excluded and no_actual_outs) or error_step(row) is True):
                     # Existing outcome values still determine erosion. Complete
                     # award membership proves that an unlinked movement isn't
                     # an omitted forced award; excluded positive batting credit
                     # cannot become unknown just because its owner is irrelevant.
                     boundary_complete=False
-                    if independent_running_act(row):
+                    if independent_running_act(row) and error_step(row) is False:
                         independent.append(dict(player=runner,episode=row['episode'],act=row['act'],start=start,end=end))
-                    else:unattributed.append(row['episode'])
+                    elif error_step(row) is not True:unattributed.append(row['episode'])
                 elif terminal!='safe' or end!=start:
                     reasons.append('UNRESOLVED_CONSEQUENCE_ATTRIBUTION')
             if terminal=='safe' and end is not None and start is not None and end<start:
                 reasons.append('UNSUPPORTED_PROGRESS_BOUNDARY')
             participants.append(dict(participant=runner,start=start,end=end,terminal=terminal,
-                creditProgress=credit and not excluded,creditOut=credit and terminal=='out',attributed=credit))
+                creditProgress=credit and not excluded,creditedDistance=distance,
+                creditOut=credit and terminal=='out',attributed=credit))
         # The accepted excluded-result policy fixes batting progress at zero.
         # With an admitted complete no-out census, destruction and erosion are
         # also zero, regardless of who caused the safe advances. Their actual
@@ -3198,7 +3240,7 @@ def contribution_players(metric_id, inputs, *, qualification, date_scope):
             elif metric_id=='rally-kill-severity':value=fraction(pa['existingDestruction'])
             elif metric_id in {'offensive-reach','hidden-help-rate'}:
                 positive={p['participant'] for p in pa['participants']
-                    if p['creditProgress'] and p['terminal'] in {'safe','scored'} and p['end']>p['start']}
+                    if p['creditProgress'] and p['terminal'] in {'safe','scored'} and p.get('creditedDistance',p['end']-p['start'])>0}
                 if metric_id=='offensive-reach':value=Fraction(len(positive))
                 else:
                     # Hidden Help's denominator is PAs with no self progress.

@@ -171,10 +171,10 @@ subsequent publication.
   checks against unchanged RDF. This source-census result is not yet a measured
   dashboard population gain.
 
-A2's numerical error-step allocation awaits the explicit
+A2's numerical error-step allocation is implemented under the accepted
 [M1 decision](../archive/design-records/metric-error-step-credit/README.md). A4 remains an
 operating constraint. [P1's overlapping pitch intervals](../archive/design-records/metric-count-overlapping-intervals/README.md)
-also await a named decision. Defense, review populations and remaining history/count
+are implemented in the count census and Recovery reader. Defense, review populations and remaining history/count
 coverage still have independent work. The detailed probes below are the dated
 audit findings that motivated these changes, not a claim that fixed defects
 remain in the current implementation.
@@ -215,14 +215,13 @@ of the SQL reader:
   does not authorize using an inverted interval.
 
 These examples identify generic ownership and evidence boundaries, not a new
-game-by-game repair queue. The pending F9/M1/P1 decisions do not by themselves
+game-by-game repair queue. The implemented F9/M1/P1 decisions do not by themselves
 certify all nineteen populations. Defensive act/agent completeness and review
 mechanism/eligible-decision populations remain separate as described below.
 
 1. **Count repairs help materially, but do not finish the two-strike population.**
-   [F9](../archive/design-records/mlb-game-counted-foul-edge-completion/README.md) remains an
-   under-review, unimplemented selection package for five strikes in four
-   games. It is not included in the implemented-fix total. Separately,
+   [F9](../archive/design-records/mlb-game-counted-foul-edge-completion/README.md) is accepted and implemented for five strikes in four
+   games. Five retained-input selector checks pass; NiFi owns additive promotion. Separately,
    the earlier `RECOVERY_BATTER_ASSIGNMENT` defect has been corrected by
    consuming EG4 official credit. None of this requires redoing successful F4-F8.
 2. **Defensive mapping and complete defensive statistics are separate.** D1

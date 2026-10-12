@@ -277,6 +277,11 @@ class ProgressPlayers(unittest.TestCase):
 
     def test_known_running_positive_survives_only_a_complete_all_safe_path(self):
         rows=M.normalize_bindings(bindings(continuation_fixture(),[G1]),[G1])
+        # Isolate the running/unknown path: the shared fixture also includes
+        # player 3 scoring on known contact, which independently credits P1.
+        third='https://baseballontology.org/data/player/3'
+        rows=[r for r in rows if not (r['kind']=='runner_history' and r.get('player')==third
+              or r['kind']=='runner_movement' and r.get('runner')==third)]
         pa=str(GAME)+'/plate-appearance/0'
         for known in ('first-second','second-third'):
             for change in ('none','out','missing_member','branch','conflicting_end','no_known_positive'):

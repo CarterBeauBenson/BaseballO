@@ -71,11 +71,11 @@ def kernels():
     def add(id, columns, identity, projection, body='', group='GROUP BY ?key', **kw):
         result[id] = dict(inputColumns=columns.split(), rowIdentity=identity.split(),
                           source=query(columns.split(), projection, body, group, **kw))
-    add('tfs', 'key participant start end terminal creditProgress creditOut outsBefore attributedOuts', 'key participant',
+    add('tfs', 'key participant start end terminal creditProgress creditedDistance creditOut outsBefore attributedOuts', 'key participant',
         '?key (SUM(?p36) AS ?progress) (SUM(?d36) AS ?destruction) (SUM(?e36) AS ?erosion) '
         '(SUM(?p36-?d36-?e36) AS ?numerator) (36 AS ?denominator)',
-        '''  BIND(IF((?terminal="safe" || ?terminal="scored") && ?creditProgress && ?end>?start,
-    xsd:integer(36*(?end-?start)/(4-?start)),0) AS ?p36)
+        '''  BIND(IF((?terminal="safe" || ?terminal="scored") && ?creditProgress && ?creditedDistance>0,
+    xsd:integer(36*?creditedDistance/(4-?start)),0) AS ?p36)
   BIND(IF(?terminal="out" && ?creditOut,xsd:integer(36/(4-?start)),0) AS ?d36)
   BIND(IF(?terminal="safe" || ?terminal="stranded",
     xsd:integer(36*?attributedOuts/((4-?end)*(3-?outsBefore))),0) AS ?e36)''')

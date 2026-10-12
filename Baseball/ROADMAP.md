@@ -269,8 +269,7 @@ Record these outcomes in the existing [readiness document](serving/METRIC-READIN
 Until then, milestone 1 remains open and is the next primary task on continuation.
 
 The four counted-foul exceptions (823013, 823804, 824118 and 824744) have a prepared
-[F9 repair](archive/design-records/mlb-game-counted-foul-edge-completion/README.md) awaiting named
-approval. They belong to the later count-history milestone; neither that review
+[F9 repair](archive/design-records/mlb-game-counted-foul-edge-completion/README.md) accepted and implemented on October 12. NiFi owns their targeted additions. They belong to the later count-history milestone; neither that review
 nor the unfinished review metrics should hold this Empty Games plan open.
 
 Already completed source work stays completed: the 849823/849825 replays,
@@ -535,7 +534,7 @@ missing strikes in four games. The existing NiFi counted-foul owner retries
 failed selections under the new context and uses the four exact retained
 witnesses without reacquisition. Compatible successful evidence keeps its
 original producer. Promotion and dashboard publication remain NiFi work.
-M1 and P1 implementation follows in the same work session.
+M1 and P1 are implemented as described below.
 
 P1 is implemented in count admission and Recovery calculation. Strictly
 increasing starts and ends admit the retained 822755/11 overlap; equal starts,
@@ -543,3 +542,15 @@ equal ends, nested intervals and inverted intervals remain withheld. Twelve
 count tests and two provenance tests pass. Prior successful counts retain their
 producer only when their retained endpoints satisfy P1. NiFi refreshes affected
 negative evidence from existing RDF and retained inputs.
+
+M1 separates credited forward distance from physical final position in the
+existing TFS SPARQL kernel. Error-only steps add no positive credit to numeric
+progress, Reach, Help, Contribution Mix or Run Contributors. Terminal outs still
+remove prior progress; actual end states still determine erosion. Scoring
+History Length keeps error segments. Five focused M1 cases and the existing
+contribution/arithmetic regressions pass. The progress suite exposed a stale
+fixture that included an unrelated known contact run while asserting no batter
+credit; isolating its intended running-only case resolves that test without
+changing accepted behavior. Two retained SQL cases (822945/61 and 824744/58)
+correctly yield zero Reach and no positive channel from their error-only steps.
+NiFi rebuilds the affected derived families.

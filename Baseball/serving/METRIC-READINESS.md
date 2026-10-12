@@ -441,8 +441,8 @@ At 18:50 UTC, NiFi build `20261008T184417Z-dashboard-190f433e6f77` had reached
 input refresh. The live pointer still identified the October 6 publication
 below. The four recorded counted-foul exceptions (823013, 823804, 824118,
 824744) now have a prepared [F9 selector repair](../archive/design-records/mlb-game-counted-foul-edge-completion/README.md)
-awaiting named approval. Five retained-case checks pass; the active mapping is
-unchanged while review is pending.
+accepted and implemented October 12. Five retained-case checks pass; NiFi
+uses those exact retained witnesses for additive repair without reacquisition.
 
 The per-PA resolution reader now limits Q6's null inning total and incomplete
 play diagnostics to their exact source locations when a hash-matching retained
@@ -1580,3 +1580,16 @@ change justifies reacquisition or RML execution. Use the
 [minimal-check policy](../../AGENTS.md#incremental-work-and-minimal-manual-validation),
 [implementation guide](METRIC-SUITE-IMPLEMENTATION.md) and [roadmap](../ROADMAP.md).
 NiFi's asynchronous Repository Evidence observer is separate from product readiness.
+
+### October 12: approved F9, P1 and M1 implementations
+
+The counted-foul selectors now cover the five F9 strikes in four retained games.
+P1 permits strictly increasing pitch starts and ends despite interval overlap;
+the retained 822755/11 count now reconciles. Tied/nested/inverted intervals remain
+unsupported. M1 now removes error-only distance from positive offensive credit
+while preserving actual end-state erosion and physical scoring histories.
+These are implemented fixes, not certification of complete serving populations.
+NiFi owns the affected graph additions, evidence refresh and derived builds.
+The offense build observed at 21:36 UTC had processed all 2,455 games and entered
+publication; the published pointer still identified the prior 650/662 result
+at that inspection. No population gain is inferred from a passing test.
