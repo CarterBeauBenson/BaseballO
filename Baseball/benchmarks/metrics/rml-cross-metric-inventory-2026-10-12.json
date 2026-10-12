@@ -1,0 +1,555 @@
+{
+  "artifactType": "baseballo-full-rml-metric-reuse-inventory",
+  "capturedAtUtc": "2026-10-12T13:33:02.729097+00:00",
+  "auditCommit": "1ccaa23d7855b8bb77ecb24fcac41ca76bc0a62c",
+  "purpose": "Static current RML inventory and read-only counts from previously captured immutable publications; not a validation or repair execution.",
+  "modules": [
+    {
+      "module": "mlb-game",
+      "path": "sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "mappingSha256": "b86d60ac423bd023ec39f89c839b4c882479b3c3016924fdbf4ad2fd754b765e",
+      "triplesMaps": 417,
+      "logicalSources": 126,
+      "assertedClasses": 165
+    },
+    {
+      "module": "mlb-teams",
+      "path": "sources/mlb-teams/mapping/mlb-teams.rml.ttl",
+      "mappingSha256": "ad3fd9633e37b3aa1c2b54e2a64b0680bb2b916e41a8549d2bd524bbf1817691",
+      "triplesMaps": 10,
+      "logicalSources": 4,
+      "assertedClasses": 6
+    },
+    {
+      "module": "mlb-leagues",
+      "path": "sources/mlb-leagues/mapping/mlb-leagues.rml.ttl",
+      "mappingSha256": "29447c7e421525b0267c22e7e72e560a1905ac35af841b595f0b2c5e1cc78385",
+      "triplesMaps": 21,
+      "logicalSources": 6,
+      "assertedClasses": 10
+    },
+    {
+      "module": "mlb-divisions",
+      "path": "sources/mlb-divisions/mapping/mlb-divisions.rml.ttl",
+      "mappingSha256": "2d9053c4a5a62cb63d226ab857fba46d4d697a7d274cf09c28d800128c22a03e",
+      "triplesMaps": 8,
+      "logicalSources": 3,
+      "assertedClasses": 5
+    },
+    {
+      "module": "mlb-people",
+      "path": "sources/mlb-people/mapping/mlb-people.rml.ttl",
+      "mappingSha256": "2fb2572bff87aa32be0fe9ee9bdd4694378f167046779144b76ba57678c0e769",
+      "triplesMaps": 45,
+      "logicalSources": 17,
+      "assertedClasses": 21
+    },
+    {
+      "module": "mlb-venues",
+      "path": "sources/mlb-venues/mapping/mlb-venues.rml.ttl",
+      "mappingSha256": "4ff3df938c8abe2b3160ba37c03824b19920b5735223f329377625b889a083d2",
+      "triplesMaps": 34,
+      "logicalSources": 8,
+      "assertedClasses": 18
+    },
+    {
+      "module": "mlb-transactions",
+      "path": "sources/mlb-transactions/mapping/mlb-transactions.rml.ttl",
+      "mappingSha256": "9237077df693b638eccd1099b9b71ddf47517cd23d64f437d0e0833cda0e164a",
+      "triplesMaps": 30,
+      "logicalSources": 11,
+      "assertedClasses": 13
+    }
+  ],
+  "totalTripleMaps": 565,
+  "totalLogicalSources": 175,
+  "gameReviewManifest": {
+    "patterns": 73,
+    "listedMaps": 426,
+    "uniqueListedMaps": 417,
+    "unlistedMaps": [],
+    "unknownListedMaps": []
+  },
+  "acceptedGameReviewRecords": [
+    {
+      "path": "archive/design-records/mlb-game-actual-pitcher-participation/review.json",
+      "status": "accepted",
+      "title": "P1 actual pitching participation across a PA replacement"
+    },
+    {
+      "path": "archive/design-records/mlb-game-approved-contract-implementation-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game approved contract implementation"
+    },
+    {
+      "path": "archive/design-records/mlb-game-automatic-ball-walk-award/review.json",
+      "status": "accepted",
+      "title": "W4 automatic fourth-ball walk award completion"
+    },
+    {
+      "path": "archive/design-records/mlb-game-balk-runner-attribution/review.json",
+      "status": "accepted",
+      "title": "BK1 separately recorded balk runner attribution"
+    },
+    {
+      "path": "archive/design-records/mlb-game-baserunning-origin/review.json",
+      "status": "accepted",
+      "title": "Origin Base of the particular Baserunning Act"
+    },
+    {
+      "path": "archive/design-records/mlb-game-batted-runner-resolution-containment/review.json",
+      "status": "accepted",
+      "title": "A1: supported runner resolutions as occurrent parts of their batted-ball play"
+    },
+    {
+      "path": "archive/design-records/mlb-game-classification-and-geometry-implementation-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game classification and geometry implementation authorization"
+    },
+    {
+      "path": "archive/design-records/mlb-game-classification-state-phase-decisions-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game classification, state, and season-phase decisions"
+    },
+    {
+      "path": "archive/design-records/mlb-game-clock-conflict-isolation/review.json",
+      "status": "accepted",
+      "title": "T1: isolate contradictory source clocks without inventing timing"
+    },
+    {
+      "path": "archive/design-records/mlb-game-counted-foul-completion/review.json",
+      "status": "accepted",
+      "title": "M3 reconciled counted-foul prefixes and M4 counted foul bunts"
+    },
+    {
+      "path": "archive/design-records/mlb-game-counted-foul-prefix-repair/review.json",
+      "status": "accepted",
+      "title": "F4 counted-foul prefix repair and scoped context pin"
+    },
+    {
+      "path": "archive/design-records/mlb-game-current-contract-acceptance-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game current contract acceptance"
+    },
+    {
+      "path": "archive/design-records/mlb-game-defensive-acts/review.json",
+      "status": "accepted",
+      "title": "D1 defensive-act source projection and particular identity"
+    },
+    {
+      "path": "archive/design-records/mlb-game-defensive-indifference-running/review.json",
+      "status": "accepted",
+      "title": "D2 actual independent running under defensive indifference"
+    },
+    {
+      "path": "archive/design-records/mlb-game-edge-case-recovery/review.json",
+      "status": "accepted",
+      "title": "MLB-game official, review, incomplete plate-appearance, and delay edge cases"
+    },
+    {
+      "path": "archive/design-records/mlb-game-empty-game-completion/review.json",
+      "status": "accepted",
+      "title": "EG1 bounded existing-pattern completion for Empty Games"
+    },
+    {
+      "path": "archive/design-records/mlb-game-empty-game-final-boundaries/review.json",
+      "status": "accepted",
+      "title": "EG6: remaining Empty Games attribution and selection boundaries"
+    },
+    {
+      "path": "archive/design-records/mlb-game-empty-game-remaining-selections/review.json",
+      "status": "accepted",
+      "title": "EG2 remaining contact, strikeout, HBP and disengagement selections"
+    },
+    {
+      "path": "archive/design-records/mlb-game-error-count-prefix/review.json",
+      "status": "accepted",
+      "title": "F6 counted foul after a reconciled independent error advance"
+    },
+    {
+      "path": "archive/design-records/mlb-game-final-award-selection/review.json",
+      "status": "accepted",
+      "title": "W3 final walk and hit-by-pitch award selection"
+    },
+    {
+      "path": "archive/design-records/mlb-game-foul-defense-selection-repair/review.json",
+      "status": "accepted",
+      "title": "F5/D2 recorded foul and defensive selection repair with scoped context pin"
+    },
+    {
+      "path": "archive/design-records/mlb-game-foul-substitution-review-completion/review.json",
+      "status": "accepted",
+      "title": "F8 counted-foul substitution and paired-review selection"
+    },
+    {
+      "path": "archive/design-records/mlb-game-measurement-classification-lifecycle-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game measurement, classification, and lifecycle decisions"
+    },
+    {
+      "path": "archive/design-records/mlb-game-metric-mapping-completion/review.json",
+      "status": "accepted",
+      "title": "M1 counted-foul coverage and M2 affirmed pitch-review mapping"
+    },
+    {
+      "path": "archive/design-records/mlb-game-official-pa-credit/review.json",
+      "status": "accepted",
+      "title": "EG4 distinct official PA scoring-credit decisions"
+    },
+    {
+      "path": "archive/design-records/mlb-game-pitch-ball-control-evidence-boundary/review.json",
+      "status": "accepted",
+      "title": "MLB-game pitch-ball-control evidence-boundary correction"
+    },
+    {
+      "path": "archive/design-records/mlb-game-placement-replacement-overlap/review.json",
+      "status": "accepted",
+      "title": "O1 targeted placement/replacement overlap repair"
+    },
+    {
+      "path": "archive/design-records/mlb-game-postponement/review.json",
+      "status": "accepted",
+      "title": "MLB-game postponement and schedule revision"
+    },
+    {
+      "path": "archive/design-records/mlb-game-prepitch-batter-chain/review.json",
+      "status": "accepted",
+      "title": "F7 counted foul after a pre-pitch batter replacement chain"
+    },
+    {
+      "path": "archive/design-records/mlb-game-quarantine-boundaries/review.json",
+      "status": "accepted",
+      "title": "Q5/Q6: initial pinch hitters and incomplete source censuses"
+    },
+    {
+      "path": "archive/design-records/mlb-game-query-catalog-expansion-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game query catalog expansion"
+    },
+    {
+      "path": "archive/design-records/mlb-game-query-index-contract-extension-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game query-index contract extension"
+    },
+    {
+      "path": "archive/design-records/mlb-game-resolution-award-links/review.json",
+      "status": "accepted",
+      "title": "Runner identity, adjudicated base and completion of walk/HBP awards"
+    },
+    {
+      "path": "archive/design-records/mlb-game-runner-boundary-anchors/review.json",
+      "status": "accepted",
+      "title": "C3 stable runner-history action, replacement and placement boundaries"
+    },
+    {
+      "path": "archive/design-records/mlb-game-runner-pattern-completion/review.json",
+      "status": "accepted",
+      "title": "R1 additive completion of existing runner patterns in 26 games"
+    },
+    {
+      "path": "archive/design-records/mlb-game-runner-review-completion/review.json",
+      "status": "accepted",
+      "title": "H4 completed runner reviews and C3 catcher-pickoff selection"
+    },
+    {
+      "path": "archive/design-records/mlb-game-secondary-error-attribution/review.json",
+      "status": "accepted",
+      "title": "EG5 separate secondary errors and supported scoring credit"
+    },
+    {
+      "path": "archive/design-records/mlb-game-semantic-consumer-migration-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game semantic consumer migration"
+    },
+    {
+      "path": "archive/design-records/mlb-game-semantic-corrections-2026-08-31/review.json",
+      "status": "accepted",
+      "title": "MLB-game semantic corrections and measurement refinements"
+    },
+    {
+      "path": "archive/design-records/mlb-game-strikeout-double-play/review.json",
+      "status": "accepted",
+      "title": "K1 existing compound double-play result for five strikeout double plays"
+    },
+    {
+      "path": "archive/design-records/mlb-game-w1-award-dependencies/review.json",
+      "status": "accepted",
+      "title": "W2 existing dependencies for selected W1 awards"
+    },
+    {
+      "path": "archive/design-records/mlb-game-walk-after-reconciled-review/review.json",
+      "status": "accepted",
+      "title": "W5 walk awards after independently reconciled reviews"
+    },
+    {
+      "path": "archive/design-records/mlb-game-zero-episode-history-isolation/review.json",
+      "status": "accepted",
+      "title": "Q7: isolate zero-episode runner-history withholding"
+    },
+    {
+      "path": "archive/design-records/mlb-game-zero-pitch-walk-prefix/review.json",
+      "status": "accepted",
+      "title": "W1 zero-pitch intentional walks after a reconciled count-neutral prefix"
+    }
+  ],
+  "publishedAdmissionBaseline": {
+    "metric_suite_admission": {
+      "family": "offense",
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "admitted",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 2289
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": true,
+          "graphConforms": false,
+          "games": 52
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": null,
+          "graphConforms": null,
+          "games": 67
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": false,
+          "games": 21
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "B1_PROOF_MISSING_OR_STALE": 67,
+        "SOURCE_GRAPH_CONFORMANCE": 52,
+        "UNRESOLVED_COMPLETED_RESULT": 14,
+        "OFFENSIVE_REPLACEMENT_WITHIN_TURN": 7,
+        "PLAYER_PA_MISMATCH": 5,
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "INCOMPLETE_SOURCE_PLAY": 1
+      }
+    },
+    "metric_suite_count_admission": {
+      "family": "offense",
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "admitted",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 1741
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": null,
+          "graphConforms": null,
+          "games": 240
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": false,
+          "games": 327
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": true,
+          "graphConforms": false,
+          "games": 121
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "PITCH_COUNT_PROOF_MISSING_OR_STALE": 240,
+        "UNSUPPORTED_PA_TERMINATION": 162,
+        "UNSUPPORTED_PITCH_ORDER": 127,
+        "PITCH_COUNT_MAPPING_COVERAGE": 121,
+        "UNMAPPED_NONPITCH_COUNT_EVENT": 102,
+        "UNEXPLAINED_STRIKE_TRANSITION": 40,
+        "UNACCOUNTED_PITCH_CALL": 30,
+        "UNKNOWN_OFFICIAL_PA_RESULT": 25,
+        "EMPTY_COUNT_HISTORY": 13,
+        "UNSUPPORTED_AWARD_ORDER": 5,
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "INCOMPLETE_SOURCE_PLAY": 1
+      }
+    },
+    "metric_suite_runner_resolution_admission": {
+      "family": "offense",
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "admitted",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 2426
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": false,
+          "games": 3
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "INCOMPLETE_SOURCE_PLAY": 1,
+        "UNRESOLVED_RUNNER_BOUNDARY": 1
+      }
+    },
+    "metric_suite_boundary_admission": {
+      "family": "offense",
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "admitted",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 1242
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": null,
+          "graphConforms": null,
+          "games": 227
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": false,
+          "games": 936
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": true,
+          "graphConforms": false,
+          "games": 24
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "UNSUPPORTED_PA_START_BOUNDARY": 773,
+        "C3_ADMINISTRATIVE_BASE_BOUNDARY": 670,
+        "INCOMPLETE_PERSONAL_HISTORIES": 441,
+        "RUNNER_BOUNDARY_PROOF_MISSING_OR_STALE": 227,
+        "ZERO_EPISODE_PERSONAL_HISTORY": 214,
+        "AMBIGUOUS_PA_TIME_ORDER": 177,
+        "UNRESOLVED_REVIEW_EFFECT": 155,
+        "UNRESOLVED_NONAWARD_MOVEMENT": 138,
+        "INCOMPLETE_AWARD_ATTRIBUTION": 133,
+        "UNSUPPORTED_EVENT_TIME_ORDER": 55,
+        "SOURCE_GRAPH_CONFORMANCE": 24,
+        "UNSUPPORTED_EVENT_EFFECT:game_advisory": 22,
+        "UNSUPPORTED_EVENT_EFFECT:ejection": 19,
+        "UNSUPPORTED_EVENT_EFFECT:pickoff_caught_stealing_2b": 15,
+        "MISSING_STABLE_MOVEMENT_ANCHOR": 10,
+        "POST_BASE_RECONCILIATION_FAILED": 10,
+        "UNSUPPORTED_THIRD_OUT_ANCHOR": 9,
+        "UNSUPPORTED_RUNNER_ENTRY": 9,
+        "UNSUPPORTED_C3_ADMINISTRATIVE_BOUNDARY": 7,
+        "UNSUPPORTED_EVENT_EFFECT:other_out": 7,
+        "UNSUPPORTED_EVENT_EFFECT:error": 7,
+        "UNSUPPORTED_EVENT_EFFECT:offensive_substitution": 6,
+        "UNSUPPORTED_HALF_TERMINATION": 6,
+        "UNSUPPORTED_EVENT_EFFECT:forced_balk": 5,
+        "DISTINCT_OUT_RECONCILIATION_FAILED": 5,
+        "POST_PA_OUT_COUNT_MISMATCH": 5,
+        "PRE_EVENT_OUT_COUNT_MISMATCH": 5,
+        "UNSUPPORTED_EVENT_EFFECT:pickoff_caught_stealing_3b": 4,
+        "UNSUPPORTED_EVENT_EFFECT:runner_placed": 4,
+        "CONFLICTING_BASE_OCCUPANCY": 3,
+        "UNSUPPORTED_EVENT_EFFECT:umpire_substitution": 3,
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "AMBIGUOUS_RUNNER_SEGMENT_CHAIN": 2,
+        "UNSUPPORTED_EVENT_EFFECT:injury": 2,
+        "UNSUPPORTED_RUNNER_EPISODE": 2,
+        "UNSUPPORTED_EVENT_EFFECT:pickoff_caught_stealing_home": 1,
+        "UNSUPPORTED_PA_CLOCK_PAIR": 1,
+        "POST_ACTION_OUT_COUNT_MISMATCH": 1,
+        "INCOMPLETE_SOURCE_PLAY": 1,
+        "UNSUPPORTED_EVENT_EFFECT:other_advance": 1
+      }
+    },
+    "metric_suite_run_admission": {
+      "family": "offense",
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "admitted",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 2427
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": false,
+          "games": 2
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "INCOMPLETE_SOURCE_PLAY": 1
+      }
+    },
+    "metric_suite_defensive_admission": {
+      "family": "defense",
+      "buildId": "20261012T122040Z-dashboard-defense-fae3b4de",
+      "games": 2429,
+      "outcomes": [
+        {
+          "status": "withheld",
+          "sourceReconciled": true,
+          "graphConforms": true,
+          "games": 1194
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": null,
+          "graphConforms": null,
+          "games": 669
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": true,
+          "graphConforms": false,
+          "games": 564
+        },
+        {
+          "status": "withheld",
+          "sourceReconciled": false,
+          "graphConforms": true,
+          "games": 2
+        }
+      ],
+      "recordedIssueGameCounts": {
+        "INCOMPLETE_DEFENSIVE_POPULATION": 1760,
+        "DEFENSIVE_PROOF_MISSING_OR_STALE": 669,
+        "SOURCE_GRAPH_CONFORMANCE": 564,
+        "INNING_RUN_TOTAL_MISMATCH": 2,
+        "SOURCE_RECONCILIATION": 2,
+        "INCOMPLETE_SOURCE_PLAY": 1
+      },
+      "selectedActsInGraphConformingGames": 61911,
+      "completePlaysInGraphConformingGames": 20745,
+      "contactPlaysInGraphConformingGames": 130393
+    }
+  },
+  "limitations": [
+    "Counts describe whole-game admissions retained by these pre-EG6 SQL publications, not fresh validations or current repair queue sizes.",
+    "Individual PA/player evidence may support additional results without a whole-game admission.",
+    "Issue code game counts overlap. Missing admission fields do not establish missing source data.",
+    "Map and manifest inventory establishes scope, not semantic or runtime completeness."
+  ]
+}

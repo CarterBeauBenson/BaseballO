@@ -44,12 +44,13 @@ publication measurements. [The gap register](sparql/metrics/gap-register.json),
 accepted decisions, and the presentation/qualification contracts retain the
 metric meanings. This update changes the plan, not runtime behavior or semantics.
 
-The [October 12 cross-metric audit](serving/EMPTY-GAMES-CROSS-METRIC-AUDIT.md)
-adds concrete follow-up findings A1-A5. Correct the final Empty Games
-error-credit integration first, then share physical evidence and actual actor
-handling across the applicable readers. Preserve each metric's attribution and
-completeness requirements. This does not change source authorization or make
-Empty Games' repair inventory the inventory for every other metric.
+The [October 12 full RML cross-metric audit](serving/RML-CROSS-METRIC-AUDIT.md)
+covers all 565 triple maps, seven source modules and nineteen metrics. It adds
+count-history, defensive, review and admission handoff findings alongside the
+Empty Games findings A1-A5. Correct the final Empty Games error-credit
+integration first, then consume shared repaired facts with each metric's own
+attribution and completeness requirements. This does not change source
+authorization or make the Empty Games inventory the inventory for every metric.
 
 ### Starting point and finish line
 
