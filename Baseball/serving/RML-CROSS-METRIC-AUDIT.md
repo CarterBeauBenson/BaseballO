@@ -190,6 +190,15 @@ of the SQL reader:
   K1 reader correctly normalizes to Double Play. The recorded follow-up in
   `sources/mlb-game/pipeline/compound-repair-candidates.json` now submits this
   same existing K1 pattern under the September 30 standing narrow-repair scope.
+  A follow-through over existing failed player admissions and their retained
+  source censuses identifies **90 affected turns in 87 games**, including three
+  games with two turns. All ninety retained query results show the generic
+  institutional type without the compound type. The inventory records their
+  exact source and promotion witnesses. The existing worker now handles every
+  named turn within a game, keeps their SHACL targets separate and records the
+  completed selection. It copies available retained input before considering
+  acquisition, and retires only its own transient copy after matching successful
+  promotion. Older successful narrow jobs cannot hide a different later scope.
   NiFi must reconcile the targeted response and the two existing out patterns
   before adding missing triples. No mapping changes or new decision are needed.
   A different known positive can already

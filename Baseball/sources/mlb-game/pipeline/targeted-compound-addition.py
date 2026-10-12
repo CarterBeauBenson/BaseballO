@@ -21,7 +21,22 @@ C=W.C.CONTEXT
 
 def cases():
     recorded=W.read(FOLLOWUP)
-    return dict(CASES,**{r['gamePk']:(r['atBatIndex'],r['batterId']) for r in recorded['cases']})
+    selected={pk:[value] for pk,value in CASES.items()}
+    for row in recorded['cases']:
+        value=(row['atBatIndex'],row['batterId'])
+        members=selected.setdefault(row['gamePk'],[])
+        if value not in members:members.append(value)
+    return {pk:sorted(values) for pk,values in selected.items()}
+
+
+def completed(previous,game_pk):
+    if previous.get('status') not in SUCCESS:return False
+    expected=[list(value) for value in cases()[game_pk]]
+    if previous.get('selectedTurns') is not None:return previous['selectedTurns']==expected
+    # These exact single-turn jobs predate the multi-turn receipt. Preserve
+    # their successful result, without letting it hide a later distinct scope.
+    legacy=dict(CASES,**{'824385':(35,701678)})
+    return game_pk in legacy and expected==[list(legacy[game_pk])]
 
 
 def decisions(game_pk):
@@ -41,15 +56,18 @@ def select(raw,game_pk):
     if str(doc.get('gamePk'))!=game_pk:raise ValueError('K1 response game differs')
     source=W.C.B.SOURCE.reconcile(raw,game_pk)
     if source['blockingIssues']:raise ValueError('K1 source membership is not reconciled')
-    pa,batter=cases()[game_pk]
-    plays=[p for p in doc['liveData']['plays']['allPlays'] if p['atBatIndex']==pa]
-    if len(plays)!=1 or plays[0]['matchup']['batter']['id']!=batter:
-        raise ValueError('K1 selected participant or PA changed')
-    parts=C.compound_double_play_parts(plays[0])
-    if len(parts)!=2:raise ValueError('K1 selected compound play is unsupported')
     game='https://baseballontology.org/data/game/'+game_pk
-    return dict(gamePk=game_pk,pa=game+'/plate-appearance/'+str(pa),
-        result=game+'/plate-appearance/'+str(pa)+'/result',parts=parts,
+    selections=[]
+    for pa,batter in cases()[game_pk]:
+        plays=[p for p in doc['liveData']['plays']['allPlays'] if p['atBatIndex']==pa]
+        if len(plays)!=1 or plays[0]['matchup']['batter']['id']!=batter:
+            raise ValueError('K1 selected participant or PA changed')
+        parts=C.compound_double_play_parts(plays[0])
+        if len(parts)!=2:raise ValueError('K1 selected compound play is unsupported: '+str(pa))
+        selections.append(dict(pa=game+'/plate-appearance/'+str(pa),
+            result=game+'/plate-appearance/'+str(pa)+'/result',parts=parts))
+    return dict(gamePk=game_pk,plateAppearances=selections,
+        parts=[part for selection in selections for part in selection['parts']],
         sourceSha256=hashlib.sha256(raw).hexdigest())
 
 
@@ -59,6 +77,10 @@ def execution_inputs(raw,game_pk,selected,context,mapping):
 
 
 def shapes(game_pk,selected):
+    if 'plateAppearances' in selected:
+        return '\n'.join(shapes(game_pk,entry).replace('<urn:baseballo:compound-result-addition>',
+            '<urn:baseballo:compound-result-addition/'+entry['pa'].rsplit('/',1)[-1]+'>')
+            for entry in selected['plateAppearances'])
     text=SHAPE.read_text(encoding='utf-8')
     for key in ('pa','result'):text=text.replace('__'+key.upper()+'__',selected[key])
     values=[]
@@ -74,6 +96,35 @@ def revalidate(marker,manifest,rdf,evidence,java,classpath,selected,game_pk,delt
         shape_text=shapes,decisions=decisions(game_pk))
 
 
+def input_directory(state,game_pk):
+    scope=hashlib.sha256(json.dumps(cases()[game_pk]).encode()).hexdigest()[:16]
+    return state/'pipeline/quarantine/mlb-game'/game_pk/('targeted-k1-'+scope)
+
+
+def needs_retirement(state,result):
+    if not result.get('promotionEvidence') or result.get('rawRetiredAfterPromotion'):return False
+    return Path(result.get('sourceWitness',{}).get('path','')).resolve()==(input_directory(state,result['gamePk'])/'input.json').resolve()
+
+
+def retire_input(state,result):
+    if not needs_retirement(state,result):return result
+    witness=result['sourceWitness'];source=input_directory(state,result['gamePk'])/'input.json'
+    promoted=Path(result['promotionEvidence']);marker=W.read(promoted)
+    if str(marker.get('gamePk'))!=result['gamePk'] or marker.get('targetedAddition',{}).get('sourceWitness')!=witness:
+        raise ValueError('Compound input retirement differs from its promotion')
+    path=source.with_name('retirement.json')
+    identity=dict(sourceSha256=witness['sha256'],promotionEvidence=str(promoted),promotionManifestSha256=W.sha(promoted))
+    if path.is_file():
+        if any(W.read(path).get(k)!=v for k,v in identity.items()):raise ValueError('Compound retirement evidence changed')
+    elif not source.is_file():raise ValueError('Compound input vanished before retirement')
+    W.atomic(path,dict(identity,rawRetiredAfterPromotion=False))
+    if source.is_file():
+        if W.sha(source)!=witness['sha256']:raise ValueError('Compound retirement input changed')
+        source.unlink()  # The exact owned file above, never the retained source copy.
+    W.atomic(path,dict(identity,rawRetiredAfterPromotion=True,retiredAtUtc=W.TX.now()))
+    return dict(result,rawRetiredAfterPromotion=True)
+
+
 def acquire(state,game_pk):
     """The existing game endpoint, bounded to the accepted repair manifest.
 
@@ -81,16 +132,27 @@ def acquire(state,game_pk):
     An acquired witness is never relabeled as the original promotion source.
     """
     approved(game_pk)
-    directory=state/'pipeline/quarantine/mlb-game'/game_pk/'targeted-k1'
+    directory=input_directory(state,game_pk)
     manifest=directory/'acquisition.json';source=directory/'input.json'
     if manifest.is_file():
         witness=W.read(manifest)
         if not source.is_file() or W.sha(source)!=witness['sha256']:
             raise ValueError('K1 retained acquisition changed')
         return witness
-    url=f'https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live'
-    request=urllib.request.Request(url,headers={'Accept':'application/json'})
-    with urllib.request.urlopen(request,timeout=60) as response:raw=response.read()
+    retained=None;url=f'https://statsapi.mlb.com/api/v1.1/game/{game_pk}/feed/live'
+    if source.is_file():
+        raw=source.read_bytes()  # Resume an interrupted copy/acquisition.
+        retained=dict(path=str(source),sha256=W.sha(source))
+    else:
+        candidates=sorted((state/'pipeline/quarantine/mlb-game'/game_pk).glob('*/input.json'))
+        candidates.extend(sorted((ROOT/'data/raw/samples').rglob(game_pk+'.json')))
+        original={r['originalSourceSha256'] for r in W.read(FOLLOWUP)['cases'] if r['gamePk']==game_pk}
+        candidates.sort(key=lambda p:(W.sha(p) not in original,str(p)))
+        if candidates:
+            raw=candidates[0].read_bytes();retained=dict(path=str(candidates[0]),sha256=hashlib.sha256(raw).hexdigest())
+        else:
+            request=urllib.request.Request(url,headers={'Accept':'application/json'})
+            with urllib.request.urlopen(request,timeout=60) as response:raw=response.read()
     doc=json.loads(raw)
     if str(doc.get('gamePk'))!=game_pk:raise ValueError('Acquired source identity differs')
     directory.mkdir(parents=True,exist_ok=True)
@@ -100,8 +162,9 @@ def acquire(state,game_pk):
         if source.read_bytes()!=raw:raise ValueError('K1 interrupted acquisition retained different source bytes')
     else:
         temporary=directory/'input.pending';temporary.write_bytes(raw);temporary.replace(source)
-    witness=dict(kind='targeted-reacquisition',path=str(source),sha256=W.sha(source),
+    witness=dict(kind='retained-response-copy' if retained else 'targeted-reacquisition',path=str(source),sha256=W.sha(source),
         url=url,gamePk=game_pk,**decisions(game_pk),acquiredAtUtc=W.TX.now())
+    if retained:witness['retainedSource']=retained
     if game_pk not in CASES:witness['repairManifestSha256']=W.sha(FOLLOWUP)
     W.atomic(manifest,witness);return witness
 
@@ -118,7 +181,9 @@ def next_game(state):
         approved(game_pk)
         path=state/'pipeline/control/mlb-game/compound-addition'/(game_pk+'.json')
         previous=W.read(path) if path.is_file() else {}
-        if previous.get('status') in SUCCESS:continue
+        if completed(previous,game_pk):
+            if needs_retirement(state,previous):return game_pk
+            continue
         if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:
             if number==0:return None
             continue
@@ -131,18 +196,23 @@ def tick(state,game_pk,java,mapper,classpath):
     approved(game_pk)
     control=state/'pipeline/control/mlb-game/compound-addition'/(game_pk+'.json')
     previous=W.read(control) if control.is_file() else {};version=fingerprint()
-    if previous.get('status') in SUCCESS:return previous
+    if completed(previous,game_pk):
+        result=retire_input(state,previous);W.atomic(control,result);return result
     if previous.get('implementationSha256')==version and previous.get('attempts',0)>=2:return previous
     result=dict(gamePk=game_pk,checkedAtUtc=W.TX.now(),implementationSha256=version,
+        selectedTurns=[list(value) for value in cases()[game_pk]],
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         witness=acquire(state,game_pk)
         result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
             decisions=decisions(game_pk),select=select,execution_inputs=execution_inputs,
             revalidate=revalidate,validation_scope='selected-k1-compound-result-and-retained-admissions')))
-        result['acquiredInputs']=1
+        result['acquiredInputs']=int(witness['kind']=='targeted-reacquisition')
     except Exception as error:result.update(status='failed',error=str(error))
-    W.atomic(control,result);return result
+    W.atomic(control,result)  # Preserve promotion before cleanup; a crash resumes cleanup only.
+    if completed(result,game_pk):
+        result=retire_input(state,result);W.atomic(control,result)
+    return result
 
 
 if __name__=='__main__':

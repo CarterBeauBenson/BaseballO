@@ -75,6 +75,15 @@ histories even where an earlier narrow repair completed. The offense build's
 admission-cache exception is fixed in `d3f510a9`; the 650/662 measurement remains
 the last published result until a subsequent successful build is measured.
 
+The cross-metric follow-through now records the same missing K1 compound
+classification in 90 turns across 87 games. NiFi's existing compound owner
+handles that whole recorded family with targeted additions and retained inputs;
+no full-game replacement is authorized. History metadata discovery proceeds
+during serving builds, so the H5 repair queue can advance without another heavy
+worker. B1 also reconciles the existing unfinished-turn rule for generic runner
+outs; game 822701's retained census now reconciles 72 official PAs. Source checks
+and queued repairs remain intermediate work until their player results publish.
+
 | Layer | Last observed state | What this establishes |
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |

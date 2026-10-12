@@ -89,10 +89,10 @@ class CompoundAddition(unittest.TestCase):
             self.assertEqual(K.next_game(state),'823327')
             K.W.atomic(state/'pipeline/control/mlb-game/compound-addition/823327.json',dict(status='failed',attempts=2,implementationSha256='v'))
             self.assertIsNone(K.next_game(state))
-            with self.assertRaises(ValueError):K.acquire(state,'824895')
+            with self.assertRaises(ValueError):K.acquire(state,'999999')
 
     def test_recorded_followup_uses_standing_scope_and_skips_completed_originals(self):
-        self.assertEqual(K.cases()['824385'],(35,701678))
+        self.assertEqual(K.cases()['824385'],[(35,701678)])
         self.assertEqual(K.decisions('824385')['scopeDecision'],
             'archive/design-records/metric-repair-scope-2026-09-30/review.json')
         with tempfile.TemporaryDirectory() as directory:
@@ -101,7 +101,46 @@ class CompoundAddition(unittest.TestCase):
                 K.W.atomic(state/'pipeline/control/mlb-game/compound-addition'/(pk+'.json'),dict(status='complete'))
             self.assertEqual(K.next_game(state),'824385')
             K.W.atomic(state/'pipeline/control/mlb-game/compound-addition/824385.json',dict(status='complete'))
-            self.assertIsNone(K.next_game(state))
+            self.assertEqual(K.next_game(state),'822702')
+
+    def test_two_recorded_turns_remain_separate_in_selection_and_shapes(self):
+        doc=fixture();first=doc['liveData']['plays']['allPlays'][22]
+        second=copy.deepcopy(first);second['atBatIndex']=23;second['about']['atBatIndex']=23
+        doc['liveData']['plays']['allPlays'][23]=second
+        batter=first['matchup']['batter']['id']
+        with patch.object(K,'cases',return_value={'824895':[(22,batter),(23,batter)]}), \
+             patch.object(K.W.C.B.SOURCE,'reconcile',return_value={'blockingIssues':[]}):
+            selected=K.select(json.dumps(doc).encode(),'824895')
+            self.assertEqual(len(selected['plateAppearances']),2)
+            self.assertEqual({r['atBatIndex'] for r in selected['parts']},{'22','23'})
+            graph=Graph().parse(data=K.shapes('824895',selected),format='turtle')
+            sh=Namespace('http://www.w3.org/ns/shacl#')
+            nodes=list(graph.subjects(RDF.type,sh.NodeShape))
+            self.assertEqual(len(nodes),2)
+            self.assertTrue(all(len(list(graph.objects(n,sh.targetNode)))==1 for n in nodes))
+            self.assertFalse(K.completed(dict(status='complete',selectedTurns=[[22,batter]]),'824895'))
+            self.assertTrue(K.completed(dict(status='complete',selectedTurns=[[22,batter],[23,batter]]),'824895'))
+
+    def test_retained_response_is_copied_without_acquisition_or_rewriting_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);source=state/'pipeline/quarantine/mlb-game/824895/previous/input.json'
+            source.parent.mkdir(parents=True);raw=json.dumps(fixture()).encode();source.write_bytes(raw)
+            with patch.object(K.urllib.request,'urlopen',side_effect=AssertionError('retained input exists')):
+                witness=K.acquire(state,'824895')
+                self.assertEqual(witness['kind'],'retained-response-copy')
+                self.assertEqual(source.read_bytes(),raw)
+                self.assertEqual(K.W.sha(Path(witness['path'])),witness['sha256'])
+                self.assertEqual(K.acquire(state,'824895'),witness)
+            promoted=state/'promotion.json'
+            K.W.atomic(promoted,dict(gamePk='824895',targetedAddition=dict(sourceWitness=witness)))
+            result=dict(gamePk='824895',status='complete',sourceWitness=witness,promotionEvidence=str(promoted),
+                selectedTurns=[list(value) for value in K.cases()['824895']])
+            self.assertTrue(K.needs_retirement(state,result))
+            retired=K.retire_input(state,result)
+            self.assertFalse(Path(witness['path']).exists())
+            self.assertEqual(source.read_bytes(),raw)
+            self.assertEqual(K.retire_input(state,result),retired)  # Interrupted final receipt is recoverable.
+            self.assertFalse(K.needs_retirement(state,retired))
 
 
 if __name__=='__main__':unittest.main()
