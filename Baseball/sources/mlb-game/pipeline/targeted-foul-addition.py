@@ -20,6 +20,7 @@ DECISION='archive/design-records/mlb-game-counted-foul-completion/review.json'
 SCOPE='archive/design-records/metric-repair-scope-2026-09-30/answers.md'
 MAPS=('FoulStrikeProcessMap','FoulStrikeProcessMapRecordAboutMap',
       'CountedFoulStrikeAdjudicationMap','CountedFoulStrikeDecisionMap','CountedFoulStrikeProcessPartMap')
+EDGE_PACKAGE=ROOT/'archive/design-records/mlb-game-counted-foul-edge-completion'
 SUCCESS={'complete','already-complete','already-present','not-applicable'}
 SH=Namespace('http://www.w3.org/ns/shacl#')
 
@@ -124,7 +125,17 @@ def retirement_receipt(state,game_pk,witness):
 
 def acquire(state,case):
     """Prefer retained bytes, otherwise fetch only the named manifest game."""
-    pk=case['gamePk'];directory=state/'pipeline/quarantine/mlb-game'/pk/'targeted-foul'
+    pk=case['gamePk']
+    # F9 authorizes these exact retained inputs, with no reacquisition fallback.
+    for edge in W.read(EDGE_PACKAGE/'evidence.json')['cases']:
+        if edge['gamePk']==pk and set((r['atBatIndex'],r['playId']) for r in case['selected']).issubset(
+                (r['atBatIndex'],r['playId']) for r in edge['case']['selected']):
+            witness=edge['sourceWitness'];source=Path(witness['path'])
+            if W.read(EDGE_PACKAGE/'review.json')['status']!='accepted':raise ValueError('F9 is not accepted')
+            if not source.is_file() or W.sha(source)!=witness['sha256']:
+                raise ValueError('F9 retained input unavailable or changed; no reacquisition authorized')
+            return witness
+    directory=state/'pipeline/quarantine/mlb-game'/pk/'targeted-foul'
     legacy=directory/'acquisition.json'
     if legacy.is_file() and not (directory/'input.json').is_file():
         if retirement_receipt(state,pk,W.read(legacy)) is None:

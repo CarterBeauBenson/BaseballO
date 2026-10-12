@@ -526,3 +526,13 @@ changes require diff review and `git diff --check`. NiFi's separate Repository
 Evidence observer owns aggregate validation. Continue independent authorized
 work when a semantic gap blocks one source assertion; do not make the entire
 project wait on it.
+
+### October 12: F9, M1 and P1 accepted
+
+F9, M1 and P1 were approved together. F9 now implements the four generic
+selector corrections; five focused retained-input checks pass for the five
+missing strikes in four games. The existing NiFi counted-foul owner retries
+failed selections under the new context and uses the four exact retained
+witnesses without reacquisition. Compatible successful evidence keeps its
+original producer. Promotion and dashboard publication remain NiFi work.
+M1 and P1 implementation follows in the same work session.

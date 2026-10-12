@@ -2,12 +2,12 @@
   "artifactType": "baseballo-targeted-history-repair-inventory",
   "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
   "implementationRecord": "sources/mlb-game/review/rml-selection-repair-2026-10-01.md",
-  "contextBuilderSha256": "11110d7c5b51b4902093652abdb6c4dd34f9449f97b98ac2d2b41cc5dbe2e0cb",
-  "contextAlignmentDecision": "archive/design-records/mlb-game-history-repair-context-alignment/review.json",
+  "contextBuilderSha256": "bb6d2ff9c74b0d30872f257ad1e24c8c2425c4bf138b3d2cd0044274b4a0067c",
+  "contextAlignmentDecision": "archive/design-records/mlb-game-counted-foul-edge-completion/review.json",
   "historyContextSignature": {
     "method": "personal-runner-histories-transitive-ast-v1",
-    "sourceSha256": "11110d7c5b51b4902093652abdb6c4dd34f9449f97b98ac2d2b41cc5dbe2e0cb",
-    "sha256": "25bf73c823381fe2611bf767b9e374dceba2bef8d953035f06598821e7792277"
+    "sourceSha256": "bb6d2ff9c74b0d30872f257ad1e24c8c2425c4bf138b3d2cd0044274b4a0067c",
+    "sha256": "53460357707038c82dc8547aa3fc08939f3c9ae243266c011ac3766748df5683"
   },
   "cases": [
     {
