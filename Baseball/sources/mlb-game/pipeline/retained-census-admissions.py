@@ -29,6 +29,7 @@ def source(evidence,state,promotion,family,adapter):
     path=path.with_suffix('.source.json')
     if not path.is_file() or evidence.sha(path)!=proof.get('sourceCensusSha256'):raise ValueError('Retained source census changed')
     census=evidence.read(path)
+    if family=='pitch-count' and not adapter.ordered_pitch_endpoints(census):return None
     if census.get('gamePk')!=promotion['gamePk'] or census.get('sourceSha256')!=promotion['rawSha256']:
         raise ValueError('Retained census belongs to another source')
     # K1 changed the expected compound result type; preserve the old census as
@@ -64,6 +65,7 @@ def load(evidence,state,promotion,family,adapter):
     if proof.get('status')=='admitted' and not all(proof.get(k) for k in
             ('sourceReconciled','graphConforms','sourceCensusSha256','shapeSha256','reportSha256')):
         raise ValueError('Retained census admission lacks conformance evidence')
+    if family=='pitch-count' and not adapter.ordered_pitch_endpoints(evidence.read(path.with_suffix('.source.json'))):return None
     evidence.checked_marker(promotion)
     return dict(proof,proofSha256=record['proofSha256'])
 

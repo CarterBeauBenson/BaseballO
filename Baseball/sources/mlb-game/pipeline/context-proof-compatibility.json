@@ -5544,5 +5544,184 @@
     "notes": [
       "F9 adds only four accepted selector alternatives. Keep successful original proofs with original producer; negative count evidence refreshes through its owner. No RDF regeneration from fingerprint drift."
     ]
+  },
+  "orderedCountIntervals": {
+    "decision": "archive/design-records/metric-count-overlapping-intervals/review.json",
+    "previousRepair": "countedFoulEdgeCompletion",
+    "previousContextSha256": "bb6d2ff9c74b0d30872f257ad1e24c8c2425c4bf138b3d2cd0044274b4a0067c",
+    "currentContextSha256": "bb6d2ff9c74b0d30872f257ad1e24c8c2425c4bf138b3d2cd0044274b4a0067c",
+    "families": {
+      "pitch-count": {
+        "previousImplementationSha256": "9d80a5d643147b7dd897db331aa758862a6fca6f079ae185499527f2f1a2cdea",
+        "currentImplementationSha256": "52a25222296181aea214e5c95173579b746033f030c7e97e93b96429b6ca1371",
+        "reuseKind": "prior-stricter-count-census"
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "9f58d035a0d434e5bfe76349175ab08d3a7fb0ecf6d0ac637303f509aee07fb3",
+        "previousImplementationSha256s": [
+          "00f8f09956279b8bb95966515e91fbebfb555d6ef3991b0b0a64377554a8ca58",
+          "7ba7320d5c9195c49ce72758ab73c946eb7df2fcb4770750c633e12f06ba2a7e",
+          "ca31dad08c268a7fa61290b2a2e4c483970dba3f654365e1766c5faa07b32188",
+          "3329578061027f412565a856a9adb24a0ab67f546b024d5afa3b9d34deb268a6",
+          "a723e52c7401d066de4bbf6c806e5963aae7941b489d667838362c1f4bc6179f",
+          "473a63dcf30285e0e0519e2b39e59280511d7134fa68df1ffe1d30ce41aa40dd",
+          "47bd0ca37edd941dec44cdefc51b3b4fd5aab22e3e0e69fadd546add1e5b9413",
+          "60ead0fa218c5e9c5b15c4a841ef9b766bc3013fbfd3d5eabca7debed2213c49",
+          "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
+          "343befe7a01fe3da57ee7b843b909c7882390d7dbca38e0b3ba2ed916c4138aa",
+          "0ea85bfbe665fc0a4b7cff986614076bdbc4e64d726d99b48b8fb3489617c806",
+          "d2a169e02913fd13902df3a4ecb9988251619a51478c264f545079ff7447eb1a",
+          "75b8c08f446b482c66e0b3159bba776af196f8fc8c7cd25401a5e45a33d53eaa",
+          "8cb765a70f37e8dc2570cafd8ccd86a5b5cd0ab14761593d29469d7301fafe6c",
+          "9503a9efedaae32a7234d9635d511af30c0f06824376029fe99a4f302d243bfa",
+          "fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7",
+          "e4f1dca7cc98bda644809cbc6ca39ac4d5201ef16253afb0605abd2396e3c1d3",
+          "eb0b1235f409be7ada5d7363f21b1f93d6442ee3b3bca55eeed3fcd39157a1db",
+          "d6dc3c4e7ccec61482df5fea7076aeab341aa6bcede3cf090cbb5d497b752234",
+          "8d1c41bf3f91c83ad45b968c2597630699257980a73eb0dbd81332dec36d02a6",
+          "af37a2c0e325d82303bd98b5b3a4a7853a1832de4194ec40f7644f338ac9697b",
+          "f1ee38368f44ad5d5543a6d6022af4d49f2952b3e8721582efd48698b92a72b8",
+          "0591aa9fc37c993b542defee9b7a006f643e6126dbf8c514c1b4af0f48e5605f",
+          "9630ad5d1891142d65c081a0ce0844871127d41583fa4c8a3e5a9ec844c1cb37",
+          "3bdba40753642a7d6e5e4a30630d465fcc57c74c1d6a59c8b1e425291b021051",
+          "ea53cf17db11939b03f52047923fc322462b9090cc37827faf3fadf2f6b3e43d",
+          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      },
+      "pa": {
+        "currentImplementationSha256": "b935c134f4d360f3fe218746ffaacf562225e1ee3b04e2afb8da9677ba43f389",
+        "previousImplementationSha256s": [
+          "b935c134f4d360f3fe218746ffaacf562225e1ee3b04e2afb8da9677ba43f389",
+          "94d1ece87fd1806c704def4d1e1ab1e3d1f2dad0243f67a05c3107b88df0b315",
+          "ea72214244f0de97b5a420729df1a7d2929c991c6e84b0cbf31bfdcf3847ccc9",
+          "e7f06c09b92049d3cfd07414963cf70850d5885610d41ec9c6334462a9789f76",
+          "e30e9ce9475f2b83ac20006f012f7e8f2fb68247a707fe049ac6245fd7a07ce0",
+          "98d9c00deae915d9d6f19fcb3336149293625373386d15d2d331110c0f0f8c77",
+          "725b4cfd75994b22c7ab89d13f859f5cd8c87e57262eb8f3f1cc4802793fd54f",
+          "692b0798271f1363c53237a113ba570a7c346d4633f26e8ca4c26fe4ee23e3d8",
+          "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
+          "8817a0d99eda10dee596ee502fd7676ea7d7513eff4e17b119030c0d11bf871c",
+          "9c449239f98787ba2d8cdd0c9c9aec15f70258ed773940ab8da042ec10476817",
+          "267640d5196076214f7ec9b0ad954ac976554617047c8240e4cd005fb6046c0c",
+          "bbb6201c711d0ffd55f129ed0c78be81e9a15a3921dbf6eb038420b8c31195c4",
+          "e3bfc417a834bf1df788f81eb772da9ed32615b285369d550262e4f4915941a5",
+          "0307e78e35666d96b8623fce676aabb0d523191b4193b4f9dcd1de28e8516785",
+          "313d39b781b4f18dd1143cf2157e32046ee9db60bb6a39f7800042a85d602357",
+          "35b9acd9dad4814acd432930d0afab6433591855abe75c46d0df4d674a31c146",
+          "cd674a03f35fce820f3ec2f4bb40d7d3c2e2b951c898cc975a36f70d0263b128",
+          "ffbf4f7c0487ad1636c8bfae3032c11f63738b9592ea2e492c649cebd0cfdf84",
+          "ca9e059a256a0d23ee937391bffd3076170a64f88b5ab065740e6734803039e2",
+          "233815f267bb8f92a2bcd006aa74e9d0f1bb3c06c6698bff37ecdc68b687a06a",
+          "5dc50818a5a9f24c8f3b45c7c2d7c2d72eaee7a390a686cef89cc46d4c33e596",
+          "78836179c8fef71636dd00b083f3331e377aad47f97a0e419c51f080acdcffa4",
+          "84d73443f688a138975799102170d17af88e28583116fdc52837946112313544",
+          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
+          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
+          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
+          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ]
+      },
+      "c2pa": {
+        "currentImplementationSha256": "42ae641e5cea4070ad951f0351f8984af55aa20ceabd6a6efaa41305a61def6a",
+        "previousImplementationSha256s": [
+          "42ae641e5cea4070ad951f0351f8984af55aa20ceabd6a6efaa41305a61def6a",
+          "42819ae35f0a0416906bc7a297ea191d25fc5eadf197c59617f7da8ad6c7eae7",
+          "d4a0e82332c271af33926e05138ec40d48b6217fc33615b0c4cd85a5c0610b96"
+        ]
+      },
+      "retained-batting": {
+        "currentImplementationSha256": "697df5bcca0eaafe72ed2f9b94c423896a9893e061172debdf0073e2c4d4212a",
+        "previousImplementationSha256s": [
+          "697df5bcca0eaafe72ed2f9b94c423896a9893e061172debdf0073e2c4d4212a",
+          "f5fdda27e16859956529203f58f19b5b176c551f68ff26da50ab5d8140d43477",
+          "419d577535c5e230123dc6c13de9fc4b9664fde5fba2c8b1952f30020d04f3dc",
+          "e93b9cfb9cf384deb7954f56dd3f208adc0e285439bbebf4d6d54eab04662cb0",
+          "639d5b7f8878156fb069bae5c02fd70f0da3d3368b1368a57dbc432c19951c5c",
+          "8772b7763e9268fad5fd97cacfa16e8d1db8b08cabcec959129351012726e6a6",
+          "aeb4b85652358a0e5acaf1c7a53bfb6d66b6e2fee292d59950d73bc9401c0687",
+          "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
+          "4f9f6da0305a7de7ae16e1dcd97d9aa0b46237fb6958e4ccc69feb7161fd3376"
+        ]
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "currentImplementationSha256": "792ef2e71f4d23c9b3284d8600256c1ce462e0b75c764e343d24af9c2279c908",
+        "previous": [
+          {
+            "previousImplementationSha256": "901b84f35bc6e9b2a1f2350a353bc1987b86b6f1358805e6895b09e96f86ac73",
+            "previousSourceProducerSha256": "be24f11aff1fc3f652bb7a8c4247508c81373920944a1e649a47af830bf4f4c9",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "scoring-run": {
+        "currentImplementationSha256": "94affe86542c601bac0705c1f13f91ba0139a4a71abd37263efdd5c2c96151aa",
+        "previous": [
+          {
+            "previousImplementationSha256": "2057bd836bea9f070c9f8ab32690422792aa65c58bd71f21e71d5524df7fb7c8",
+            "previousSourceProducerSha256": "335359f9d3d8562012ccaa5e142c3ff0c72f7741cfec7c52286585190e9e15a9",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "runner-resolution": {
+        "currentImplementationSha256": "91b83a6314d79feb59120cda301d1de095c1cc0550a965886006e72be2a7a993",
+        "previous": [
+          {
+            "previousImplementationSha256": "0d9336ecc1291986e35524df46619c9e3fb02ef3e16cf05529fcf5cdcbe55fe0",
+            "previousSourceProducerSha256": "18cf17d9bad005d551c4d8ad23ab14396d88cc8a837f8bc5062b910ae75e4af4",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "pitch-count": {
+        "currentImplementationSha256": "50b63dd4d8e927d07182355fd4dbd442b07cba2183183e4e9c1e7b61c1e2ed68",
+        "previous": [
+          {
+            "previousImplementationSha256": "56ea5cd7663e4b99ea9baf5828e6d354914e66ab0f6808f3bfea6d072496aa7a",
+            "previousSourceProducerSha256": "9d80a5d643147b7dd897db331aa758862a6fca6f079ae185499527f2f1a2cdea",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "runner-boundary": {
+        "currentImplementationSha256": "c53790bcaaef19c6196a5edcd7931792fb72cadba00229171d5b6484a0b71c20",
+        "previous": [
+          {
+            "previousImplementationSha256": "d383bc4571c6308759a40d34d65999f10a589a0a4e439f797fe0167e9827d246",
+            "previousSourceProducerSha256": "b4917d2e9fbb16d38c2b45ca32b920763004ff6fcaa2938c856197ac86765dce",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "defensive": {
+        "currentImplementationSha256": "e3eb5b8a7c574a54d4a825ebe74696e7df07623df28e2a3db0450c34c8c64a7f",
+        "previous": [
+          {
+            "previousImplementationSha256": "e8dcb2729cf90b25732fb0a8b83bd32d0be0d4e3d07dc729bce3a3415fcbd6a6",
+            "previousSourceProducerSha256": "067932e85b72af9b7dfbe5c228e92cb1596b01412f7c57c485242dabb12e83e4",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      }
+    },
+    "notes": [
+      "P1 changes analytical count admission only. Reuse positive prior evidence only after checking strictly ordered retained endpoints; equal endpoints are not compatible. Other source/graph conformance dependencies are unchanged. Retain original producer."
+    ]
   }
 }

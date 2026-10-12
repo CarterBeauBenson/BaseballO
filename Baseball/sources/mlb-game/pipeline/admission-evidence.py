@@ -288,6 +288,9 @@ def compatible_proof(state,promotion,family,implementation):
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if key in proof and sha(path.with_suffix(suffix))!=proof[key]:
             raise ValueError('Retained validation artifact changed: '+key)
+    if family=='pitch-count':
+        count=module(HERE/'pitch-count-admission.py','compatible_count_order')
+        if not count.ordered_pitch_endpoints(read(path.with_suffix('.source.json'))):return None
     if independent_source:
         census=read(path.with_suffix('.source.json'))
         if (not proof.get('sourceSha256') or census.get('sourceSha256')!=proof['sourceSha256']
@@ -360,6 +363,9 @@ def refreshed(state,promotion,family,implementation):
         raise ValueError('Admitted refresh lacks its existing conformance evidence')
     for suffix,key in (('.source.json','sourceCensusSha256'),('.shapes.ttl','shapeSha256'),('.report.ttl','reportSha256')):
         if key in proof and sha(path.with_suffix(suffix))!=proof[key]: raise ValueError('Refreshed validation artifact changed')
+    if family=='pitch-count':
+        count=module(HERE/'pitch-count-admission.py','refreshed_count_order')
+        if not count.ordered_pitch_endpoints(read(path.with_suffix('.source.json'))):return None
     return {**proof,'proofSha256':record['proofSha256']}
 
 

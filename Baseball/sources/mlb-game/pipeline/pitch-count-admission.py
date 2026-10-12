@@ -21,6 +21,7 @@ B=importlib.util.module_from_spec(spec);spec.loader.exec_module(B)
 CONTEXT=B.module(ROOT/'scripts/pipeline/prepare-rml-context.py','count_existing_context')
 SHAPE=HERE.parent/'shacl/pitch-count-admission.ttl'
 PREVIOUS_CENSUS_FILE_SHA='4d9898aedb36463b659a96b62aa60135f27b37b6d0d521f8ef3c52d54c767cda'
+NONOVERLAP_CENSUS_FILE_SHA='f74c3c78c67d481619146620387e66880ad9506ad38466113e9cbac58f46bd15'
 PITCHOUT_CENSUS_FILE_SHA='8eaad86c814a30fd7e200671b21ffb526d3012c7f14fb541bc9b0278a1a789b8'
 
 
@@ -39,7 +40,24 @@ def previous_fingerprint():
 
 
 def previous_fingerprints():
-    return (fingerprint(census_sha=PITCHOUT_CENSUS_FILE_SHA), previous_fingerprint())
+    return (fingerprint(census_sha=NONOVERLAP_CENSUS_FILE_SHA), fingerprint(census_sha=PITCHOUT_CENSUS_FILE_SHA), previous_fingerprint())
+
+
+def ordered_pitch_endpoints(source):
+    """P1 compatibility check over hash-verified retained count evidence."""
+    try:
+        for pa in source['plateAppearances']:
+            previous=None
+            for event in pa['events']:
+                if event['kind']!='pitch':continue
+                start=datetime.fromisoformat(event['start'].replace('Z','+00:00'))
+                end=datetime.fromisoformat(event['end'].replace('Z','+00:00'))
+                if (not start.tzinfo or not end.tzinfo or start>end
+                        or previous and (previous[0]>=start or previous[1]>=end)):
+                    return False
+                previous=start,end
+        return True
+    except (KeyError,TypeError,ValueError,AttributeError):return False
 
 
 def virtual_intentional_walk(play, season, document=None):
@@ -68,7 +86,7 @@ def census(raw,game_pk):
     for play in doc['liveData']['plays']['allPlays']:
         pa=str(play['atBatIndex']);result_type=play.get('result',{}).get('eventType')
         if result_type in B.INTERRUPTIONS:continue  # No official PA; B1 separately reconciles this exclusion.
-        errors=[];selected=[];strikes=0;previous_end=None
+        errors=[];selected=[];strikes=0;previous_start=previous_end=None
         compound=result_type=='sac_fly_double_play' and bool(CONTEXT.sacrifice_fly_double_play_parts(play))
         interference=(result_type=='catcher_interf' and play.get('about',{}).get('isComplete') is True
             and not CONTEXT.accounted_runner_history_reviews(play)['issues'])
@@ -121,11 +139,11 @@ def census(raw,game_pk):
                 try:
                     start=datetime.fromisoformat(event['startTime'].replace('Z','+00:00'))
                     end=datetime.fromisoformat(event['endTime'].replace('Z','+00:00'))
-                    if not start.tzinfo or not end.tzinfo or start>end or (previous_end and previous_end>start):
+                    if not start.tzinfo or not end.tzinfo or start>end or (previous_end is not None and (previous_start>=start or previous_end>=end)):
                         raise ValueError()
                 except (KeyError,ValueError,AttributeError):
                     errors.append('UNSUPPORTED_PITCH_ORDER');continue
-                previous_end=end
+                previous_start,previous_end=start,end
                 selected.append(dict(event=game+'/pitch/'+pid,kind='pitch',playId=pid,strike=bool(increment),
                     strikesAfter=after,start=event['startTime'],end=event['endTime'],call=code,
                     balls=event.get('count',{}).get('balls')))

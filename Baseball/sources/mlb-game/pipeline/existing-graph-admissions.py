@@ -61,6 +61,7 @@ def load(evidence,state,promotion,family,adapter):
         if key in proof and evidence.sha(path.with_suffix(suffix))!=proof[key]:
             raise ValueError('Existing graph validation artifact changed')
     source=evidence.read(path.with_suffix('.source.json'))
+    if family=='pitch-count' and not adapter.ordered_pitch_endpoints(source):return None
     if source.get('sourceSha256')!=proof.get('sourceSha256') or source.get('gamePk')!=promotion['gamePk']:
         raise ValueError('Existing graph source witness differs from its census')
     if proof.get('status')=='admitted' and not all(proof.get(k) for k in

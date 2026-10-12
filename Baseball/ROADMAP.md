@@ -536,3 +536,10 @@ failed selections under the new context and uses the four exact retained
 witnesses without reacquisition. Compatible successful evidence keeps its
 original producer. Promotion and dashboard publication remain NiFi work.
 M1 and P1 implementation follows in the same work session.
+
+P1 is implemented in count admission and Recovery calculation. Strictly
+increasing starts and ends admit the retained 822755/11 overlap; equal starts,
+equal ends, nested intervals and inverted intervals remain withheld. Twelve
+count tests and two provenance tests pass. Prior successful counts retain their
+producer only when their retained endpoints satisfy P1. NiFi refreshes affected
+negative evidence from existing RDF and retained inputs.

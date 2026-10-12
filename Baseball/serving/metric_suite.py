@@ -725,7 +725,7 @@ def recovery_histories(rows, *, zero_pitch_pas=()):
             except (ValueError,AttributeError):reason='UNSUPPORTED_PITCH_ORDER';break
             pitches.append(dict(row,start=start,end=end))
         pitches.sort(key=lambda r:r['start'])
-        if any(a['end']>b['start'] or a['start']==b['start'] for a,b in zip(pitches,pitches[1:])):
+        if any(a['start']>=b['start'] or a['end']>=b['end'] for a,b in zip(pitches,pitches[1:])):
             reason='UNSUPPORTED_PITCH_ORDER'
         positions={p['entity']:i for i,p in enumerate(pitches)};slots={}
         for award in awards:

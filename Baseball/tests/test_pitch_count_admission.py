@@ -175,6 +175,39 @@ class PitchCountAdmission(unittest.TestCase):
                         g.add((record,RDF.type,BASE.BaseballEventRecord));g.add((record,CCO.ont00001808,extra))
                 self.assertFalse(validate(g,shacl_graph=A.shape_text(source),shacl_graph_format='turtle',advanced=True)[0])
 
+    def test_overlap_with_strict_endpoint_order_retains_recovery(self):
+        data,source=pitch_fixture();rows=M.normalize_bindings(bindings(data,[G1]),[G1])
+        expected=M.recovery_histories(rows)
+        pitch=next(r for r in rows if r['kind']=='pitch_count' and r['entity'].endswith('pitch-0'))
+        pitch['pitchEnd']='2026-08-01T12:01:00.500Z'
+        self.assertEqual(M.recovery_histories(rows),expected)
+        source['plateAppearances'][0]['events'][0]['end']=pitch['pitchEnd']
+        self.assertTrue(A.ordered_pitch_endpoints(source))
+        for fault in ('equal-start','equal-end','nested','inverted'):
+            import copy
+            altered=copy.deepcopy(rows);first=next(r for r in altered if r['kind']=='pitch_count' and r['entity'].endswith('pitch-0'))
+            second=next(r for r in altered if r['kind']=='pitch_count' and r['entity'].endswith('pitch-1'))
+            if fault=='equal-start':second['pitchStart']=first['pitchStart']
+            elif fault=='equal-end':first['pitchEnd']=second['pitchEnd']
+            elif fault=='nested':first['pitchEnd']='2026-08-01T12:02:00Z'
+            else:first['pitchEnd']='2026-08-01T11:59:00Z'
+            self.assertEqual(M.recovery_histories(altered)['unresolvedPlateAppearances'][0]['gap'],'UNSUPPORTED_PITCH_ORDER',fault)
+            census=copy.deepcopy(source)
+            for i,r in enumerate((first,second)):
+                census['plateAppearances'][0]['events'][i].update(start=r['pitchStart'],end=r['pitchEnd'])
+            self.assertFalse(A.ordered_pitch_endpoints(census),fault)
+
+    def test_retained_822755_count_census_admits_ordered_overlap(self):
+        import os
+        path=Path(os.environ['LOCALAPPDATA'])/'BaseballO/state/pipeline/quarantine/mlb-game/822755/targeted-history-4cfefc9c4429ad76/input.json'
+        raw=path.read_bytes()
+        self.assertEqual(A.B.sha(raw),'25e20a67833e84aea36cdec41deaabace16d57d082c6867c3bb10df386ad681b')
+        census=A.census(raw,'822755');pa='https://baseballontology.org/data/game/822755/plate-appearance/11'
+        self.assertFalse([r for r in census['issues'] if r.get('plateAppearance')==pa])
+        selected=next(r for r in census['plateAppearances'] if r['pa']==pa)
+        self.assertEqual([r['strikesAfter'] for r in selected['events']],[1,2,3])
+        self.assertTrue(A.ordered_pitch_endpoints(dict(plateAppearances=[selected])))
+
     def test_unknown_or_overlapping_pitch_times_cannot_be_sorted_by_id(self):
         data,_=pitch_fixture();g=data.graph(G1)
         stamp=URIRef(str(GAME)+'/pitch/pitch-0/timestamp/end')
