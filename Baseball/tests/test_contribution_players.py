@@ -43,6 +43,23 @@ def qualification(result):
 
 
 class ContributionPlayers(unittest.TestCase):
+    def test_complete_no_out_census_does_not_need_unknown_progress_or_boundaries(self):
+        rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
+        rows[0]['paResultType']=BASE+'HitByPitchProcess'
+        rows[-1].update(hasOutType='false',hasSafeType='true',destinationCode='1B',
+            destinationBase=GAME+'/base/1',safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision')
+        result=inputs(rows,runner_boundary_admission={'status':'withheld'})
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['zeroOutPlateAppearances'],[pa])
+        self.assertEqual(result['plateAppearances'],[])
+        individual=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
+            paResolutions=dict(plateAppearances=[dict(plateAppearance=pa,status='admitted')]))
+        self.assertEqual(M.complete_no_out_turns(rows,{},individual),[pa])
+        individual['paResolutions']['plateAppearances'][0].update(status='withheld',emptyGameStatus='admitted')
+        self.assertEqual(M.complete_no_out_turns(rows,{},individual),[])
+        rows[-1].update(hasOutType='true',hasSafeType='false')
+        self.assertEqual(M.complete_no_out_turns(rows,PROOF,{}),[])
+
     def test_excluded_safe_result_needs_no_invented_batting_attribution(self):
         rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
         rows[0]['paResultType']=BASE+'InterferenceProcess'
@@ -132,9 +149,9 @@ class ContributionPlayers(unittest.TestCase):
         self.assertEqual(partial['unresolvedPlateAppearances'],[dict(plateAppearance=second,
             gaps=['OFFICIAL_PA_POPULATION','COMPLETE_RUNNER_BOUNDARIES','COMPLETE_RUNNER_RESOLUTION_POPULATION'])])
         # Without the optional individual proof, the established full-game
-        # entry point retains precisely its earlier behavior.
+        # entry point still withholds every contribution and any unknown zero.
         self.assertEqual(inputs(rows,batting_admission={'status':'withheld'}),dict(complete=False,
-            plateAppearances=[],unresolvedPlateAppearances=[],gaps=['OFFICIAL_PA_POPULATION']))
+            plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=[],gaps=['OFFICIAL_PA_POPULATION']))
 
     def test_multiple_noncontact_advances_preserve_ends_without_batter_credit(self):
         for mode in ('independent','excluded','award'):

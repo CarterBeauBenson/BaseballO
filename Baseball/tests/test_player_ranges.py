@@ -19,6 +19,26 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_zero_out_turns_complete_only_the_erosion_projection(self):
+        from test_contribution_players import fixture, inputs, qualification, BATTER, PROOF, G1
+        evidence=fixture();score=inputs(evidence);first=evidence[0]['entity'];second=first+'/second'
+        q=qualification(score);q['participation'][0]['plateAppearances']=2
+        q['expectedObservations'].append(dict(q['expectedObservations'][0],plateAppearance=second))
+        evidence.append(dict(kind='player_team_game',graph=G1,game='game',player=BATTER,team='team',teamRole='role'))
+        for available in (True,False):
+            score['zeroOutPlateAppearances']=[second] if available else []
+            with patch.object(P,'qualification',return_value=q):
+                _,records=P.project(M,graph=G1,scope=SCOPE,rows=evidence,
+                    proofs=dict(batting=PROOF,run={},resolution={}),
+                    inputs=dict(contribution=score,progress={}),runs={},run_people={},
+                    metric_ids={'opportunity-erosion','tfs'})
+            result={r[2]:r for r in records}
+            self.assertEqual(result['tfs'][3],0)
+            self.assertEqual(result['opportunity-erosion'][3],int(available))
+            if available:
+                self.assertEqual(json.loads(result['opportunity-erosion'][4]),
+                    dict(kind='mean',sum=M.exact(1),count=2))
+
     def test_empty_negative_needs_every_team_turn_but_not_opponents(self):
         graph=G+'1';game='game'
         proof=dict(status='admitted',sourceReconciled=True,graphConforms=True)

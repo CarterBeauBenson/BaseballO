@@ -415,6 +415,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
     selected=PREPARED if metric_ids is None else PREPARED & set(metric_ids)
     contrib=inputs['contribution'];progress=inputs['progress'];defense=inputs.get('defense',{})
     by_pa={p['plateAppearance']:p for p in contrib.get('plateAppearances',[])}
+    zero_out_turns=set(contrib.get('zeroOutPlateAppearances',[]))
     progress_pa={p['plateAppearance']:p for p in progress.get('plateAppearances',[]) if p['officialResult']}
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
               if p['status']=='admitted'}
@@ -544,7 +545,15 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
                 reason='OFFENSIVE_ELIGIBILITY' if empty_eligible is None else 'COMPLETE_EMPTY_GAME_CLASSIFICATION'
             elif person is not None:
                 reason='COMPLETE_PA_CONTRIBUTIONS'
-                if metric in CONTRIBUTION:
+                if metric=='opportunity-erosion':
+                    # No actual outs means no out-driven erosion. A missing
+                    # progress weight or base path cannot make this zero
+                    # unknown; every other PA still needs its scored component.
+                    values={p['plateAppearance']:m.fraction(p['score']['components']['erosion']) for p in own_contrib}
+                    values.update({pa:Fraction() for pa in own & zero_out_turns if pa not in values})
+                    complete=set(values)==own
+                    aggregate=mean(m,list(values.values()))
+                elif metric in CONTRIBUTION:
                     complete=contrib_ok
                     if complete and own_contrib:
                         selected_q=dict(q,participation=[person],expectedObservations=[r for r in q['expectedObservations'] if r['player']==player])

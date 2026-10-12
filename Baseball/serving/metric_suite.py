@@ -2879,6 +2879,29 @@ def split_steal_contact_path(members, histories, movements, start):
     return dict(status='available',start=contact_start,end=position,contactPlay=contact,independentPrefix=prefix)
 
 
+def complete_no_out_turns(rows, resolution, individual):
+    """An exhaustive no-out census fixes erosion at zero, without path weights.
+
+    This does not resolve positive progress, consequence attribution or a
+    runner-on-base denominator. Only ordinary resolution admission qualifies;
+    the called-game Empty Games exception is not a numeric admission.
+    """
+    whole=all(resolution.get(k)==v for k,v in
+              dict(status='admitted',sourceReconciled=True,graphConforms=True).items())
+    scoped={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
+            if p['status']=='admitted'} if (individual.get('rosterComplete') is True
+            and individual.get('plateAppearanceInventoryComplete') is True) else set()
+    types=defaultdict(set);moves=defaultdict(list)
+    for row in rows:
+        if row['kind']=='plate_appearance' and row.get('recognizedBattingResult') in ('true','1'):
+            types[row['entity']].add(row.get('paResultType'))
+        elif row['kind']=='runner_movement':moves[row['plateAppearance']].append(row)
+    return sorted(pa for pa,kinds in types.items() if len(kinds)==1 and None not in kinds
+        and (whole or pa in scoped) and moves[pa] and all(
+            (r.get('hasSafeType'),r.get('hasOutType'),r.get('hasRunType')) in
+                {('true','false','false'),('false','false','true')} for r in moves[pa]))
+
+
 def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolution_admission, runner_boundary_admission,
                              player_admission=None):
     """C2 plus B2 for complete attributed PA contributions.
@@ -2890,7 +2913,9 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     Independent prefixes stay separate. Score completeness does not assert
     an immediate comparison state when the graph cannot establish that state.
     """
-    missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[])
+    if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
+    no_out_turns=complete_no_out_turns(rows,runner_resolution_admission,player_admission or {})
+    missing=dict(complete=False,plateAppearances=[],unresolvedPlateAppearances=[],zeroOutPlateAppearances=no_out_turns)
     proofs=(('OFFICIAL_PA_POPULATION',batting_admission),
             ('COMPLETE_RUNNER_RESOLUTION_POPULATION',runner_resolution_admission),
             ('COMPLETE_RUNNER_BOUNDARIES',runner_boundary_admission))
@@ -2909,7 +2934,6 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
                        if p['status']=='admitted'}
     if denied and (not individual or ('COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied and not valid_resolutions)):
         return dict(missing,gaps=denied)
-    if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
     actors=consequence_actors(rows)
     rows=consequence_movements(rows,actors)
     pas,locations,movements,histories,history_movements=(defaultdict(list) for _ in range(5))
@@ -3099,7 +3123,7 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             existingRunnerOuts=len(existing),existingDestruction=exact(sum((Fraction(1,4-r['start']) for r in existing),Fraction())),
             participants=participants,score=score))
     complete=bool(completed) and not withheld
-    return dict(complete=complete,plateAppearances=completed,
+    return dict(complete=complete,plateAppearances=completed,zeroOutPlateAppearances=no_out_turns,
         independentDamageComplete=independent_coverage and complete and len(completed)==len(pas),
         unresolvedPlateAppearances=withheld,gaps=[] if complete else sorted(set(denied+(['COMPLETE_PA_CONTRIBUTIONS'] if withheld else []))))
 
