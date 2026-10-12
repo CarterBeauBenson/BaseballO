@@ -628,9 +628,10 @@ class PlayerRanges(unittest.TestCase):
                 score=M.available(M.Fraction(-1,4),components=dict(progress=M.exact(0),erosion=M.exact(0))))])
         movements=[dict(kind='runner_movement',runner=U+'1',plateAppearance='pa1'),
                    dict(kind='runner_movement',runner=U+'2',plateAppearance='pa2')]
-        for change,expected_complete in [('other-runner',1),('own-interruption',0),('unknown-runner',0),('no-census',0)]:
+        for change,expected_complete in [('other-runner',1),('own-interruption',0),('own-safe-turn',1),('unknown-runner',0),('no-census',0)]:
             evidence=rows+movements
-            if change=='own-interruption':evidence+=[dict(kind='runner_movement',runner=U+'1',plateAppearance='interrupted')]
+            contribution['zeroOutPlateAppearances']=['interrupted'] if change=='own-safe-turn' else []
+            if change in {'own-interruption','own-safe-turn'}:evidence+=[dict(kind='runner_movement',runner=U+'1',plateAppearance='interrupted')]
             if change=='unknown-runner':evidence+=[dict(kind='runner_movement',plateAppearance='interrupted')]
             contribution['zeroIndependentDamagePlayers']=sorted(P.zero_independent_damage_players(
                 evidence,contribution,{} if change=='no-census' else proof))

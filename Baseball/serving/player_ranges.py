@@ -84,6 +84,7 @@ def zero_independent_damage_players(rows, contribution, resolution):
     if not admitted(resolution):return set()
     roster={r['player'] for r in rows if r['kind']=='player_team_game' and r.get('player')}
     completed={r['plateAppearance']:r for r in contribution.get('plateAppearances',[])}
+    no_out_turns=set(contribution.get('zeroOutPlateAppearances',[]))
     uncertain=set()
     # Nonzero, known independent damage is retained on its own channel. It
     # cannot be advertised as zero merely because its containing PA resolved.
@@ -93,7 +94,7 @@ def zero_independent_damage_players(rows, contribution, resolution):
         runner=row.get('runner');pa=row.get('plateAppearance')
         if not runner or runner not in roster or not pa:return set()
         result=completed.get(pa)
-        if result is None or result.get('unattributedNonbattingEpisodes'):
+        if pa not in no_out_turns and (result is None or result.get('unattributedNonbattingEpisodes')):
             uncertain.add(runner)
     return roster-uncertain
 
