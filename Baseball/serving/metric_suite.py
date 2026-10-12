@@ -1797,6 +1797,35 @@ def segment_origin(row):
     return None
 
 
+def consequence_actors(rows):
+    """Identify the actual contact/award recipient without changing PA credit.
+
+    Multiple Batter Acts are participation, not multiple owners of the later
+    consequence. Conflicting owners remain unknown; official credit alone is
+    never used to assign another person's contact or award.
+    """
+    people=defaultdict(set);owners=defaultdict(set)
+    for row in rows:
+        if row['kind']=='plate_appearance':people[(row['graph'],row['entity'])].add(row.get('player'))
+        elif row['kind']=='runner_movement':
+            key=(row['graph'],row['plateAppearance'])
+            if row.get('contactPlay') and row.get('contactBatter'):owners[key].add(row['contactBatter'])
+            if (row.get('award') and row.get('awardRule') and row.get('runner')==row.get('batter')
+                    and segment_origin(row)==0 and row.get('destinationCode')=='1B'
+                    and row.get('hasSafeType')=='true'):
+                owners[key].add(row['runner'])
+    return {key:next(iter(candidates)) if len(candidates)==1 and None not in actors
+            and candidates<=actors else None
+            for key,actors in people.items() for candidates in [owners[key] or actors]}
+
+
+def consequence_movements(rows, actors):
+    """Remove only the OPTIONAL join to a different actual batter's act."""
+    return [r for r in rows if r['kind']!='runner_movement' or
+        not actors.get((r['graph'],r['plateAppearance'])) or not r.get('batter') or
+        r['batter']==actors[(r['graph'],r['plateAppearance'])]]
+
+
 def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
     """Complete per-run depth over promoted E1/C1 wholes and exact members.
 
@@ -1806,6 +1835,7 @@ def run_construction_evidence(rows, *, metric_id='run-construction-depth'):
     """
     if metric_id not in {'run-construction-depth','run-construction-breadth'}:
         raise EvidenceError('Not a run-construction metric')
+    rows=consequence_movements(rows,consequence_actors(rows))
     histories, movements, pa_types = defaultdict(list), defaultdict(list), defaultdict(set)
     observed_runs, run_histories, failures = {}, defaultdict(set), {}
     for row in rows:
@@ -2187,6 +2217,8 @@ def batting_progress_evidence(rows):
     coalescence. It cannot become two positives or retain progress before an
     out. Different supported channels remain separate contributions.
     """
+    actors=consequence_actors(rows)
+    rows=consequence_movements(rows,actors)
     pas, movements = defaultdict(list), defaultdict(list)
     histories, history_movements = defaultdict(list), defaultdict(list)
     for row in rows:
@@ -2202,7 +2234,7 @@ def batting_progress_evidence(rows):
             'trajectory','trajectoryHalf','trajectoryInterval',*INDEPENDENT_RUNNING_FIELDS)
     for (graph,pa), observations in sorted(pas.items()):
         reasons=[]
-        players={r.get('player') for r in observations};games={r.get('game') for r in observations}
+        players={actors[(graph,pa)]};games={r.get('game') for r in observations}
         types={r['paResultType'] for r in observations if r.get('recognizedBattingResult') in ('true','1')}
         if len(players)!=1 or None in players or len(games)!=1 or len(types)>1:
             withheld.append(dict(graph=graph,plateAppearance=pa,gaps=['AMBIGUOUS_BATTING_CONTRIBUTOR']));continue
@@ -2856,6 +2888,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
     if denied and (not individual or ('COMPLETE_RUNNER_RESOLUTION_POPULATION' in denied and not valid_resolutions)):
         return dict(missing,gaps=denied)
     if any(r['graph']!=graph for r in rows):raise EvidenceError('Contribution escaped its admitted graph')
+    actors=consequence_actors(rows)
+    rows=consequence_movements(rows,actors)
     pas,locations,movements,histories,history_movements=(defaultdict(list) for _ in range(5))
     for row in rows:
         if row['kind']=='plate_appearance':pas[row['entity']].append(row)
@@ -2883,7 +2917,8 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             reasons.append('COMPLETE_RUNNER_RESOLUTION_POPULATION')
         if reasons:
             withheld.append(dict(plateAppearance=pa,gaps=reasons));continue
-        signatures={tuple(r.get(f) for f in ('game','player','paHalf','paInterval','paStartInstant','paOutsBefore')) for r in observations}
+        signatures={tuple(r.get(f) for f in ('game','player','paHalf','paInterval','paStartInstant','paOutsBefore'))
+                    for r in observations if actors.get((graph,pa)) is None or r.get('player')==actors[(graph,pa)]}
         if len(types)!=1 or len(signatures)!=1 or any(v is None for v in next(iter(signatures))):
             withheld.append(dict(plateAppearance=pa,gaps=['AMBIGUOUS_PA_BOUNDARY']));continue
         game,batter,half,interval,instant,outs_text=next(iter(signatures))
