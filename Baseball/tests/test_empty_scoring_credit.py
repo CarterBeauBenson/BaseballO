@@ -89,6 +89,27 @@ class EmptyScoringCredit(unittest.TestCase):
         error.update(hasSafeType='false',hasOutType='true')
         self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
 
+    def test_completed_separate_acts_do_not_gain_a_whole_pa_history_dependency(self):
+        contact=self.error()
+        for field in ('secondaryError','errorJudgment','errorDecision','trajectory','trajectoryHalf','trajectoryInterval'):
+            contact.pop(field,None)
+        contact.update(contactPlay='contact',contactBatter=U+'1')
+        steal=dict(contact,act='steal-act',resolution='steal-resolution',episode='steal',
+                   originBase='first',originCode='1B',destinationBase='second',destinationCode='2B',
+                   independentStealAct='steal-act')
+        steal.pop('contactPlay');steal.pop('contactBatter')
+        out=dict(contact,runner=U+'1',metricOrigin='0',resolution='batter-out',episode='batter-out-episode',
+                 hasSafeType='false',hasOutType='true')
+        for key in ('originBase','originCode','originDesignation'):out.pop(key,None)
+        rows=[self.turn(),steal,contact,out]
+        progress=M.batting_progress_evidence(rows)
+        self.assertEqual(progress['unresolvedPlateAppearances'],[])
+        self.assertEqual(progress['plateAppearances'][0]['reach'],1)
+        self.assertEqual(P.empty_scoring_inputs(M,rows,progress),{})
+        # A real error decision still overrides the completed older credit.
+        contact.update(secondaryError='error',errorJudgment='ej',errorDecision='ed')
+        self.assertIn('pa',P.empty_scoring_inputs(M,rows,progress))
+
     def test_rbi_is_batting_only_with_accepted_result_exclusions(self):
         run=self.error();run.update(hasSafeType='false',hasRunType='true',errorContactPlay='contact',
             rbiPlayer=U+'1',rbiJudgment='rj',rbiDecision='rd',rbiRecord='rr')

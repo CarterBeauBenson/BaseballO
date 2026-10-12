@@ -269,8 +269,10 @@ def empty_scoring_inputs(m, rows, progress):
     scoring annotation is needed. This never supplies a missing attribution.
     """
     rows=m.consequence_movements(rows,m.consequence_actors(rows))
-    turns={p['plateAppearance'] for p in [*progress.get('unresolvedPlateAppearances',[]),
-           *progress.get('plateAppearances',[])]}
+    unresolved={p['plateAppearance'] for p in progress.get('unresolvedPlateAppearances',[])}
+    unresolved.update(p['plateAppearance'] for p in progress.get('plateAppearances',[])
+                      if p.get('independentPositiveGaps') or p.get('unresolvedRunningPositivePlayers'))
+    turns=unresolved|{p['plateAppearance'] for p in progress.get('plateAppearances',[])}
     actors=defaultdict(set);types=defaultdict(set);moves=defaultdict(list)
     histories=defaultdict(list);whole_rows=defaultdict(list)
     for row in rows:
@@ -284,6 +286,14 @@ def empty_scoring_inputs(m, rows, progress):
     output={};excluded=set(m.policies()['batterProgressExcludedResultTypes'])
     for pa in turns:
         if not actors[pa] or None in actors[pa] or len(types[pa])!=1 or not moves[pa]:continue
+        # Ordinary completed progress already distinguishes independent acts
+        # from contact consequences. Reclassify only a gap or facts that can
+        # change its binary credit; do not turn separate supported acts into
+        # a new whole-PA trajectory requirement merely by invoking this reader.
+        if (pa not in unresolved and len(actors[pa])==1 and not any(
+                any(r.get(k) for k in ('secondaryError','errorJudgment','errorDecision',
+                                     'rbiPlayer','rbiJudgment','rbiDecision','rbiRecord'))
+                for r in moves[pa])):continue
         batting=set() if types[pa]<=excluded else actors[pa]
         possible=set();positive=set();groups=defaultdict(list)
         for row in moves[pa]:groups[row.get('runner')].append(row)
