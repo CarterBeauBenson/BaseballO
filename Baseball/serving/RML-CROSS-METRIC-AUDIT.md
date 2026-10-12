@@ -149,6 +149,13 @@ subsequent publication.
 - Player projection no longer repeats the contribution calculations already
   prepared in that same family build. Known no-out turns also retain zero
   independent damage without resolving their unknown positive running values.
+- EG3's safe uncaught-strike entry is preserved by the EG6 binary scorer,
+  without introducing a numeric running weight. All twelve games in the
+  19:41 UTC Empty Games remainder resolve in the corrected bounded projection;
+  the published population is still 650/662 pending NiFi's next publication.
+- Known final bases and out ownership can supply the erosion component when
+  only safe progress ownership is unknown. The original contribution score
+  remains withheld; no unknown positive progress is published as zero.
 
 A2's numerical error-step allocation awaits the explicit
 [M1 decision](../proposals/metric-error-step-credit/README.md). A4 remains an

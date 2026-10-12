@@ -8,7 +8,8 @@ The [October 12 full RML cross-metric audit](RML-CROSS-METRIC-AUDIT.md) covers
 565 triple maps across all seven source modules and their relationship to the
 nineteen metrics. It distinguishes mapped facts, retained admissions and
 unfinished consumers, including a reproduced Empty Games error-credit defect.
-Its serving baseline predates EG6 publication; no EG6 population gain is claimed.
+Its original serving baseline predates EG6 publication; the measured follow-through
+below distinguishes that baseline from subsequent publications.
 
 The [active delivery roadmap](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan)
 orders all nineteen cards through their query, prepared SQL and UI work, with
@@ -27,7 +28,19 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## October 12: EG6 implementation, publication pending
+## October 12: EG6 implementation and reader follow-through
+
+Publication `20261012T175930Z-dashboard-offense-2ef1923d`, promoted at 19:41 UTC,
+contains all 2,429 selected regular-season games. Empty Games has **650 of 662
+eligible hitters complete (98.2%)**, with twelve incomplete player-games across
+twelve games. The final reader correction `f4e411b1` restores approved EG3
+uncaught-strike running positives after EG6 scoring; all twelve games resolve
+in the bounded projection from retained SQL evidence. That correction is pushed,
+but **662/662 is not yet a measured publication**. NiFi owns the next build.
+
+The erosion reader also retains a known component when final states and out
+ownership are complete but safe progress ownership is unknown. Overall
+contribution, unknown weights and unresolved comparison states remain withheld.
 
 Follow-through at 18:36 UTC: the 825010 and 824622 targeted additions are
 complete. The called-game scoped resolution evidence for 824295/824807 is
@@ -70,10 +83,10 @@ facts and required dependencies. The source profiles still check the graph.
 Older successful work is not reopened solely because a fingerprint changed.
 Ordinary unchanged game answers remain reusable with their original query
 provenance; changed RDF and cases requiring new query facts are re-read.
-NiFi owns the additions, proof refresh and prepared SQL publication. The last
-measured UI population below is still the delivery baseline, not a claimed gain.
+NiFi owns the additions, proof refresh and prepared SQL publication. The latest
+measurement is above; the dated publications below retain the earlier baselines.
 
-## Latest measured publication: October 12 offense build 173033Z
+## Earlier measured publication: October 12 offense build 173033Z
 
 Publication `20261012T173033Z-dashboard-offense-884a63e7` contains all 2,429
 selected regular-season games. Empty Games has **620 of 662 eligible hitters

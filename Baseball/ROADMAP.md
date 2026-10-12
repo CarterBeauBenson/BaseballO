@@ -55,17 +55,17 @@ authorization or make the Empty Games inventory the inventory for every metric.
 ### Starting point and finish line
 
 October 12 population follow-through: completion means **100% of each metric's
-applicable population**, not a passing subset. The 16:38 UTC offense publication
-has 620/662 complete Empty Games hitters, with 43 held player-games in five
+applicable population**, not a passing subset. The 19:41 UTC offense publication
+has 650/662 complete Empty Games hitters, with twelve held player-games in twelve
 games. The reader now applies EG6 attribution per PA before pooling positives;
 the query index canonicalizes the approved sacrifice-fly double play; partial
 contact-dependency checks preserve independently source-supported existing links.
 These repairs require NiFi publication before any population gain is claimed.
 The two targeted additions and called-game scoped resolution refreshes are now
-complete. The latest reader resolves the remaining called-game classification
-in a bounded projection. Next: measure the newly published full-season Empty
-Games result, and repair any actual remainder without reopening successful
-source work. Independent count, actor, source-revision and reference-reader
+complete. The latest reader restores EG3 running entry credit and resolves all
+twelve games in the current remainder using retained SQL evidence. Next: measure
+the newly published full-season Empty Games result, and repair any actual
+remainder without reopening successful source work. Independent count, actor, source-revision and reference-reader
 corrections are published; see the
 [audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-follow-through-october-12).
 
