@@ -417,4 +417,4 @@ if __name__=='__main__':
     parser.add_argument('--state-root',type=Path,required=True);args=parser.parse_args()
     spec=importlib.util.spec_from_file_location('history_inspection_owner',Path(__file__).with_name('targeted-history-addition.py'))
     owner=importlib.util.module_from_spec(spec);spec.loader.exec_module(owner)
-    print(owner.json.dumps(inspect_promotions(owner,args.state_root,{c['gamePk'] for c in owner.cases()})))
+    print(owner.json.dumps(inspect_promotions(owner,args.state_root,owner.discovery_exclusions(args.state_root))))

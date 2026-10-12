@@ -648,7 +648,27 @@ def tick(state, game_pk, java, mapper, classpath):
 def cases(state=None):
     selection = [dict(case, selectionRepair=case.get('selectionRepair','H2')) for case in read(SELECTION)['cases']] if SELECTION.is_file() else []
     fixed=selection + read(PACKAGE / 'source-evidence.json')['cases'] + read(COMPLETION)['cases']
-    return fixed + (DISCOVERY.cases(SimpleNamespace(**globals()),state) if state is not None else [])
+    if state is None:return fixed
+    # A completed narrow addition is not a certificate for the game's other
+    # histories. Discovery may select a later, separately recorded missing
+    # scope; that scope must not be shadowed by the old fixed-list entry.
+    merged={}
+    for case in fixed:merged.setdefault(case['gamePk'],case)
+    for case in DISCOVERY.cases(SimpleNamespace(**globals()),state):merged[case['gamePk']]=case
+    return list(merged.values())
+
+
+def discovery_exclusions(state):
+    """Finish fixed jobs first; then allow discovery of other recorded gaps."""
+    discovered={case['gamePk'] for case in DISCOVERY.cases(SimpleNamespace(**globals()),state)}
+    fixed={}
+    for case in cases():fixed.setdefault(case['gamePk'],case)
+    excluded=set()
+    for pk,case in fixed.items():
+        if pk in discovered:continue
+        path=state/'pipeline/control/mlb-game/history-addition'/(pk+'.json')
+        if not path.is_file() or not completed_case(read(path),case):excluded.add(pk)
+    return excluded
 
 
 def fingerprint():
@@ -675,7 +695,7 @@ def next_case(state,skip=()):
         if same_attempt(previous,case,version) and previous.get('attempts', 0) >= 2:
             continue
         return case['gamePk']
-    return DISCOVERY.discover(SimpleNamespace(**globals()),state,{c['gamePk'] for c in cases()}|set(skip))
+    return DISCOVERY.discover(SimpleNamespace(**globals()),state,discovery_exclusions(state)|set(skip))
 
 
 def drain(state,java,mapper,classpath,limit=10,seconds=45):

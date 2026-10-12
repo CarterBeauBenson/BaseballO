@@ -12,6 +12,27 @@ D=H.DISCOVERY
 
 
 class HistoryRepairDiscovery(unittest.TestCase):
+    def test_completed_fixed_repair_does_not_hide_a_different_missing_history(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);fixed=[dict(gamePk='1'),dict(gamePk='2')]
+            H.atomic(state/'pipeline/control/mlb-game/history-addition/1.json',dict(status='complete'))
+            with patch.object(H,'cases',return_value=fixed),patch.object(D,'cases',return_value=[]):
+                self.assertEqual(H.discovery_exclusions(state),{'2'})
+                with patch.object(H.SCOPE,'excluded_games',return_value={}), \
+                     patch.object(D,'discover',return_value=None) as discover:
+                    H.next_case(state,skip={'2'})
+                    self.assertEqual(discover.call_args.args[2],{'2'})
+            # The next discovered job must be the one execution looks up, not
+            # the old fixed case that happened to share its game ID.
+            selected=dict(gamePk='1',discovered=True,selectedHistoryKeys=['new'],
+                repairRequestSha256='new-request',sourceSha256='source')
+            with patch.object(H,'read',return_value=dict(cases=fixed)), \
+                 patch.object(D,'cases',return_value=[selected]):
+                active=H.cases(state)
+                self.assertEqual([c for c in active if c['gamePk']=='1'],[selected])
+                self.assertEqual([c['gamePk'] for c in active],['1','2'])
+            self.assertFalse(H.completed_case(dict(status='complete',selectedHistoryKeys=['old']),selected))
+
     def test_context_compatibility_requires_unchanged_history_and_current_runtime_admission(self):
         raw='def helper():\n    return 1\ndef personal_runner_histories(raw):\n    return helper()\ndef award():\n    return 1\n'
         with tempfile.TemporaryDirectory() as temp:

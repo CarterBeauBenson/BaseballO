@@ -1,0 +1,17 @@
+--- a/Baseball/sources/mlb-game/pipeline/history-selection-candidates.json
++++ b/Baseball/sources/mlb-game/pipeline/history-selection-candidates.json
+@@ -2,11 +2,11 @@
+   "artifactType": "baseballo-targeted-history-repair-inventory",
+   "scopeDecision": "archive/design-records/metric-repair-scope-2026-09-30/README.md",
+   "implementationRecord": "sources/mlb-game/review/rml-selection-repair-2026-10-01.md",
+-  "contextBuilderSha256": "e3bf6ebedca0f6dcd80727d8250eb7d1d58076e0dd85f100df21fb7cbf0242b0",
++  "contextBuilderSha256": "11110d7c5b51b4902093652abdb6c4dd34f9449f97b98ac2d2b41cc5dbe2e0cb",
+   "historyContextSignature": {
+     "method": "personal-runner-histories-transitive-ast-v1",
+-    "sourceSha256": "e3bf6ebedca0f6dcd80727d8250eb7d1d58076e0dd85f100df21fb7cbf0242b0",
+-    "sha256": "53d1218977eb31ac48c199d38db11312b15d8295422661a9890355ea12513e67"
++    "sourceSha256": "11110d7c5b51b4902093652abdb6c4dd34f9449f97b98ac2d2b41cc5dbe2e0cb",
++    "sha256": "25bf73c823381fe2611bf767b9e374dceba2bef8d953035f06598821e7792277"
+   },
+   "cases": [
+     {
