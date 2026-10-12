@@ -22,7 +22,7 @@ class PaBoundary(unittest.TestCase):
             path=E.refresh_path(state,promotion,'b2','checked-producer').with_suffix('.source.json')
             source=dict(gamePk='1',sourceSha256='later-source',issues=[],boundaries=[],histories=[])
             E.atomic(path,source)
-            checked=dict(implementationSha256='checked-producer',sourceSha256='later-source',
+            checked=dict(status='admitted',implementationSha256='checked-producer',sourceSha256='later-source',
                 sourceCensusSha256=E.sha(path),proofSha256='checked-proof')
             old=dict(implementationSha256=P.PREVIOUS_SOURCE_SELECTION,
                 plateAppearances=[dict(status='withheld')],retainedSourceEvidence=dict(sha256='original-census'))
@@ -41,6 +41,30 @@ class PaBoundary(unittest.TestCase):
                 path.write_text('{}',encoding='utf-8')
                 with self.assertRaisesRegex(ValueError,'census changed'):
                     P.retained_source(E,state,promotion)
+
+    def test_failed_revised_response_does_not_replace_promoted_source_census(self):
+        from test_admission_evidence import E
+        with tempfile.TemporaryDirectory() as temporary:
+            state=Path(temporary);promotion=dict(gamePk='1',rawSha256='original-source',
+                authoritativeRdfSha256='rdf',promotionManifestSha256='promotion')
+            original=state/'pipeline/evidence/mlb-game/1/promoted/boundary.json'
+            source=dict(gamePk='1',sourceSha256='original-source',histories=['original'])
+            E.atomic(original.with_suffix('.source.json'),source)
+            E.atomic(original,dict(gamePk='1',sourceSha256='original-source',authoritativeRdfSha256='rdf',
+                implementationSha256=P.B.fingerprint(),sourceCensusSha256=E.sha(original.with_suffix('.source.json'))))
+            marker=dict(runnerBoundaryAdmission=str(original),runnerBoundaryAdmissionSha256=E.sha(original))
+            path=E.refresh_path(state,promotion,'b2','checked-producer').with_suffix('.source.json')
+            revised=dict(source,sourceSha256='later-source',histories=['original','new-revision-episode'])
+            E.atomic(path,revised)
+            checked=dict(status='withheld',implementationSha256='checked-producer',sourceSha256='later-source',
+                sourceCensusSha256=E.sha(path),proofSha256='checked-proof')
+            with patch.object(E.EXISTING_GRAPH,'load',return_value=checked),patch.object(E,'checked_marker',return_value=marker):
+                selected,witness=P.retained_source(E,state,promotion)
+                self.assertEqual(selected,source)
+                self.assertEqual(witness['kind'],'promoted-boundary-census')
+                # With no original source, a later witness can still be checked.
+                marker.clear()
+                self.assertEqual(P.retained_source(E,state,promotion)[0],revised)
 
     def population(self):
         graph,source=fixture();pa=source['boundaries'][0]['pa'];half=source['game']+'/inning/1/top'

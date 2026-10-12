@@ -218,13 +218,12 @@ def prior_versions(kind,current):
                 and sha(ROOT/record['contextPath'])==selection.get('currentContextSha256')):
             return entry['previousImplementationSha256s']
     if kind=='players' and current==PLAYER_PARTICIPATION.fingerprint():
-        # Retain original counts. Unknown players get the independent
-        # eligibility check without invalidating already complete PA counts.
-        previous=PLAYER_PARTICIPATION.PREVIOUS_RUN_SCOPE_IMPLEMENTATION
-        return [PLAYER_PARTICIPATION.PREVIOUS_ELIGIBILITY_IMPLEMENTATION,
-            PLAYER_PARTICIPATION.PREVIOUS_ADMINISTRATIVE_IMPLEMENTATION,previous,*prior_versions(kind,previous)]
+        # Source-witness preference changes no roster, PA or history checks.
+        # Preserve the full existing compatibility chain, not just its head.
+        previous='3329578061027f412565a856a9adb24a0ab67f546b024d5afa3b9d34deb268a6'
+        return [previous,*prior_versions(kind,previous)]
     if kind=='pa' and current==PLAYER_PARTICIPATION.PA.fingerprint():
-        previous=PLAYER_PARTICIPATION.PA.PREVIOUS_SOURCE_SELECTION
+        previous='e7f06c09b92049d3cfd07414963cf70850d5885610d41ec9c6334462a9789f76'
         return [previous,*prior_versions(kind,previous)]
     foul=record.get('foulPrefixRepair',{})
     entry=foul.get('derivedProofs',{}).get(kind,{})
