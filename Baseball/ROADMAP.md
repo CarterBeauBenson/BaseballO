@@ -44,6 +44,13 @@ publication measurements. [The gap register](sparql/metrics/gap-register.json),
 accepted decisions, and the presentation/qualification contracts retain the
 metric meanings. This update changes the plan, not runtime behavior or semantics.
 
+The [October 12 cross-metric audit](serving/EMPTY-GAMES-CROSS-METRIC-AUDIT.md)
+adds concrete follow-up findings A1-A5. Correct the final Empty Games
+error-credit integration first, then share physical evidence and actual actor
+handling across the applicable readers. Preserve each metric's attribution and
+completeness requirements. This does not change source authorization or make
+Empty Games' repair inventory the inventory for every other metric.
+
 ### Starting point and finish line
 
 | Layer | Last observed state | What this establishes |

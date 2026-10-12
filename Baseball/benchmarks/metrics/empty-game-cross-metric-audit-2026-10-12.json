@@ -1,0 +1,819 @@
+{
+  "artifactType": "baseballo-cross-metric-audit-capture",
+  "capturedAtUtc": "2026-10-12T13:15:41.647532+00:00",
+  "auditCommit": "27fdb3c64ac9b3aaca19e1f92e1e83a5dc3c20f5",
+  "request": {
+    "dateScope": {
+      "preset": "season_to_date"
+    },
+    "gameSet": "regular_season"
+  },
+  "execution": "materialized-sql",
+  "dateScope": {
+    "preset": "season_to_date",
+    "startDate": "2026-01-01",
+    "endDate": "2026-09-27",
+    "availableStartDate": "2026-03-25",
+    "availableEndDate": "2026-09-27",
+    "dateBasis": "official-source",
+    "gameSet": "regular_season"
+  },
+  "graphCount": 2429,
+  "schedule": {
+    "complete": true,
+    "missingDates": [],
+    "missingGraphs": [],
+    "unexpectedGraphs": [],
+    "unresolvedGraphs": [],
+    "expectedGames": 2429
+  },
+  "publications": {
+    "combined": {
+      "buildId": "20261012T115414Z-dashboard-combined-3efe45a4",
+      "promotedAtUtc": "2026-10-12T12:10:38.111957+00:00",
+      "runtimeRelease": {
+        "manifestSha256": "30a209f3139b7c346a0d96cbfd7858ed19d6fbfd721a30333147e8769d8452fa",
+        "releaseId": "30a209f3139b7c346a0d96cbfd7858ed19d6fbfd721a30333147e8769d8452fa",
+        "sourceCommit": "d5d584e89aaa4f71cfaca9fa8c640465c8bf037e"
+      },
+      "sourceSnapshotCapturedAtUtc": "2026-10-12T11:57:14.939301+00:00"
+    },
+    "defense": {
+      "buildId": "20261012T122040Z-dashboard-defense-fae3b4de",
+      "promotedAtUtc": "2026-10-12T12:30:35.405256+00:00",
+      "runtimeRelease": {
+        "manifestSha256": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "releaseId": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "sourceCommit": "cb62852c3dfe4d3e0c98b2015175c2a4d4149788"
+      },
+      "sourceSnapshotCapturedAtUtc": "2026-10-12T12:22:28.188211+00:00"
+    },
+    "offense": {
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd",
+      "promotedAtUtc": "2026-10-12T12:48:39.232419+00:00",
+      "runtimeRelease": {
+        "manifestSha256": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "releaseId": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "sourceCommit": "cb62852c3dfe4d3e0c98b2015175c2a4d4149788"
+      },
+      "sourceSnapshotCapturedAtUtc": "2026-10-12T12:33:35.607912+00:00"
+    },
+    "other": {
+      "buildId": "20261012T121136Z-dashboard-other-9a48dd59",
+      "promotedAtUtc": "2026-10-12T12:19:58.835142+00:00",
+      "runtimeRelease": {
+        "manifestSha256": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "releaseId": "a5aeeb9f84a66fd21befe0814e3ae92e4dcaf5e2b2b421b919ece8fb44b6b029",
+        "sourceCommit": "cb62852c3dfe4d3e0c98b2015175c2a4d4149788"
+      },
+      "sourceSnapshotCapturedAtUtc": "2026-10-12T12:13:33.099371+00:00"
+    }
+  },
+  "metrics": [
+    {
+      "metricId": "tfs",
+      "status": "available",
+      "playerResultCount": 54,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 54,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 878,
+        "excludedPlayers": 608,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_PA_CONTRIBUTIONS": 607,
+          "OFFICIAL_PA_POPULATION": 145
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "paq-2",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "SEASON_REFERENCE_UNAVAILABLE"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "paq-a",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "SEASON_REFERENCE_UNAVAILABLE"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "offensive-reach",
+      "status": "available",
+      "playerResultCount": 200,
+      "leaderboardStatus": "available",
+      "qualifiedRows": 3,
+      "belowMinimum": 197,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 1024,
+        "excludedPlayers": 462,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "OFFICIAL_PA_POPULATION": 145,
+          "COMPLETE_PA_PROGRESS": 442
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_PROGRESS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "hidden-help-rate",
+      "status": "available",
+      "playerResultCount": 251,
+      "leaderboardStatus": "available",
+      "qualifiedRows": 10,
+      "belowMinimum": 241,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 1078,
+        "excludedPlayers": 408,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "OFFICIAL_PA_POPULATION": 145,
+          "COMPLETE_PA_PROGRESS": 372
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_PROGRESS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "rally-kill-rate",
+      "status": "available",
+      "playerResultCount": 51,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 51,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 878,
+        "excludedPlayers": 608,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_PA_CONTRIBUTIONS": 607,
+          "OFFICIAL_PA_POPULATION": 145
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "rally-kill-severity",
+      "status": "available",
+      "playerResultCount": 51,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 51,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 878,
+        "excludedPlayers": 608,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_PA_CONTRIBUTIONS": 607,
+          "OFFICIAL_PA_POPULATION": 145
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "opportunity-erosion",
+      "status": "available",
+      "playerResultCount": 54,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 54,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 878,
+        "excludedPlayers": 608,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_PA_CONTRIBUTIONS": 607,
+          "OFFICIAL_PA_POPULATION": 145
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_PA_CONTRIBUTIONS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "empty-game-rate",
+      "status": "available",
+      "playerResultCount": 631,
+      "leaderboardStatus": "available",
+      "qualifiedRows": 631,
+      "belowMinimum": 0,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 1455,
+        "excludedPlayers": 31,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_EMPTY_GAME_CLASSIFICATION": 31
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "empty-game-damage",
+      "status": "available",
+      "playerResultCount": 35,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 35,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 873,
+        "excludedPlayers": 613,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "INDEPENDENT_DAMAGE_COVERAGE": 612,
+          "OFFICIAL_PA_POPULATION": 145
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "INDEPENDENT_DAMAGE_COVERAGE",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "contribution-path-diversity",
+      "status": "available",
+      "playerResultCount": 58,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 58,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 575,
+        "excludedPlayers": 911,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "OFFICIAL_PA_POPULATION": 145,
+          "COMPLETE_CONTRIBUTION_CHANNELS": 909
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_CONTRIBUTION_CHANNELS",
+        "OFFICIAL_PA_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "recovery-quality",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "SEASON_REFERENCE_UNAVAILABLE"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "resolution-depth",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 0,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 0,
+        "excludedPlayers": 1486,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "DEFENSIVE_POPULATION": 1486
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "DEFENSIVE_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T122040Z-dashboard-defense-fae3b4de"
+    },
+    {
+      "metricId": "defender-breadth",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "empty",
+      "qualifiedRows": 0,
+      "belowMinimum": 0,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 0,
+        "excludedPlayers": 1486,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "DEFENSIVE_POPULATION": 1486
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "DEFENSIVE_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T122040Z-dashboard-defense-fae3b4de"
+    },
+    {
+      "metricId": "run-construction-depth",
+      "status": "available",
+      "playerResultCount": 501,
+      "leaderboardStatus": "available",
+      "qualifiedRows": 196,
+      "belowMinimum": 305,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 1309,
+        "excludedPlayers": 177,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_SCORING_HISTORIES": 177
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_SCORING_HISTORIES"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "run-construction-breadth",
+      "status": "available",
+      "playerResultCount": 161,
+      "leaderboardStatus": "available",
+      "qualifiedRows": 10,
+      "belowMinimum": 151,
+      "coverage": {
+        "policy": "complete-player-selected-range-v1",
+        "completePlayers": 969,
+        "excludedPlayers": 517,
+        "rosteredPlayers": 1486,
+        "exclusionReasons": {
+          "COMPLETE_SCORING_HISTORIES": 517
+        },
+        "leaguePopulationComplete": false
+      },
+      "gaps": [
+        "COMPLETE_SCORING_HISTORIES"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T123129Z-dashboard-offense-3e9410cd"
+    },
+    {
+      "metricId": "adjudication-volatility",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "REVIEW_PLAYER_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T121136Z-dashboard-other-9a48dd59"
+    },
+    {
+      "metricId": "review-dependence-rate",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "REVIEW_PLAYER_POPULATION"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T121136Z-dashboard-other-9a48dd59"
+    },
+    {
+      "metricId": "paq-2.1",
+      "status": "unavailable",
+      "playerResultCount": 0,
+      "leaderboardStatus": "unavailable",
+      "qualifiedRows": 0,
+      "belowMinimum": null,
+      "coverage": {},
+      "gaps": [
+        "SEASON_REFERENCE_UNAVAILABLE"
+      ],
+      "populationComplete": false,
+      "buildId": "20261012T115414Z-dashboard-combined-3efe45a4"
+    }
+  ],
+  "dashboardReadiness": {
+    "expectedLeaderboards": 19,
+    "populatedLeaderboards": 5,
+    "completePopulations": 0,
+    "emptyLeaderboards": 0,
+    "unavailableLeaderboards": 14,
+    "ready": false,
+    "cards": [
+      {
+        "metricId": "tfs",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "COMPLETE_PA_CONTRIBUTIONS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "paq-2",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "SEASON_REFERENCE_UNAVAILABLE",
+          "COMPLETE_PLAYER_SCORES"
+        ]
+      },
+      {
+        "metricId": "paq-a",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "SEASON_REFERENCE_UNAVAILABLE",
+          "COMPLETE_PLAYER_SCORES"
+        ]
+      },
+      {
+        "metricId": "offensive-reach",
+        "status": "populated",
+        "populationComplete": false,
+        "qualifiedRows": 3,
+        "gaps": [
+          "COMPLETE_PA_PROGRESS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "hidden-help-rate",
+        "status": "populated",
+        "populationComplete": false,
+        "qualifiedRows": 10,
+        "gaps": [
+          "COMPLETE_PA_PROGRESS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "rally-kill-rate",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "COMPLETE_PA_CONTRIBUTIONS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "rally-kill-severity",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "COMPLETE_PA_CONTRIBUTIONS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "opportunity-erosion",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "COMPLETE_PA_CONTRIBUTIONS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "empty-game-rate",
+        "status": "populated",
+        "populationComplete": false,
+        "qualifiedRows": 631,
+        "gaps": [
+          "COMPLETE_EMPTY_GAME_CLASSIFICATION"
+        ]
+      },
+      {
+        "metricId": "empty-game-damage",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "INDEPENDENT_DAMAGE_COVERAGE",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "contribution-path-diversity",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "COMPLETE_CONTRIBUTION_CHANNELS",
+          "OFFICIAL_PA_POPULATION"
+        ]
+      },
+      {
+        "metricId": "recovery-quality",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "SEASON_REFERENCE_UNAVAILABLE",
+          "COMPLETE_PLAYER_SCORES"
+        ]
+      },
+      {
+        "metricId": "resolution-depth",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "DEFENSIVE_POPULATION"
+        ]
+      },
+      {
+        "metricId": "defender-breadth",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "DEFENSIVE_POPULATION"
+        ]
+      },
+      {
+        "metricId": "run-construction-depth",
+        "status": "populated",
+        "populationComplete": false,
+        "qualifiedRows": 196,
+        "gaps": [
+          "COMPLETE_SCORING_HISTORIES"
+        ]
+      },
+      {
+        "metricId": "run-construction-breadth",
+        "status": "populated",
+        "populationComplete": false,
+        "qualifiedRows": 10,
+        "gaps": [
+          "COMPLETE_SCORING_HISTORIES"
+        ]
+      },
+      {
+        "metricId": "adjudication-volatility",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "REVIEW_PLAYER_POPULATION",
+          "COMPLETE_PLAYER_SCORES"
+        ],
+        "mechanisms": [
+          {
+            "mechanism": "traditional-replay",
+            "status": "unavailable",
+            "qualifiedRows": 0,
+            "gaps": [
+              "COMPLETE_PLAYER_SCORES"
+            ]
+          },
+          {
+            "mechanism": "ball-strike-challenge",
+            "status": "unavailable",
+            "qualifiedRows": 0,
+            "gaps": [
+              "COMPLETE_PLAYER_SCORES"
+            ]
+          }
+        ]
+      },
+      {
+        "metricId": "review-dependence-rate",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "REVIEW_PLAYER_POPULATION",
+          "COMPLETE_PLAYER_SCORES"
+        ],
+        "mechanisms": [
+          {
+            "mechanism": "traditional-replay",
+            "status": "unavailable",
+            "qualifiedRows": 0,
+            "gaps": [
+              "COMPLETE_PLAYER_SCORES"
+            ]
+          },
+          {
+            "mechanism": "ball-strike-challenge",
+            "status": "unavailable",
+            "qualifiedRows": 0,
+            "gaps": [
+              "COMPLETE_PLAYER_SCORES"
+            ]
+          }
+        ]
+      },
+      {
+        "metricId": "paq-2.1",
+        "status": "unavailable",
+        "populationComplete": false,
+        "qualifiedRows": 0,
+        "gaps": [
+          "SEASON_REFERENCE_UNAVAILABLE",
+          "COMPLETE_PLAYER_SCORES"
+        ]
+      }
+    ]
+  },
+  "auditLimits": {
+    "publishedBeforeEG6Implementation": true,
+    "livePopulationImprovementMeasured": false,
+    "rdfChanged": false,
+    "corpusRecalculated": false,
+    "syntheticProbesAreSourceAdmission": false
+  },
+  "boundedProbes": [
+    {
+      "id": "A1",
+      "kind": "synthetic-existing-fixture-components",
+      "fixtureModules": [
+        "test_empty_scoring_credit",
+        "test_player_ranges"
+      ],
+      "input": "One eligible contact-out batter; another runner advances second to third on an explicitly adjudicated error in the same contact; no RBI or other positive. Complete one-episode runner history.",
+      "functions": [
+        "batting_progress_evidence",
+        "empty_scoring_inputs",
+        "project"
+      ],
+      "observed": {
+        "reach": 1,
+        "progressChannel": "batter_other",
+        "emptyScoringPositivePlayers": [],
+        "emptyScoringPossiblePositivePlayers": [],
+        "finalEmptyGameComplete": true,
+        "finalEmptyGameCount": 0
+      },
+      "expectedUnderEG6A": {
+        "finalEmptyGameCount": 1
+      }
+    },
+    {
+      "id": "A2",
+      "kind": "synthetic-existing-fixture-components",
+      "fixtureModules": [
+        "test_contribution_players"
+      ],
+      "input": "Zero outs before PA; batter contact out; runner second to third with explicit error judgment and decision.",
+      "functions": [
+        "contribution_game_inputs"
+      ],
+      "observed": {
+        "runnerCreditProgress": true,
+        "score": {
+          "numerator": "-1",
+          "denominator": "12"
+        },
+        "withheld": []
+      },
+      "interpretation": "Numeric reader does not use the error-step exclusion. EG6 binary decision supplies no replacement numeric score."
+    },
+    {
+      "id": "A3",
+      "kind": "synthetic-existing-fixture-components",
+      "fixtureModules": [
+        "test_empty_scoring_credit"
+      ],
+      "input": "Substituted home-run turn with two actual batter bindings, one explicit contactBatter, one complete home-to-run episode; duplicate physical movement differs only in batter and HOME origin binding.",
+      "functions": [
+        "batting_progress_evidence",
+        "empty_scoring_inputs",
+        "run_construction_evidence"
+      ],
+      "observed": {
+        "generalProgressGap": "AMBIGUOUS_BATTING_CONTRIBUTOR",
+        "emptyScoringPositivePlayers": [
+          "https://baseballontology.org/data/player/1"
+        ],
+        "depth": 1,
+        "breadthGap": "CONFLICTING_SEGMENT_STATE"
+      }
+    },
+    {
+      "id": "compound-control",
+      "kind": "synthetic-existing-fixture-components",
+      "fixtureModules": [
+        "test_contribution_players"
+      ],
+      "input": "Canonical SacrificeFlyProcess, two contact-linked outs (batter and runner initially at first), runner initially at third scores, zero outs before PA.",
+      "functions": [
+        "contribution_game_inputs"
+      ],
+      "observed": {
+        "attributedOuts": 2,
+        "existingRunnerOuts": 1,
+        "score": {
+          "numerator": "5",
+          "denominator": "12"
+        },
+        "withheld": []
+      }
+    }
+  ],
+  "retainedSampleCheck": {
+    "games": 33,
+    "source": "Existing pre-EG6 diagnostic snapshot baseballo-empty-remaining-20261012.json",
+    "completedProgressPositivesContradictedByNewBinaryReader": 0,
+    "limit": "The sample predates the new contact/error membership additions; this is not a post-EG6 population check."
+  },
+  "publishedReferenceInspection": {
+    "offense": {
+      "recovery-quality": {
+        "storedGames": 1,
+        "referenceEndDate": "2026-03-25"
+      },
+      "paq-2": "absent",
+      "paq-a": "absent"
+    },
+    "combined": {
+      "paq-2.1": "absent"
+    },
+    "databasePolicy": "Read-only immutable published snapshots identified in publications; no working database mutation."
+  }
+}

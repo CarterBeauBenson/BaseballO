@@ -4,6 +4,12 @@
 player producers; the two review player integrations remain unfinished. Twenty
 calculation kernels exist, including backend-only Role Realization Breadth.
 
+The [October 12 cross-metric audit](EMPTY-GAMES-CROSS-METRIC-AUDIT.md) traces
+reuse across all nineteen. It records a reproduced error-credit integration
+defect, older consumers of substituted-batter evidence, and why the Empty Games
+repair queue does not cover every metric. Its measured baseline predates EG6
+publication; no resulting population gain is claimed.
+
 The [active delivery roadmap](../ROADMAP.md#1-complete-the-nineteen-metrics-execution-plan)
 orders all nineteen cards through their query, prepared SQL and UI work, with
 Empty Games first. Its accountability table tracks delivery; the dated records
