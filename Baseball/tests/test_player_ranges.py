@@ -56,18 +56,22 @@ class PlayerRanges(unittest.TestCase):
         original=dict(rosterComplete=True,plateAppearanceInventoryComplete=True,
             paResolutions=dict(plateAppearances=[dict(plateAppearance='pa'+str(i),
                 status='admitted' if i<3 else 'withheld') for i in (1,2,3)]))
-        for case,expected in [('opponent',1),('teammate',0),('interrupted',0),('unknown-owner',0),
+        for case,expected in [('opponent',1),('teammate',0),('called-game-binary-only',1),('interrupted',0),('unknown-owner',0),
                               ('conflicting-team',0),('incomplete-inventory',0),('running-uncertainty',0)]:
             with self.subTest(case=case):
                 individual=copy.deepcopy(original);evidence=copy.deepcopy(rows);progress=copy.deepcopy(pas)
                 if case=='teammate':individual['paResolutions']['plateAppearances'][1]['status']='withheld'
+                if case=='called-game-binary-only':
+                    individual['paResolutions']['plateAppearances'][1].update(status='withheld',emptyGameStatus='admitted')
                 if case=='interrupted':
                     evidence.append(dict(kind='plate_appearance',entity='interrupted',graph=graph,game=game,player=U+'2'))
                     progress.append(dict(progress[1],plateAppearance='interrupted',officialResult=False))
                 if case=='unknown-owner':evidence[-1].pop('player')
                 if case=='conflicting-team':evidence.append(dict(evidence[-1],entity='pa1'))
                 if case=='incomplete-inventory':individual['plateAppearanceInventoryComplete']=False
-                if case=='running-uncertainty':progress[1]['unresolvedRunningPositivePlayers']=[U+'1']
+                if case=='running-uncertainty':
+                    progress[1]['unresolvedRunningPositivePlayers']=[U+'1']
+                    progress[1]['independentEpisodeGaps']=['RUNNING_ATTRIBUTION']
                 # B1 is independently admitted. Do not make a deliberately
                 # ambiguous ownership mutation fail before testing C2 scoping.
                 with patch.object(P,'qualification',return_value=dict(
@@ -81,6 +85,9 @@ class PlayerRanges(unittest.TestCase):
                 self.assertEqual(empty[U+'1'][3],expected)
                 self.assertEqual(empty[U+'3'][3],0)
                 if expected:self.assertEqual(json.loads(empty[U+'1'][4]),dict(kind='count',count=1,eligibleGames=1))
+                mix={r[1]:r for r in records if r[2]=='contribution-path-diversity'}
+                self.assertEqual(mix[U+'1'][3],0 if case=='called-game-binary-only' else expected)
+                self.assertEqual(mix[U+'3'][3],0)
 
     def test_empty_scope_upgrade_reuses_unaffected_products(self):
         db=self.db()

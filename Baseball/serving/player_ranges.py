@@ -374,7 +374,7 @@ def empty_scoring_inputs(m, rows, progress):
     return output
 
 
-def resolution_census_players(rows, roster, resolution, individual):
+def resolution_census_players(rows, roster, resolution, individual, *, empty_game=False):
     """Reuse admitted PA censuses for a team's entire offensive inventory.
 
     Every turn counts, including interrupted turns without an official PA.
@@ -386,7 +386,7 @@ def resolution_census_players(rows, roster, resolution, individual):
     if not (individual.get('rosterComplete') is True and
             individual.get('plateAppearanceInventoryComplete') is True):return set()
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
-              if p['status']=='admitted' or p.get('emptyGameStatus')=='admitted'}
+              if p['status']=='admitted' or empty_game and p.get('emptyGameStatus')=='admitted'}
     owners=defaultdict(set)
     for row in rows:
         if row['kind']!='plate_appearance':continue
@@ -489,7 +489,8 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
     empty_population=((admitted(proofs['batting']) or individual.get('plateAppearanceInventoryComplete') is True)
         and {r['entity'] for r in rows if r['kind']=='plate_appearance'}==
             {p['plateAppearance'] for p in [*progress.get('plateAppearances',[]),*progress.get('unresolvedPlateAppearances',[])]})
-    resolution_players=resolution_census_players(rows,roster,proofs['resolution'],individual)
+    resolution_players=resolution_census_players(rows,roster,proofs['resolution'],individual,empty_game=True)
+    channel_census_players=resolution_census_players(rows,roster,proofs['resolution'],individual)
     run_values={};run_unknown={}
     observed={r['entity'] for r in rows if r['kind']=='run'}
     for metric,result in runs.items():
@@ -569,7 +570,7 @@ def project(m, *, graph, scope, rows, proofs, inputs, runs, run_people, metric_i
                         complete=help_ok
                         aggregate=mean(m,[Fraction(p['value']) for p in own_help.values() if p['eligible']])
                 elif metric=='contribution-path-diversity':
-                    complete=(admitted(proofs['resolution']) and progress_census and player not in mix_uncertain
+                    complete=(player in channel_census_players and progress_census and player not in mix_uncertain
                               and progress_ok)
                     reason='COMPLETE_CONTRIBUTION_CHANNELS'
                     counts=Counter(c for _,c in channels[player])
