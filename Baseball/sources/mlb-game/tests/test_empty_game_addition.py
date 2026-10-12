@@ -206,6 +206,31 @@ class EmptyGameAddition(unittest.TestCase):
         data.remove((resolution,RDF.type,b.RunProcess));data.add((resolution,RDF.type,b.SafeProcess))
         self.assertFalse(validate(data,shacl_graph=shapes)[0])
 
+    def test_award_retry_completes_a_previously_skipped_turn_once(self):
+        document=copy.deepcopy(self.document)
+        season=str(document['gameData']['game']['season'])
+        play=next(p for p in document['liveData']['plays']['allPlays']
+            if p['result']['eventType']=='walk' and E.C.runner_metric_evidence(p,str(p['atBatIndex']),season,document=document)['awardAdvances'])
+        awards=E.C.runner_metric_evidence(play,str(play['atBatIndex']),season,document=document)['awardAdvances']
+        player='https://baseballontology.org/data/player/'+str(play['matchup']['batter']['id'])
+        document['liveData']['plays']['allPlays']=[play]
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);source=state/'input.json';E.W.atomic(source,document)
+            prior=dict(status='already-present',independentRunningDecision=E.INDEPENDENT_DECISION,
+                reviewedWalkDecision=E.REVIEW_WALK_DECISION,emptySelectionDecision=E.SELECTION_DECISION,
+                officialPACreditDecision=E.PA_CREDIT_DECISION,secondaryErrorDecision=E.ERROR_DECISION,
+                selected=dict(context=dict(liveData=dict(plays=dict(allPlays=[]))),
+                    sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
+            case=dict(gamePk='566279')
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),['EG1-award-completion'])
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=['urn:unaffected']),[])
+            prior['selected']['context']['liveData']['plays']['allPlays']=[{E.C.CONTEXT_KEY:dict(awardAdvances=awards)}]
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
+            prior['selected']['context']['liveData']['plays']['allPlays']=[]
+            play['playEvents'][-1]['count']['balls']=3;E.W.atomic(source,document)
+            prior['selected']['sourceWitness']['sha256']=E.W.sha(source)
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
+
     def test_selected_census_addition_preserves_old_source_and_does_not_expand_scope(self):
         raw=self.raw;game='https://baseballontology.org/data/game/566279'
         full=E.R.H.census(raw,'566279');old=copy.deepcopy(full)

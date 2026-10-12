@@ -400,11 +400,12 @@ def selection_repair_families(state,case,previous,players=None):
             for p in prior_context.get('liveData',{}).get('plays',{}).get('allPlays',[])
             if p.get('atBatIndex') is not None and 'battedRunnerResolutions' in p.get(C.CONTEXT_KEY,{})])
     eg2_completion=prior_contacts is not None
+    award_completion=bool(prior_context)
     eg4=previous.get('officialPACreditDecision')!=PA_CREDIT_DECISION
     prior_scoring=previous.get('selected',{}).get('scoring')
     eg4_completion=(not eg4 and prior_scoring is not None and not prior_scoring.get('officialPACredits'))
     eg5=previous.get('secondaryErrorDecision')!=ERROR_DECISION
-    if not (d2 or w5 or eg2 or eg2_completion or eg4 or eg4_completion or eg5):return []
+    if not (d2 or w5 or eg2 or eg2_completion or award_completion or eg4 or eg4_completion or eg5):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -420,6 +421,9 @@ def selection_repair_families(state,case,previous,players=None):
     ids={p.rsplit('/',1)[-1] for p in players}
     families=set()
     old_contacts={str(p['atBatIndex']):p for p in (prior_contacts or {}).get('plays',[])}
+    award_key=lambda r:(r['atBatIndex'],r['runnerIndex'],r['ruleIri'])
+    old_awards={award_key(r) for p in prior_context.get('liveData',{}).get('plays',{}).get('allPlays',[])
+                for r in p.get(C.CONTEXT_KEY,{}).get('awardAdvances',[])}
     contact_history=None
     if eg4_completion and raw is not None:
         # The earlier attempt emitted no credit because an unrelated neutral
@@ -433,6 +437,16 @@ def selection_repair_families(state,case,previous,players=None):
         substituted=any(e.get('position',{}).get('abbreviation')=='PH' and
             (str(e.get('player',{}).get('id')) in ids or str(e.get('replacedPlayer',{}).get('id')) in ids)
             for e in play.get('playEvents',[]))
+        if (award_completion and raw is not None and affected
+                and play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch'}):
+            # Earlier repairs can have skipped a then-unresolved turn entirely.
+            # Compare selected facts, not decision labels or the successful
+            # receipt alone. The unchanged source selector owns award evidence.
+            if contact_history is None:contact_history=C.personal_runner_histories(raw)
+            doc[C.CONTEXT_KEY]={'runnerHistoryReconciliation':contact_history}
+            awards=C.runner_metric_evidence(play,str(play['atBatIndex']),
+                str(doc.get('gameData',{}).get('game',{}).get('season')),document=doc)['awardAdvances']
+            if any(award_key(r) not in old_awards for r in awards):families.add('EG1-award-completion')
         if (eg2_completion and raw is not None and affected
                 and str(play.get('atBatIndex')) in old_contacts
                 and not old_contacts[str(play['atBatIndex'])].get('links')):

@@ -49,6 +49,14 @@ successful receipts. Completed links suppress another retry. These four source
 checks are not yet measured dashboard gains; no game graph replacement is used.
 The six unrelated census proof contracts retain exact implementation compatibility.
 
+The repair owner also compares selected award facts instead of treating a prior
+successful receipt as a complete selection. In 823136 it had retained PA 64 but
+omitted PA 53; the unchanged award mapping now selects both the batter's walk and
+the other runner's forced advance. Existing RDF lacks those award links. A
+hash-checked retained response and a still-excluded approved player are required;
+the newly retained award selection prevents repeated retries. This is targeted
+completion through the existing owner, not a new mapping or source acquisition.
+
 ## Earlier measured publication: October 11 at 16:25 Eastern
 
 Offense publication `20261011T201105Z-dashboard-offense-30b0c6c7`, promoted at October 11 20:25:15 UTC,
