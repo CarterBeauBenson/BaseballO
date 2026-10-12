@@ -11,6 +11,9 @@ it. Use [`../../ROADMAP.md`](../../ROADMAP.md), the active subsystem READMEs,
 and machine-readable contracts for current behavior. The list below highlights
 important records but is not intended to enumerate every archived package.
 
+- [EG6A/B/C](mlb-game-empty-game-final-boundaries/README.md), accepted October 12, 2026:
+  remaining Empty Games attribution, generic source selections and called-game census.
+
 - [EG2](mlb-game-empty-game-remaining-selections/README.md),
   [EG3](empty-game-uncaught-strike-entry/README.md),
   [EG4](mlb-game-official-pa-credit/README.md), and
@@ -25,47 +28,47 @@ important records but is not intended to enumerate every archived package.
   targeted Empty Game completion and separately recorded balk attribution,
   preserving existing RDF and introducing no ontology terms or properties.
 
-- [`replay-review/`](replay-review/) — accepted on 2026-08-05 and implemented
+- [`replay-review/`](replay-review/) â€” accepted on 2026-08-05 and implemented
   in the authoritative ontology and MLB game source module.
 - [`game-season-process-and-team-context/`](game-season-process-and-team-context/)
-  — accepted on 2026-08-28; classifies games and seasons as processes and
+  â€” accepted on 2026-08-28; classifies games and seasons as processes and
   reuses occupation-role organizational context for team membership.
 - [`plate-appearance-batter-role-realization/`](plate-appearance-batter-role-realization/)
-  — accepted on 2026-08-28; restores the generic Batter Act as the realization
+  â€” accepted on 2026-08-28; restores the generic Batter Act as the realization
   grain for the career-persistent Batter Role.
-- [`ice-direct-values-and-units/`](ice-direct-values-and-units/) — accepted on
+- [`ice-direct-values-and-units/`](ice-direct-values-and-units/) â€” accepted on
   2026-08-29; authorizes direct ICE values and direct unit/reference-system use.
-- [`mlb-organizations/`](mlb-organizations/) — accepted on 2026-08-29; admits
+- [`mlb-organizations/`](mlb-organizations/) â€” accepted on 2026-08-29; admits
   the reviewed season classes while preserving the organization blockers.
-- [`mlb-people/`](mlb-people/) — accepted on 2026-08-29 as a de-duplication and
+- [`mlb-people/`](mlb-people/) â€” accepted on 2026-08-29 as a de-duplication and
   gap record; it authorizes no standalone mapping.
-- [`mlb-transactions/`](mlb-transactions/) — accepted on 2026-08-29; admits the
+- [`mlb-transactions/`](mlb-transactions/) â€” accepted on 2026-08-29; admits the
   reviewed Trade and Uniform Number Assignment classes and record pattern.
-- [`mlb-venues/`](mlb-venues/) — accepted on 2026-08-29 as a de-duplication and
+- [`mlb-venues/`](mlb-venues/) â€” accepted on 2026-08-29 as a de-duplication and
   gap record; it authorizes no standalone mapping.
-- [`ontology-curation-debt-repair/`](ontology-curation-debt-repair/) — accepted
+- [`ontology-curation-debt-repair/`](ontology-curation-debt-repair/) â€” accepted
   on 2026-08-29; authorizes the reviewed repairs and hosting function.
-- [`realist-geometry-foundations/`](realist-geometry-foundations/) — accepted on
+- [`realist-geometry-foundations/`](realist-geometry-foundations/) â€” accepted on
   2026-08-29; admits Angle Quality and Distance Quality.
-- [`statcast-nonduplicate/`](statcast-nonduplicate/) — accepted on 2026-08-29;
+- [`statcast-nonduplicate/`](statcast-nonduplicate/) â€” accepted on 2026-08-29;
   authorizes the reviewed ontology term but no Statcast executable artifacts.
-- [`mlb-reference-source-ownership/`](mlb-reference-source-ownership/) —
+- [`mlb-reference-source-ownership/`](mlb-reference-source-ownership/) â€”
   accepted on 2026-08-29; assigns independently promoted MLB reference facts
   to detachable organization, people, venue, and transaction modules.
 - [`mlb-venue-field-dimension-foot-unit/`](mlb-venue-field-dimension-foot-unit/)
-  — accepted on 2026-08-29; fixes feet as the unit for the five venue field
+  â€” accepted on 2026-08-29; fixes feet as the unit for the five venue field
   dimensions while retaining the source-specific geometry gate.
 - [`mlb-organizations-source-contract/`](mlb-organizations-source-contract/)
-  — accepted on 2026-08-29; authorizes the solid organizations source-specific
+  â€” accepted on 2026-08-29; authorizes the solid organizations source-specific
   RML/SHACL shape while retaining its affiliation blockers.
-- [`mlb-people-source-contract/`](mlb-people-source-contract/) — accepted on
+- [`mlb-people-source-contract/`](mlb-people-source-contract/) â€” accepted on
   2026-08-29; authorizes the solid people identity, name, height, and birth
   source shape while retaining the reviewed blocked fields.
-- [`mlb-venues-source-contract/`](mlb-venues-source-contract/) — accepted on
+- [`mlb-venues-source-contract/`](mlb-venues-source-contract/) â€” accepted on
   2026-08-29; authorizes the solid venue and field-distance source shape using
   CCO Foot while retaining the reviewed blocked fields.
 - [`mlb-transactions-source-contract/`](mlb-transactions-source-contract/)
-  — accepted on 2026-08-29; authorizes the information-layer transaction shape
+  â€” accepted on 2026-08-29; authorizes the information-layer transaction shape
   and conditional Death gate while retaining Trade and number blockers.
 - [`FINAL-MLB-RML-REVIEW.md`](FINAL-MLB-RML-REVIEW.md) - accepted on
   2026-08-30; consolidates nineteen accepted source-independent design records
@@ -76,11 +79,11 @@ important records but is not intended to enumerate every archived package.
   The machine-readable aggregate decision is preserved in
   [`final-mlb-rml-review/`](final-mlb-rml-review/).
 - [`mlb-game-measurement-classification-lifecycle-2026-08-31/`](mlb-game-measurement-classification-lifecycle-2026-08-31/)
-  — accepted on 2026-08-31; fixes the evidence-equivalence gate,
+  â€” accepted on 2026-08-31; fixes the evidence-equivalence gate,
   evaluation-local Process Profile pattern, classification-dependent pitch and
   batted-ball kinds, offseason temporal parts, and the bounded semantic-freeze
   generator repair.
-- [`nifi-control-plane-hardening/`](nifi-control-plane-hardening/) — accepted
+- [`nifi-control-plane-hardening/`](nifi-control-plane-hardening/) â€” accepted
   on 2026-09-01 and subsequently superseded when the old NiFi flow was deleted.
   It is retained only as failure history. Do not restore its global control
   plane or use its handoff as an implementation plan; current NiFi contracts

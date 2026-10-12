@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../governance/proposal-review.schema.json",
+  "artifactType": "baseballo-semantic-proposal-review",
+  "schemaVersion": 1,
+  "proposalId": "mlb-game-empty-game-final-boundaries",
+  "title": "EG6: remaining Empty Games attribution and selection boundaries",
+  "status": "accepted",
+  "proposedIris": [],
+  "artifacts": {
+    "competencyQuestions": [
+      {
+        "path": "README.md",
+        "sha256": "4a5c9e271280198a62bc7f0b49d98466ef1778974b1660948cfdd1bfb44bfe97"
+      }
+    ],
+    "sourceEvidence": [
+      {
+        "path": "evidence.json",
+        "sha256": "8c969fbefa161ffb2678109b4b4ac540f36e28cd14bb7035aab8bddbc58797a6"
+      }
+    ],
+    "fieldSelectionInventory": [
+      {
+        "path": "README.md",
+        "sha256": "4a5c9e271280198a62bc7f0b49d98466ef1778974b1660948cfdd1bfb44bfe97"
+      }
+    ],
+    "sourceIndependentMermaid": [
+      {
+        "path": "README.md",
+        "sha256": "4a5c9e271280198a62bc7f0b49d98466ef1778974b1660948cfdd1bfb44bfe97"
+      }
+    ]
+  },
+  "ontologistDecision": {
+    "disposition": "accepted",
+    "decidedBy": "Carter Beau Benson",
+    "decidedAt": "2026-10-12",
+    "rationale": "User replied \"Approve\" to the explicit combined EG6A, EG6B and EG6C question in this conversation. Accept all three reviewed slices and their ordinary implementation through the existing source and serving owners. No new ontology terms/object properties or full rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py",
+      "Baseball/governance/semantic-freeze.json",
+      "Baseball/sources/mlb-game/mapping/mlb-game.rml.ttl",
+      "Baseball/sources/mlb-game/review/rml-mermaid-manifest.json",
+      "Baseball/sources/mlb-game/review/semantic-status.json",
+      "Baseball/sources/mlb-game/mapping/mapping-coverage.yaml",
+      "Baseball/sources/mlb-game/mapping/iri-policy.yaml"
+    ]
+  }
+}

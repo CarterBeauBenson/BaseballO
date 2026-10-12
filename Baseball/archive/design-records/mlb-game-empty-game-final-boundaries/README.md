@@ -1,5 +1,15 @@
 # EG6: remaining Empty Games attribution and selection boundaries
 
+**Accepted October 12, 2026.** Carter Beau Benson replied **"Approve"** to the
+single question explicitly requesting EG6A, EG6B and EG6C together. All three
+slices are accepted, including their generic future-input handling, bounded
+additive repairs, existing source-owned conformance checks, analytical/serving
+integration and scoped semantic pin updates. No new ontology terms or object
+properties, unrelated RDF replacement or full rebuild are authorized.
+
+The text below preserves the proposal reviewed by that decision. Its former
+review status is historical; implementation progress belongs in the roadmap.
+
 Status: **under review**, October 11, 2026. No implementation or approval is
 implied. No ontology terms, object properties, source endpoints, new lifecycle
 or full rebuild are proposed. This package separates three decisions; they can

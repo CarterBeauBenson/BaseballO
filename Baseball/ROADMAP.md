@@ -113,10 +113,10 @@ parallel heavy processes or change the ingestion topology.
 complete hitters (95.3%), with 32 held player-games across 30 games. Published
 EG5 engineering fixes completed all five selected additive repairs and cleared
 three player-game exclusions. All 30 remaining games are covered by the
-[EG6 review](proposals/mlb-game-empty-game-final-boundaries/README.md), covering
+[EG6 review](archive/design-records/mlb-game-empty-game-final-boundaries/README.md), covering
 shared attribution, generic selection and called-game census boundaries.
-EG6A/B/C await named decisions. NiFi has no unapplied approved selection in the
-current work list; independent supported processing remains enabled.
+EG6A/B/C were accepted together on October 12. Implement all three slices,
+then let NiFi apply their matching additions and publish the affected results.
 
 Deliver one complete metric before switching the primary task. Empty Games
 requires supported offensive eligibility and whether the player made any

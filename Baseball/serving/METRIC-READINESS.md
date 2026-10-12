@@ -37,7 +37,7 @@ as false; these are displayed prepared values, not projected repair gains.
 NiFi's repair plan for this publication contains no unapplied approved
 selection. Every remaining game is already represented in the prepared EG6
 witness inventory; this publication introduces no new case family. EG6A/B/C
-remain under review. These are attribution/selection decisions, not a request
+were accepted together on October 12; implementation follows this published decision. These are attribution/selection decisions, not a request
 for a new gate or a rebuild. The next running build may refresh independently
 available products, but its existence does not settle those decisions.
 
@@ -71,7 +71,7 @@ is consumed even by a failed attempt; existing retry limits and independent
 family publication remain. It does not interrupt an active build. This removes
 the extra wait behind every older family after an approved repair completes.
 
-The [EG6 package](../proposals/mlb-game-empty-game-final-boundaries/README.md)
+The [EG6 package](../archive/design-records/mlb-game-empty-game-final-boundaries/README.md)
 records the remaining shared semantic boundaries with all 33 retained game
 witnesses. EG6A proposes the mixed-error binary credit rule; EG6B separates a
 replaced batter's count participation from the replacement's positive result;
@@ -736,7 +736,7 @@ schedule snapshot at 19:10, after that publication. The next incremental SQL
 publication must import that snapshot and the later game evidence; the check
 must not be bypassed or the old publication described as current.
 
-A separate September 16Ã¢â‚¬â€œ27 HTTP check covers 159 games with a complete schedule
+A separate September 16ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“27 HTTP check covers 159 games with a complete schedule
 and all 159 rosters. It returns **11/19 populated cards**, including 119 Offensive
 Reach players, 140 Help Without Advancing players, 396 Empty Games counts,
 246 Scoring History Length players and 170 Run Contributors players. Player
