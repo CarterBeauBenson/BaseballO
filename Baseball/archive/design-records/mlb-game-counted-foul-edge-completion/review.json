@@ -48,6 +48,9 @@
     "disposition": "accepted",
     "decidedBy": "Carter Beau Benson",
     "decidedAt": "2026-10-12",
-    "rationale": "User answered \"Approve\" to the immediately preceding outstanding decisions F9, M1 and P1. Accept this package as written, including targeted additions and scoped context fingerprints for F9, analytical error-step credit for M1, and analytical strict endpoint ordering for P1. Preserve unrelated RDF; no new classes, object properties, acquisition or rebuild."
+    "rationale": "User answered \"Approve\" to the immediately preceding outstanding decisions F9, M1 and P1. Accept this package as written, including targeted additions and scoped context fingerprints for F9, analytical error-step credit for M1, and analytical strict endpoint ordering for P1. Preserve unrelated RDF; no new classes, object properties, acquisition or rebuild.",
+    "authorizedArtifacts": [
+      "Baseball/scripts/pipeline/prepare-rml-context.py"
+    ]
   }
 }
