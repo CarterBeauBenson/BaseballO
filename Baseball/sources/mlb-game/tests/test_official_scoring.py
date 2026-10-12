@@ -105,6 +105,19 @@ class OfficialScoring(unittest.TestCase):
         self.assertEqual(S.S.rbi_rows(changed,census,lambda p:True),[])
         self.assertEqual(S.S.rbi_rows(self.document,census,lambda p:False),[])
 
+    def test_dropped_ball_credit_uses_existing_error_identity_and_conflict_rules(self):
+        witness=copy.deepcopy(self.witnesses[0]);play=witness['play']
+        for row in play['runners']:
+            for credit in row.get('credits',[]):
+                if credit['credit'] in S.S.ERROR_KINDS:credit['credit']='f_error_dropped_ball'
+        rows=S.S.secondary_errors(play,witness['gamePk'],True)
+        self.assertEqual(len(rows),1)
+        self.assertTrue(rows[0]['error'].endswith('/f_error_dropped_ball'))
+        self.assertNotIn('contactPlay',rows[0])
+        affected=next(r for r in play['runners'] if r.get('credits'))
+        affected['credits'].append(dict(credit='f_error_dropped_ball',player=dict(id=999)))
+        self.assertEqual(S.S.secondary_errors(play,witness['gamePk'],True),[])
+
     def test_two_actual_batters_have_one_official_pa_in_source_owned_shacl(self):
         source,graph=fixture();row=source['members'][0];pa=row['pa'];player2=source['roster'][1]['player']
         row.update(officialCredit=True,actualBatters=[dict(playerId='1',actIri=pa+'/batter-act'),dict(playerId='2',actIri=pa+'/batter-act/2')])

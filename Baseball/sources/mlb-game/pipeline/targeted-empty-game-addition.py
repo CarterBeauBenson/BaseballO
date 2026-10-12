@@ -404,8 +404,9 @@ def selection_repair_families(state,case,previous,players=None):
     eg4=previous.get('officialPACreditDecision')!=PA_CREDIT_DECISION
     prior_scoring=previous.get('selected',{}).get('scoring')
     eg4_completion=(not eg4 and prior_scoring is not None and not prior_scoring.get('officialPACredits'))
+    scoring_completion=prior_scoring is not None or bool(prior_context)
     eg5=previous.get('secondaryErrorDecision')!=ERROR_DECISION
-    if not (d2 or w5 or eg2 or eg2_completion or award_completion or eg4 or eg4_completion or eg5):return []
+    if not (d2 or w5 or eg2 or eg2_completion or award_completion or eg4 or eg4_completion or eg5 or scoring_completion):return []
     manifest=state/'pipeline/quarantine/mlb-game'/case['gamePk']/'targeted-eg1/acquisition.json'
     witness=(previous.get('sourceWitness') or previous.get('selected',{}).get('sourceWitness')
              or (W.read(manifest) if manifest.is_file() else {}))
@@ -425,6 +426,12 @@ def selection_repair_families(state,case,previous,players=None):
     old_awards={award_key(r) for p in prior_context.get('liveData',{}).get('plays',{}).get('allPlays',[])
                 for r in p.get(C.CONTEXT_KEY,{}).get('awardAdvances',[])}
     contact_history=None
+    scoring_rows=None
+    previous_scoring=prior_scoring or prior_context.get(C.CONTEXT_KEY,{})
+    row_key=lambda r:json.dumps(r,sort_keys=True,separators=(',',':'))
+    old_scoring={name:{row_key(r) for r in previous_scoring.get(name,[])} for name in ('secondaryErrors','rbiCredits')}
+    old_independent={(r['atBatIndex'],r['runnerIndex']) for p in prior_context.get('liveData',{}).get('plays',{}).get('allPlays',[])
+        for r in p.get(C.CONTEXT_KEY,{}).get('defensiveIndifferenceActs',[])}
     if eg4_completion and raw is not None:
         # The earlier attempt emitted no credit because an unrelated neutral
         # defensive prefix blocked B1. Reopen only a newly reconciled credit
@@ -437,6 +444,13 @@ def selection_repair_families(state,case,previous,players=None):
         substituted=any(e.get('position',{}).get('abbreviation')=='PH' and
             (str(e.get('player',{}).get('id')) in ids or str(e.get('replacedPlayer',{}).get('id')) in ids)
             for e in play.get('playEvents',[]))
+        if scoring_completion and raw is not None and affected:
+            if scoring_rows is None:scoring_rows=SCORING.select(raw,case['gamePk'])
+            if any(str(r['atBatIndex'])==str(play.get('atBatIndex')) and row_key(r) not in old_scoring[name]
+                   for name in old_scoring for r in scoring_rows[name]):families.add('EG5-scoring-completion')
+        if prior_context and raw is not None and affected:
+            if any((r['atBatIndex'],r['runnerIndex']) not in old_independent
+                   for r in C.defensive_indifference_evidence(play)):families.add('D2-defensive-indifference')
         if (award_completion and raw is not None and affected
                 and play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch'}):
             # Earlier repairs can have skipped a then-unresolved turn entirely.

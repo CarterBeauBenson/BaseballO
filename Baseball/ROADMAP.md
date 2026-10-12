@@ -50,11 +50,11 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
-| Dashboard build, October 11 at 23:06 UTC | `20261011T222654Z-dashboard-offense-83be8fec` published | All four families have independent publications |
-| Published dashboard, October 11 at 19:06 Eastern | 608 complete Empty Games players, 54 incomplete; 56 held player-games across 51 games | A reader regression reopened 15 resolved records; zero incomplete remains the finish line |
-| Reader repair, awaiting publication | Preserve established zero contributions when refining uncertainty; retained evidence clears all 15 regressions | With the completed EG4 addition, the diagnostic remainder is 40 player-games; publication must demonstrate the gain |
+| Dashboard build, October 12 at 01:29 UTC | `20261012T011456Z-dashboard-offense-d204c753` published | All four families have independent publications |
+| Published dashboard, October 11 at 21:29 Eastern | 628 of 662 Empty Games hitters complete (94.9%); 34 incomplete, 35 held player-games across 33 games | The reader correction and five targeted additions have published; zero incomplete remains the finish line |
+| EG5 completion, awaiting publication | Recognize explicit dropped-ball error credits, retry omitted scoring selections and preserve explicit counted RBI independently of path reconstruction | Four retained games have newly supported scoring additions; publication must demonstrate the gain |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
-| EG2 contact selection repair | Four retained cases now select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Existing NiFi additive owner retries only newly supported, still-excluded cases; dashboard gains remain pending |
+| EG2 contact selection repair, published | Four cases select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Targeted additions completed; their gains are included in the 628 complete hitters |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
 
 The finish line is **nineteen working public metrics over the complete applicable

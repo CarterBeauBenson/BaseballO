@@ -2906,7 +2906,7 @@ def defensive_act_context(document: dict, previous: dict | None = None) -> dict:
 SCORING_BASE = 'https://baseballontology.org/'
 OFFICIAL_PA_RULE = SCORING_BASE+'data/rule/official-pa-assignment'
 OFFICIAL_RBI_RULE = SCORING_BASE+'data/rule/rbi-assignment'
-SCORING_ERROR_KINDS = {'f_fielding_error', 'f_throwing_error', 'f_catching_error'}
+SCORING_ERROR_KINDS = {'f_fielding_error', 'f_throwing_error', 'f_catching_error', 'f_error_dropped_ball'}
 SCORING_ERROR_EVENTS = {'error', 'field_error', 'pickoff_error_1b', 'pickoff_error_2b', 'pickoff_error_3b'}
 
 

@@ -287,6 +287,17 @@ def empty_scoring_inputs(m, rows, progress):
         possible=set();positive=set();groups=defaultdict(list)
         for row in moves[pa]:groups[row.get('runner')].append(row)
         if None in groups:continue
+        # An explicit scoring decision is already about the counted Run and
+        # its credited batter. Its binary credit does not require reconstructing
+        # the scoring runner's earlier path or allocating any numeric progress.
+        runs=defaultdict(list)
+        for row in moves[pa]:runs[row['resolution']].append(row)
+        for bindings in runs.values():
+            credits={tuple(r.get(k) for k in ('rbiPlayer','rbiJudgment','rbiDecision','rbiRecord')) for r in bindings}
+            if (len(credits)==1 and all(next(iter(credits)))
+                    and next(iter(credits))[0] in batting
+                    and all((r.get('hasSafeType'),r.get('hasOutType'),r.get('hasRunType'))==('false','false','true') for r in bindings)):
+                positive.add(next(iter(credits))[0])
         for runner,states in groups.items():
             states=list({m._json(r):r for r in states}.values())
             # The query binds every actual batter in a substituted turn. A

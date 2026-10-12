@@ -82,6 +82,19 @@ class EmptyScoringCredit(unittest.TestCase):
             trajectory='whole',trajectoryHalf='half',trajectoryInterval='interval',episode=e)
             for e in ('episode','out-episode')]]
 
+    def test_explicit_counted_rbi_survives_an_unavailable_runner_path(self):
+        first=self.error();first['originCode']='1B';first['destinationCode']='2B'
+        run=dict(self.error(),resolution='run',episode='scored',act='scoring-act',
+            hasSafeType='false',hasRunType='true',rbiPlayer=U+'1',
+            rbiJudgment='rj',rbiDecision='rd',rbiRecord='rr',errorContactPlay='contact')
+        rows=[self.turn(),first,run]  # no complete C1 membership
+        self.assertEqual(self.read(rows)['positivePlayers'],[U+'1'])
+        self.assertEqual(self.read(rows)['possiblePositivePlayers'],[U+'1',U+'2'])
+        conflict=dict(run,rbiPlayer=U+'2')
+        self.assertEqual(self.read([*rows,conflict])['positivePlayers'],[])
+        run.pop('rbiDecision')
+        self.assertEqual(self.read(rows)['positivePlayers'],[])
+
     def test_unattributed_advance_is_consumed_only_by_a_complete_terminal_path(self):
         rows=self.terminal_path()
         self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))

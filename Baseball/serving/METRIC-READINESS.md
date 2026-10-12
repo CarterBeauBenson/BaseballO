@@ -21,7 +21,26 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 11 at 19:06 Eastern
+## Latest measured publication: October 11 at 21:29 Eastern
+
+Offense publication `20261012T011456Z-dashboard-offense-d204c753` contains all
+2,429 selected regular-season games. **628 of 662 eligible hitters are complete
+(94.9%)**, with **34 incomplete hitters and 35 held player-games in 33 games**.
+The four EG2 contact additions and 823136's forced-walk addition completed and
+the corrected reader is published. This is a gain of 20 complete hitters from
+the preceding measurement, not completion of the metric.
+
+The next EG5 repair recognizes the explicitly scored `f_error_dropped_ball`
+through the existing Error Process/judgment/decision pattern. NiFi compares new
+secondary-error and RBI selections against previous selected facts; a prior
+successful receipt cannot hide an omitted supported credit. Retained inputs
+identify additions in 823331, 823664, 823855 and 824992. An explicit credited
+counted run now establishes binary RBI credit independently of reconstructing
+the runner's earlier path. Numeric progress and unknown running remain separate.
+Focused source, retry, binary-reader and existing proof-compatibility checks pass.
+These four additions and their subsequent dashboard effects are pending.
+
+## Earlier measured publication: October 11 at 19:06 Eastern
 
 Offense publication `20261011T222654Z-dashboard-offense-83be8fec` contains all
 2,429 selected games, but has **608 complete hitters and 54 incomplete**, with

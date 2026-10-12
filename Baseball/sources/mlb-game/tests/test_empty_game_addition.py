@@ -155,7 +155,8 @@ class EmptyGameAddition(unittest.TestCase):
                 selected=dict(contactCensus=dict(plays=[dict(atBatIndex=pa,status='withheld',links=[])]),
                     sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
             case=dict(gamePk=str(witness['gamePk']))
-            with patch.object(E.C,'personal_runner_histories',return_value=history):
+            with patch.object(E.C,'personal_runner_histories',return_value=history), \
+                    patch.object(E.SCORING,'select',return_value=dict(secondaryErrors=[],rbiCredits=[])):
                 self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),['EG2a-contact-prefix'])
                 legacy=copy.deepcopy(prior);legacy.pop('emptySelectionDecision')
                 self.assertEqual(E.selection_repair_families(state,case,legacy,players=[player]),['EG2a-contact-prefix'])
@@ -172,7 +173,8 @@ class EmptyGameAddition(unittest.TestCase):
                 context.write_text('{}',encoding='utf-8')
                 with self.assertRaisesRegex(ValueError,'retained context changed'):
                     E.selection_repair_families(state,case,compact,players=[player])
-            with patch.object(E.C,'personal_runner_histories',return_value={}):
+            with patch.object(E.C,'personal_runner_histories',return_value={}), \
+                    patch.object(E.SCORING,'select',return_value=dict(secondaryErrors=[],rbiCredits=[])):
                 self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
             source.write_text('{}',encoding='utf-8')
             with self.assertRaisesRegex(ValueError,'retained source changed'):
@@ -222,6 +224,8 @@ class EmptyGameAddition(unittest.TestCase):
                 selected=dict(context=dict(liveData=dict(plays=dict(allPlays=[]))),
                     sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
             case=dict(gamePk='566279')
+            self.addCleanup(patch.stopall)
+            patch.object(E.SCORING,'select',return_value=dict(secondaryErrors=[],rbiCredits=[])).start()
             self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),['EG1-award-completion'])
             self.assertEqual(E.selection_repair_families(state,case,prior,players=['urn:unaffected']),[])
             prior['selected']['context']['liveData']['plays']['allPlays']=[{E.C.CONTEXT_KEY:dict(awardAdvances=awards)}]
@@ -261,6 +265,24 @@ class EmptyGameAddition(unittest.TestCase):
         selected['contactCensus']['plays'][0]['links']=[]
         with self.assertRaisesRegex(ValueError,'remove an existing source obligation'):
             E.project_census('contactContinuationAdmission',updated,selected)
+
+    def test_scoring_retry_compares_facts_even_after_the_decision_was_applied(self):
+        raw=(ROOT/'data/raw/samples/2026-07-18/824169.json').read_bytes()
+        scoring=E.SCORING.select(raw,'824169');context=E.prepare(raw)
+        credit=scoring['rbiCredits'][0];player=credit['player'];case=dict(gamePk='824169')
+        with tempfile.TemporaryDirectory() as directory:
+            state=Path(directory);source=state/'input.json';source.write_bytes(raw)
+            prior=dict(status='complete',independentRunningDecision=E.INDEPENDENT_DECISION,
+                reviewedWalkDecision=E.REVIEW_WALK_DECISION,emptySelectionDecision=E.SELECTION_DECISION,
+                officialPACreditDecision=E.PA_CREDIT_DECISION,secondaryErrorDecision=E.ERROR_DECISION,
+                selected=dict(context=context,scoring=copy.deepcopy(scoring),
+                    sourceWitness=dict(path=str(source),sha256=E.W.sha(source))))
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
+            prior['selected']['scoring']['rbiCredits'].remove(credit)
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),['EG5-scoring-completion'])
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=['urn:unaffected']),[])
+            prior['selected']['scoring']['rbiCredits'].append(credit)
+            self.assertEqual(E.selection_repair_families(state,case,prior,players=[player]),[])
 
     def test_contact_check_includes_selected_later_history_dependency_only(self):
         root='https://baseballontology.org/data/game/824897'
