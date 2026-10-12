@@ -128,6 +128,26 @@ class DashboardFamilies(unittest.TestCase):
             receipt.write_text(json.dumps(dict(gamePk='101',status=status,checkedAtUtc='2026-10-12T02:45:28Z')))
             self.assertIsNone(owner.completed_offense_repair(self.args.state_root,published))
 
+    def test_new_offensive_reader_gets_one_attempt_without_source_churn_starvation(self):
+        owner=D.module(D.ROOT/'serving/family_build.py','test_reader_priority')
+        families=['offense','defense','combined','other']
+        published={'offense':dict(familyNotificationKey='old',playerCalculationSha256='old-code')}
+        attempts={'offense':dict(notification='old',attempts=1,attemptedAtUtc='2026-10-12T19:00:00Z')}
+        choose=lambda **kw:owner.choose(families,published,attempts,'changed-source','auto',False,
+            offense_implementation='new-code',**kw)
+        self.assertEqual(choose(),'offense')
+        attempts['offense'].update(playerCalculationSha256='new-code',notification='changed-source',status='failed')
+        self.assertEqual(choose(),'defense')
+        # Later source notifications do not restore consumed code priority.
+        attempts['offense']['notification']='previous-source'
+        self.assertEqual(choose(),'defense')
+        attempts['offense'].pop('playerCalculationSha256')
+        published['offense']['playerCalculationSha256']='new-code'
+        self.assertEqual(choose(),'defense')
+        published['offense']['playerCalculationSha256']='old-code'
+        attempts['offense'].update(notification='changed-source',attempts=3)
+        self.assertEqual(choose(),'defense')
+
     def test_legacy_offensive_values_survive_migration_without_a_graph_read(self):
         del self.args.family
         legacy=D.build(self.args);self.assertEqual(legacy['status'],'published',legacy)
