@@ -125,6 +125,8 @@ def census(raw, game_pk):
         pa = game+'/plate-appearance/'+str(index)
         event_type = play.get('result', {}).get('eventType')
         result_type = RESULTS.get(event_type)
+        compound = event_type=='sac_fly_double_play' and bool(CONTEXT.sacrifice_fly_double_play_parts(play))
+        if compound:result_type='SacrificeFlyProcess'
         if player not in owners or owners[player]['side'] != ('away' if play['about']['halfInning']=='top' else 'home'):
             issues.append(dict(code='BATTER_ROSTER_MISMATCH', atBatIndex=index))
         events = play.get('playEvents', [])
@@ -190,6 +192,7 @@ def census(raw, game_pk):
                                    eventIndex=event.get('index')))
         row = dict(pa=pa, player=player, resultType=BASE+result_type if result_type else None,
                    atBatIndex=index, eventType=event_type)
+        if compound:row['compoundResultType']=BASE+'DoublePlayProcess'
         if credit:
             row.update(officialCredit=True, actualBatters=actual)
         if result_type:
@@ -279,6 +282,9 @@ def shape_text(source):
 {iri(decision)} a base:BaseballDecisionICE ; cco:ont00001808 {iri(result)} .
 {iri(record)} a base:BaseballEventRecord ; cco:ont00001808 {iri(result)}, {iri(judgment)}, {iri(decision)} .'''
             results.append('|'.join((pa, result, row['resultType'])))
+            if row.get('compoundResultType'):
+                pattern += f"\n{iri(result)} a {iri(row['compoundResultType'])} ."
+                results.append('|'.join((pa,result,row['compoundResultType'])))
         missing.append('{ FILTER NOT EXISTS { '+pattern+' } }')
     for row in source['roster']:
         player, team = row['player'], row['team']

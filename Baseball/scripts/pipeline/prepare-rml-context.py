@@ -40,7 +40,7 @@ ADMINISTRATIVE_EVENT_TYPES = {"game_advisory"}
 BATTED_RUNNER_RESULT_TYPES = {
     "single", "double", "triple", "home_run", "field_out", "force_out",
     "grounded_into_double_play", "double_play", "sac_fly", "sac_bunt",
-    "fielders_choice", "fielders_choice_out", "field_error",
+    "fielders_choice", "fielders_choice_out", "field_error", "sac_fly_double_play",
 }
 PITCH_TYPE_CATEGORY_BY_CODE = {
     "FF": "FourSeamFastballPitchTypeICE",
@@ -140,10 +140,12 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str, histories: dic
     ):
         return []
     rows = play.get('runners', [])
-    mixed = any(row.get('details', {}).get('eventType') == 'other_out' for row in rows)
+    mixed = any(row.get('details', {}).get('playIndex') == event_index
+                and row.get('details', {}).get('eventType') in {'other_out','error'} for row in rows)
     if mixed:
         if not contact_continuation_supported(play, at_bat_index, event_index, histories):
-            return []  # Never expose only the convenient half of a B2 play.
+            if any(r.get('details',{}).get('eventType')=='other_out' for r in rows):return []
+            mixed=False  # Preserve A1's existing result rows; no new error membership.
     links = []
     for position, runner in enumerate(play.get("runners", [])):
         runner_details = runner.get("details", {})
@@ -152,7 +154,7 @@ def batted_runner_resolution_links(play: dict, at_bat_index: str, histories: dic
         if (
             type(runner_event_index) is not int
             or runner_event_index != event_index
-            or runner_details.get("eventType") not in ({result_type, 'other_out'} if mixed else {result_type})
+            or runner_details.get("eventType") not in ({result_type, 'other_out', 'error'} if mixed else {result_type})
             or type(movement.get("isOut")) is not bool
         ):
             continue
@@ -200,6 +202,17 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
         before=(events[event['index']-1].get('count',{}) if event['index'] else
                 dict(balls=0,strikes=0,outs=event.get('count',{}).get('outs')))
         administration=before_contact and runner_state_neutral_event(play,event,before)
+        if before_contact and details.get('eventType')=='runner_placed':
+            runner=str(event.get('player',{}).get('id'))
+            anchor=f"placement/{play['about']['inning']}/{play['about']['halfInning']}/{runner}"
+            witnesses=[w for w in histories.get('boundaryAnchorCensus',[]) if w.get('anchor')==anchor]
+            judgments=[j for j in histories.get('placementAdjudications',[]) if j.get('runnerId')==runner
+                and str(j.get('inning'))==str(play['about']['inning']) and j.get('half')==play['about']['halfInning']]
+            administration=(len(witnesses)==len(judgments)==1 and witnesses[0].get('eventIndex')==event['index']
+                and str(witnesses[0].get('atBatIndex'))==at_bat_index and witnesses[0].get('base')==event.get('base')==2
+                and event.get('isPitch') is False and event.get('isSubstitution') is not True and not selected
+                and event.get('count')==dict(balls=0,strikes=0,outs=0)
+                and not any(e.get('isPitch') is True for e in events[:event['index']]))
         replacement=False
         if before_contact and event.get('isSubstitution') is True:
             prefix=events[:event['index']]
@@ -237,7 +250,8 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
                 or (event.get('isPitch') is not True and details.get('eventType') not in {'batter_timeout', 'mound_visit'}
                     and not independent and not empty_attempt and not replacement and not reviewed and not administration)):
             return False
-    allowed = {play.get('result', {}).get('eventType'), 'other_out'}
+    allowed = {play.get('result', {}).get('eventType'), 'other_out', 'error'}
+    errors=scored_error_selections(play)
     membership = defaultdict(list)
     for item in histories.get('episodeMembership', []):
         if item['atBatIndex'] == at_bat_index:
@@ -247,7 +261,13 @@ def contact_continuation_supported(play, at_bat_index, terminal_index, histories
         details = row.get('details', {})
         matches = membership[str(index)]
         terminal_member = details.get('playIndex') == terminal_index and details.get('eventType') in allowed
+        if terminal_member and details.get('eventType')=='error' and index not in errors:return False
         prefix_member = details.get('playIndex') in prefix_indexes and details.get('eventType') in independent_prefix
+        movement=row.get('movement',{})
+        if (terminal_member and not matches and movement.get('isOut') is True and movement.get('start') is None
+                and details.get('runner',{}).get('id')==play.get('matchup',{}).get('batter',{}).get('id')
+                and type(movement.get('outNumber')) is int and movement['outNumber'] in (1,2,3)):
+            continue  # A batter out at home entry has no on-base C1 lifetime.
         if (not (terminal_member or prefix_member) or len(matches) != 1 or not matches[0].get('lifetimeKey')
                 or str(details.get('runner', {}).get('id')) != matches[0]['runnerId']):
             return False
@@ -291,6 +311,8 @@ def compound_double_play_parts(play: dict) -> list[dict]:
     """
     about, result = play.get('about', {}), play.get('result', {})
     events, runners = play.get('playEvents', []), play.get('runners', [])
+    if result.get('eventType')=='sac_fly_double_play':
+        return sacrifice_fly_double_play_parts(play)
     if (result.get('eventType') != 'strikeout_double_play' or about.get('isComplete') is not True
             or not events):
         return []
@@ -339,6 +361,33 @@ def compound_double_play_parts(play: dict) -> list[dict]:
         return []
     return [dict(atBatIndex=str(play['atBatIndex']), runnerIndex=str(i),
                  runnerId=str(r['details']['runner']['id'])) for i, r in outs]
+
+
+def sacrifice_fly_double_play_parts(play):
+    """EG6: explicit compound scoring result, counted run and two numbered outs."""
+    events=play.get('playEvents',[]);rows=play.get('runners',[])
+    if (play.get('about',{}).get('isComplete') is not True or not events
+            or accounted_runner_history_reviews(play)['issues']):return []
+    contacts=[e for e in events if e.get('isPitch') is True and e.get('details',{}).get('isInPlay') is True]
+    if len(contacts)!=1:return []
+    terminal=contacts[0];before=terminal.get('count',{}).get('outs');after=play.get('count',{}).get('outs')
+    outs=[(i,r) for i,r in enumerate(rows) if r.get('movement',{}).get('isOut') is True]
+    runs=[r for r in rows if r.get('movement',{}).get('end')=='score' and r['movement'].get('isOut') is False
+          and r.get('details',{}).get('isScoringEvent') is True]
+    if (terminal is not events[-1] or not SAFE_IRI_SEGMENT.fullmatch(str(terminal.get('playId') or ''))
+            or type(before) is not int or before not in (0,1) or after!=before+2
+            or len(outs)!=2 or not runs or len(rows)!=len(outs)+len(runs)
+            or any(r.get('details',{}).get('eventType')!='sac_fly_double_play'
+                or r['details'].get('playIndex')!=terminal.get('index') for r in rows)
+            or any(type(r.get('details',{}).get('runner',{}).get('id')) is not int for r in rows)
+            or len({r['details']['runner']['id'] for r in rows})!=len(rows)
+            or any(type(r['movement'].get('outNumber')) is not int for _,r in outs)
+            or sorted(r['movement']['outNumber'] for _,r in outs)!=[before+1,before+2]
+            or any(r['movement'].get('end') is not None or r['details'].get('isScoringEvent') is not False for _,r in outs)):
+        return []
+    batter=play.get('matchup',{}).get('batter',{}).get('id')
+    if sum(r['details']['runner']['id']==batter and r['movement'].get('start') is None for _,r in outs)!=1:return []
+    return [dict(atBatIndex=str(play['atBatIndex']),runnerIndex=str(i),runnerId=str(r['details']['runner']['id'])) for i,r in outs]
 
 
 def supported_walkoff_boundary(document: dict, last_play: dict) -> dict | None:
@@ -1499,18 +1548,25 @@ def intentional_walk_award_terminal(play: dict) -> int | None:
     return events[-1]['index']
 
 
-def defensive_indifference_evidence(play):
-    """D2: reconciled independent advancement, without a stolen-base award."""
+def defensive_indifference_evidence(play, histories=None):
+    """D2/EG6: actual noncontact advances, without an official steal award."""
     if play.get('about',{}).get('isComplete') is not True:return []
     if accounted_runner_history_reviews(play)['issues']:return []
     index=play.get('atBatIndex');events=play.get('playEvents',[])
     if type(index) is not int:return []
     known={r['runnerIndex'] for r in runner_episode_evidence(play,str(index))['runnerEpisodes']}
     selected=[];positions={'1B':1,'2B':2,'3B':3,'score':4}
-    for i,row in enumerate(play.get('runners',[])):
+    rows=play.get('runners',[])
+    membership=defaultdict(list)
+    for item in (histories or {}).get('episodeMembership',[]):
+        if item['atBatIndex']==str(index):membership[item['runnerIndex']].append(item)
+    def reconciled(indices):
+        return (histories and histories.get('sourceConsistency')=='consistent'
+            and all(len(membership[str(i)])==1 and membership[str(i)][0].get('lifetimeKey')
+                and membership[str(i)][0]['runnerId']==str(rows[i]['details']['runner']['id']) for i in indices))
+    for i,row in enumerate(rows):
         d=row.get('details',{});m=row.get('movement',{});runner=d.get('runner',{}).get('id')
-        if (d.get('eventType')!='defensive_indiff' or d.get('movementReason')!='r_defensive_indiff'
-                or str(i) not in known or type(runner) is not int or type(d.get('playIndex')) is not int
+        if (str(i) not in known or type(runner) is not int or type(d.get('playIndex')) is not int
                 or m.get('isOut') is not False or m.get('start') not in {'1B','2B','3B'}
                 or positions.get(m.get('end'),0)<=positions[m['start']]
                 or d.get('rbi') is not False or type(d.get('isScoringEvent')) is not bool
@@ -1518,13 +1574,34 @@ def defensive_indifference_evidence(play):
         matches=[e for e in events if e.get('index')==d['playIndex']]
         if len(matches)!=1:continue
         event=matches[0];detail=event.get('details',{})
-        if (event.get('type')!='action' or event.get('isPitch') is not False
-                or event.get('isBaseRunningPlay') is not True or event.get('isSubstitution') is True
-                or event.get('player',{}).get('id')!=runner or detail.get('eventType')!='defensive_indiff'
-                or detail.get('isInPlay') is True or detail.get('isOut') is True):continue
-        duplicates=[r for r in play['runners'] if r.get('details',{}).get('playIndex')==d['playIndex']
-                    and r.get('details',{}).get('runner',{}).get('id')==runner]
-        if len(duplicates)!=1:continue
+        if detail.get('isInPlay') is True or event.get('isSubstitution') is True:continue
+        same=[(j,r) for j,r in enumerate(rows) if r.get('details',{}).get('playIndex')==d['playIndex']
+              and r.get('details',{}).get('runner',{}).get('id')==runner]
+        accepted=False
+        if (d.get('eventType')==detail.get('eventType')=='defensive_indiff'
+                and event.get('type')=='action' and event.get('isPitch') is False
+                and event.get('isBaseRunningPlay') is True and event.get('player',{}).get('id')==runner
+                and detail.get('isOut') is not True):
+            ordered=sorted(same,key=lambda pair:positions.get(pair[1].get('movement',{}).get('start'),0))
+            accepted=(all(r.get('details',{}).get('eventType')=='defensive_indiff'
+                and r['details'].get('movementReason')==('r_defensive_indiff' if n==0 else 'r_adv_play')
+                and r.get('movement',{}).get('isOut') is False
+                and r['movement'].get('start') in {'1B','2B','3B'}
+                and positions.get(r['movement'].get('end'),0)>positions[r['movement']['start']]
+                and not any(c.get('credit') in SCORING_ERROR_KINDS for c in r.get('credits',[]))
+                and (n==0 or ordered[n-1][1]['movement']['end']==r['movement']['start'])
+                for n,(_,r) in enumerate(ordered)) and (len(same)==1 or reconciled(j for j,_ in same)))
+        elif d.get('movementReason')=='r_adv_play' and len(same)==1 and reconciled(
+                j for j,r in enumerate(rows) if r.get('movement',{}).get('start') in {'1B','2B','3B'}):
+            pickoff=detail.get('eventType') in {'pickoff_caught_stealing_2b','pickoff_caught_stealing_3b','pickoff_caught_stealing_home'}
+            blocked=(play.get('result',{}).get('eventType')==d.get('eventType')=='strikeout'
+                and event is events[-1] and event.get('isPitch') is True
+                and detail.get('isInPlay') is False and detail.get('call',{}).get('code')=='W'
+                and event.get('count',{}).get('strikes')==play.get('count',{}).get('strikes')==3)
+            accepted=(blocked or pickoff and event.get('type')=='action' and event.get('isPitch') is False
+                and d.get('eventType')==detail.get('eventType'))
+            if any(c.get('credit') in SCORING_ERROR_KINDS for c in row.get('credits',[])):accepted=False
+        if not accepted:continue
         selected.append(dict(atBatIndex=str(index),runnerIndex=str(i),runnerId=str(runner)))
     return selected
 
@@ -1594,6 +1671,9 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
 
     result = play.get("result", {}).get("eventType")
     events = play.get("playEvents", [])
+    if result=='catcher_interf':
+        products['awardAdvances']=interference_award_advances(play,at_bat_index,season,document,unambiguous)
+        return products
     if (str(season) not in {"2019", "2026"}
             or play.get("about", {}).get("isComplete") is not True
             or result not in {"walk", "intent_walk", "hit_by_pitch"}):
@@ -1680,6 +1760,60 @@ def runner_metric_evidence(play: dict, at_bat_index: str, season: str, *, docume
             "ruleEditionIdentifierIri": edition + "/identifier",
             "ruleEditionIdentifier": f"Official Baseball Rules {season}"})
     return products
+
+
+def interference_award_advances(play, pa, season, document, known):
+    """EG6: observed one-base force chain following operative interference."""
+    if (document is None or str(season) not in {'2019','2026'}
+            or play.get('about',{}).get('isComplete') is not True
+            or accounted_runner_history_reviews(play)['issues']):return []
+    history=document.get(CONTEXT_KEY,{}).get('runnerHistoryReconciliation',{})
+    if history.get('sourceConsistency')!='consistent':return []
+    rows=play.get('runners',[]);events=play.get('playEvents',[])
+    batter=play.get('matchup',{}).get('batter',{}).get('id')
+    entries=[(i,r) for i,r in enumerate(rows) if r.get('details',{}).get('runner',{}).get('id')==batter
+        and r['details'].get('eventType')=='catcher_interf' and r.get('movement',{}).get('start') is None
+        and r['movement'].get('end')=='1B' and r['movement'].get('isOut') is False]
+    if len(entries)!=1:return []
+    bi,entry=entries[0];event_index=entry['details'].get('playIndex')
+    matches=[e for e in events if e.get('index')==event_index]
+    if (len(matches)!=1 or matches[0].get('isPitch') is not True or matches[0].get('details',{}).get('isInPlay') is not False
+            or not any(c.get('credit')=='c_catcher_interf' and type(c.get('player',{}).get('id')) is int for c in entry.get('credits',[]))):return []
+    plays=document['liveData']['plays']['allPlays'];position=next((i for i,p in enumerate(plays) if str(p.get('atBatIndex'))==pa),None)
+    if position is None:return []
+    about=play['about'];previous=plays[position-1] if position else None
+    same_half=previous and all(previous['about'].get(k)==about.get(k) for k in ('inning','halfInning'))
+    names={1:'postOnFirst',2:'postOnSecond',3:'postOnThird'}
+    occupancy={base:previous.get('matchup',{}).get(name,{}).get('id') for base,name in names.items()} if same_half else {}
+    occupancy={b:r for b,r in occupancy.items() if r is not None}
+    for event in events[:event_index]:
+        if any(r.get('details',{}).get('playIndex')==event.get('index') for r in rows):return []
+        if event.get('isSubstitution') is True and event.get('position',{}).get('abbreviation')=='PR':
+            bases=[b for b,r in occupancy.items() if r==event.get('replacedPlayer',{}).get('id')]
+            incoming=event.get('player',{}).get('id')
+            if len(bases)!=1 or type(incoming) is not int or incoming in occupancy.values():return []
+            occupancy[bases[0]]=incoming
+        elif event.get('details',{}).get('eventType')=='runner_placed':return []
+    forced={};base=1
+    while base in occupancy:forced[occupancy[base]]=(f'{base}B','score' if base==3 else f'{base+1}B');base+=1
+    expected={batter:(None,'1B'),**forced}
+    if len(rows)!=len(expected) or len(known)!=len(rows):return []
+    members=defaultdict(list)
+    for item in history.get('episodeMembership',[]):
+        if item['atBatIndex']==pa:members[item['runnerIndex']].append(item)
+    for i,row in enumerate(rows):
+        d,m=row.get('details',{}),row.get('movement',{});runner=d.get('runner',{}).get('id')
+        if (runner not in expected or (m.get('start'),m.get('end'))!=expected[runner] or m.get('isOut') is not False
+                or d.get('playIndex')!=event_index or d.get('isScoringEvent') is not (m.get('end')=='score')
+                or len(members[str(i)])!=1 or members[str(i)][0].get('runnerId')!=str(runner)
+                or d.get('eventType') not in {'catcher_interf','error'}):return []
+    final={b:r for b,r in occupancy.items() if r not in forced};final[1]=batter
+    final.update({int(end[0]):r for r,(_,end) in forced.items() if end!='score'})
+    if any(play.get('matchup',{}).get(name,{}).get('id')!=final.get(base) for base,name in names.items()):return []
+    edition=f'https://baseballontology.org/data/rule/official-baseball/{season}'
+    return [dict(known[i],ruleIri=edition+'/interference-forced-advance',ruleCode='5.06(b)(3)(D)',
+        ruleEditionIri=edition,ruleIdentifierIri=edition+'/interference-forced-advance/identifier',
+        ruleEditionIdentifierIri=edition+'/identifier',ruleEditionIdentifier=f'Official Baseball Rules {season}') for i in known]
 
 
 def require_numeric(value: object, label: str) -> str:
@@ -2945,13 +3079,13 @@ def official_pa_rows(census):
             for r in census['members'] if r.get('officialCredit')]
 
 
-def secondary_error_rows(play, game_pk, reviews_reconciled):
-    """Deduplicate an explicitly scored error; preserve each affected resolution."""
-    if not reviews_reconciled or play.get('about', {}).get('isComplete') is not True:
-        return []
+def scored_error_selections(play):
+    """Exact affected rows and error identity, shared by B2 and EG5/EG6."""
+    if play.get('about', {}).get('isComplete') is not True:
+        return {}
     events = play.get('playEvents', [])
     if [e.get('index') for e in events] != list(range(len(events))):
-        return []
+        return {}
     credits, primary_credits, row_credits = defaultdict(set), defaultdict(set), {}
     primary_rows = {i for i, r in enumerate(play.get('runners', []))
         if play.get('result', {}).get('eventType') == 'field_error'
@@ -2971,12 +3105,13 @@ def secondary_error_rows(play, game_pk, reviews_reconciled):
                 row_credits[index].add((str(person), kind))
                 if index in primary_rows:
                     primary_credits[event].add((str(person), kind))
-    pa = SCORING_BASE+f'data/game/{game_pk}/plate-appearance/{play["atBatIndex"]}'
-    output = []
+    output = {}
     for index, row in enumerate(play.get('runners', [])):
         details, movement = row.get('details', {}), row.get('movement', {})
         event = details.get('playIndex')
-        if index in primary_rows or details.get('eventType') not in SCORING_ERROR_EVENTS:
+        explicit=row_credits.get(index,set())
+        pickoff=details.get('eventType') in {'pickoff_caught_stealing_2b','pickoff_caught_stealing_3b','pickoff_caught_stealing_home'}
+        if index in primary_rows or (details.get('eventType') not in SCORING_ERROR_EVENTS and not (pickoff and explicit)):
             continue
         # An explicit row credit identifies its error even when another row at
         # this event records a different error. Never duplicate the primary PA
@@ -2984,9 +3119,12 @@ def secondary_error_rows(play, game_pk, reviews_reconciled):
         selected_credits = row_credits.get(index) or credits[event]
         if len(selected_credits) != 1:
             continue
-        if event in primary_events and (len(primary_credits[event]) != 1
-                or not row_credits.get(index) or selected_credits & primary_credits[event]):
-            continue
+        primary=False
+        if event in primary_events:
+            # A single explicit error for this event continues the primary
+            # result. Distinct row credits keep the accepted secondary identity.
+            primary=(len(credits[event])==1 or selected_credits==primary_credits[event])
+            if not primary and (len(primary_credits[event])!=1 or not explicit):continue
         if type(movement.get('isOut')) is not bool or type(details.get('runner', {}).get('id')) is not int:
             continue
         start, end = movement.get('start'), movement.get('end')
@@ -2997,11 +3135,25 @@ def secondary_error_rows(play, game_pk, reviews_reconciled):
         if kind is None or (kind == 'score' and details.get('isScoringEvent') is not True):
             continue
         person, error_kind = next(iter(selected_credits))
+        output[index]=dict(person=person,errorKind=error_kind,primary=primary,resolutionKind=kind)
+    return output
+
+
+def secondary_error_rows(play, game_pk, reviews_reconciled):
+    """Associate a scored step with its existing primary or secondary error."""
+    if not reviews_reconciled:return []
+    pa = SCORING_BASE+f'data/game/{game_pk}/plate-appearance/{play["atBatIndex"]}'
+    output=[];events=play.get('playEvents',[])
+    for index, selected in scored_error_selections(play).items():
+        row=play['runners'][index];event=row['details']['playIndex']
+        person,error_kind,kind=selected['person'],selected['errorKind'],selected['resolutionKind']
         stem = pa+f'/secondary-error/{event}/{person}/{error_kind}'
         # Runner indices are source-array indices, never indices in a subset.
         resolution = SCORING_BASE+f'data/game/{game_pk}/runner-resolution/{kind}/{play["atBatIndex"]}/{index}'
         output.append(dict(atBatIndex=str(play['atBatIndex']), runnerIndex=str(index),
-            error=stem, judgment=stem+'/judgment', decision=stem+'/decision',
+            error=pa+'/result' if selected['primary'] else stem,
+            judgment=pa+'/judgment/result' if selected['primary'] else stem+'/judgment',
+            decision=pa+'/decision/result' if selected['primary'] else stem+'/decision',
             record=SCORING_BASE+f'data/game/{game_pk}/runner-record/{play["atBatIndex"]}/{index}',
             resolution=resolution))
         if events[event].get('details', {}).get('isInPlay') is True:
@@ -3251,10 +3403,11 @@ def main() -> None:
             **runner_episode_evidence(play, at_bat_index),
             **runner_metric_evidence(play, at_bat_index, season, document=document),
             "balkAdvances": balk_runner_evidence(play, at_bat_index),
-            "defensiveIndifferenceActs": defensive_indifference_evidence(play),
+            "defensiveIndifferenceActs": defensive_indifference_evidence(play, root_context["runnerHistoryReconciliation"]),
             "hasPlateAppearanceStructure": has_plate_appearance_structure,
             "hasPlateAppearanceClocks": has_plate_appearance_structure and not clock_pair_conflicted(about),
             "hasCompletedPlateAppearanceResult": has_completed_plate_appearance_result,
+            "hasSacFlyDoublePlay": result_event_type == "sac_fly_double_play" and bool(sacrifice_fly_double_play_parts(play)),
             "hasReview": False,
             "hasReviewStatus": False,
             "hasReviewChallengerId": False,

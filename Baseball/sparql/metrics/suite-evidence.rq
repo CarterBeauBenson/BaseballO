@@ -42,6 +42,8 @@ WHERE {
       # themselves declare statistical PA eligibility or player qualification.
       OPTIONAL {
         ?paResult a base:BaseballInstitutionalProcess, ?paResultType ; obo:BFO_0000132 ?entity .
+        # EG6: a sacrifice-fly double play is one batting result, with a compound out whole.
+        FILTER(?paResultType != base:DoublePlayProcess || NOT EXISTS { ?paResult a base:SacrificeFlyProcess })
         ?paResultJudgment a base:BaseballAdjudicationAct ; obo:BFO_0000132 ?paResult ;
             cco:ont00001986 ?paResultDecision .
         ?paResultDecision a base:BaseballDecisionICE ; cco:ont00001808 ?paResult .

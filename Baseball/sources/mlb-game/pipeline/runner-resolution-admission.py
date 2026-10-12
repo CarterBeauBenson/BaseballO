@@ -42,10 +42,11 @@ def census(raw, game_pk):
     game = B.BASE+'data/game/'+game_pk
     issues = [dict(code='SOURCE_RECONCILIATION', detail=i) for i in source['blockingIssues']]
     resolutions, nonmovements = [], []
+    histories=CONTEXT.personal_runner_histories(raw)
     for play in doc['liveData']['plays']['allPlays']:
         pa = str(play['atBatIndex'])
         empty_records = nonmovement_strikeout_records(play)
-        independent={r['runnerIndex'] for r in CONTEXT.defensive_indifference_evidence(play)}
+        independent={r['runnerIndex'] for r in CONTEXT.defensive_indifference_evidence(play,histories)}
         for index, row in enumerate(play['runners']):
             if index in empty_records:
                 nonmovements.append(dict(pa=game+'/plate-appearance/'+pa,runnerIndex=index,

@@ -89,6 +89,35 @@ class PaResolution(unittest.TestCase):
         graph.set((URIRef(pas[1]+'/act'),CCO.ont00001833,URIRef('urn:wrong-player')))
         self.assertEqual(self.outcomes(graph,source),dict.fromkeys(pas,'withheld'))
 
+    def test_called_final_has_a_separate_empty_game_census_and_keeps_graph_checks(self):
+        graph,source,pas=self.fixture()
+        issue=dict(code='SOURCE_RECONCILIATION',detail=dict(code='INNING_RUN_TOTAL_MISMATCH',
+            path='/liveData/linescore/innings/0/away',reported=None,observedScoringRows=0))
+        source['resolution']['issues']=[issue]
+        source['batting'].update(status='withheld',issues=[issue])
+        doc=dict(gameData=dict(status=dict(abstractGameState='Final',codedGameState='F',detailedState='Completed Early: Rain')),
+            liveData=dict(plays=dict(allPlays=[dict(atBatIndex=i,about=dict(inning=9,halfInning='top',isComplete=True),
+                runners=[],result=dict(awayScore=0,homeScore=0)) for i in range(3)]),
+                linescore=dict(innings=[dict(num=9,away={})],teams=dict(away=dict(runs=0),home=dict(runs=0)))))
+        def scoped(value):
+            raw=json.dumps(value).encode()
+            for census in source.values():census['sourceSha256']=P.R.B.sha(raw)
+            return P.with_reconciliation_scope(source,raw)
+        selected=scoped(doc)
+        self.assertTrue(selected['emptyGameCalledFinal'])
+        text,members=P.shape_text(selected)
+        _,report,_=validate(graph,shacl_graph=text,shacl_graph_format='turtle',advanced=True)
+        results=P.outcome(members,report)
+        self.assertTrue(all(r['status']=='withheld' and r['emptyGameStatus']=='admitted' and r['issues']==[issue] for r in results))
+        graph.set((URIRef(pas[0]+'/act'),CCO.ont00001833,URIRef('urn:wrong-player')))
+        text,members=P.shape_text(selected)
+        _,report,_=validate(graph,shacl_graph=text,shacl_graph_format='turtle',advanced=True)
+        self.assertEqual(P.outcome(members,report)[0]['emptyGameStatus'],'withheld')
+        changed=copy.deepcopy(doc);changed['liveData']['plays']['allPlays'][0]['about']['isComplete']=False
+        self.assertFalse(scoped(changed)['emptyGameCalledFinal'])
+        changed=copy.deepcopy(doc);changed['liveData']['linescore']['teams']['away']['runs']=1
+        self.assertFalse(scoped(changed)['emptyGameCalledFinal'])
+
     def test_numeric_conflicts_unknown_issues_and_missing_locations_remain_global(self):
         details=[dict(code='INNING_RUN_TOTAL_MISMATCH',
                      path='/liveData/linescore/innings/1/away',reported=1,observedScoringRows=0),

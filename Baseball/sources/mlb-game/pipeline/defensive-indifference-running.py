@@ -16,8 +16,9 @@ MAPS=('DefensiveIndifferenceAttemptOverlayMap',)
 def select(raw,game_pk):
     document=json.loads(raw)
     if str(document.get('gamePk'))!=game_pk:raise ValueError('D2 source game differs')
+    histories=C.personal_runner_histories(raw)
     return [row for play in document['liveData']['plays']['allPlays']
-        for row in C.defensive_indifference_evidence(play)]
+        for row in C.defensive_indifference_evidence(play,histories)]
 
 
 def shapes(game_pk,rows):

@@ -86,6 +86,9 @@ FILTER(!BOUND(?player) || !BOUND(?team) ||
 {B.iri(decision)} a base:BaseballDecisionICE ; cco:ont00001808 {B.iri(result)} .
 {B.iri(record)} a base:BaseballEventRecord ; cco:ont00001808 {B.iri(result)}, {B.iri(judgment)}, {B.iri(decision)} .'''
                 results.append('|'.join((pa,result,row['resultType'])))
+                if row.get('compoundResultType'):
+                    pattern+=f"\n{B.iri(result)} a {B.iri(row['compoundResultType'])} ."
+                    results.append('|'.join((pa,result,row['compoundResultType'])))
                 # Empty Games needs at least one official PA, not an exact
                 # full-game PA total. Reuse the complete ordinary-turn B1
                 # pattern, with one actual batter, as a positive witness.

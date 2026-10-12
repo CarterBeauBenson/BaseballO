@@ -261,8 +261,8 @@ def empty_running_entries(m, rows, progress):
 def empty_scoring_inputs(m, rows, progress):
     """Binary attribution from promoted scoring decisions and actual paths.
 
-    A mixed contact/error record remains uncertain; its error label alone
-    cannot exclude all progress. Explicit RBI credit can establish a batter
+    An adjudicated error step supplies no new positive, including within
+    contact. Separate supported steps and explicit RBI credit can establish a batter
     positive without supplying a numeric advance or transferring running credit.
 
     A complete terminal-out path rules out positive progress even when no
@@ -287,6 +287,12 @@ def empty_scoring_inputs(m, rows, progress):
         possible=set();positive=set();groups=defaultdict(list)
         for row in moves[pa]:groups[row.get('runner')].append(row)
         if None in groups:continue
+        recipients=defaultdict(set)
+        for row in moves[pa]:
+            if (row.get('award') and row.get('awardRule') and row.get('runner') in actors[pa]
+                    and row.get('runner')==row.get('batter') and m.segment_origin(row)==0
+                    and row.get('destinationCode')=='1B' and row.get('hasSafeType')=='true'):
+                recipients[row['award']].add(row['runner'])
         # An explicit scoring decision is already about the counted Run and
         # its credited batter. Its binary credit does not require reconstructing
         # the scoring runner's earlier path or allocating any numeric progress.
@@ -309,11 +315,14 @@ def empty_scoring_inputs(m, rows, progress):
             states=[]
             for duplicates in resolutions.values():
                 own=[r for r in duplicates if r.get('batter')==runner and runner in actors[pa]
-                     and r.get('metricOrigin')=='0' and m.segment_origin(r)==0
-                     and r.get('destinationCode')=='1B' and r.get('award') and r.get('awardRule')]
+                     and r.get('metricOrigin')=='0' and m.segment_origin(r)==0]
                 physical=lambda r:{k:v for k,v in r.items() if k not in {'batter','metricOrigin'}}
                 if len(own)==1 and all(physical(r)==physical(own[0]) and r.get('metricOrigin') in (None,'0') for r in duplicates):
                     states.append(own[0])
+                elif (len({m._json(physical(r)) for r in duplicates})==1
+                      and all(r.get('batter') in actors[pa] for r in duplicates)
+                      and len({r.get('metricOrigin') for r in duplicates})==1):
+                    states.append(duplicates[0])
                 else:states.extend(duplicates)
             if len({r['resolution'] for r in states})!=len(states):
                 possible.update(batting|{runner});continue
@@ -335,17 +344,18 @@ def empty_scoring_inputs(m, rows, progress):
                 contact=bool(row.get('contactPlay'));award=bool(row.get('award') and row.get('awardRule'))
                 running=bool(m.independent_running_act(row))
                 error=all(row.get(k) for k in ('secondaryError','errorJudgment','errorDecision','record'))
+                if error:continue  # EG6A: this step adds no credit; retain the RBI above.
                 if sum((contact,award,running))>1:
                     possible.update(batting|{runner});continue
                 if running:positive.add(runner)
                 elif award and start==0 and end==1 and runner in batting and row.get('batter')==runner:
                     positive.add(runner)
-                    possible.update(batting-{runner})
                 elif contact or award:
-                    if len(batting)==1:positive.update(batting)
+                    if contact and row.get('contactBatter') in batting:positive.add(row['contactBatter'])
+                    elif award and len(recipients[row['award']])==1:positive.update(batting & recipients[row['award']])
+                    elif len(actors[pa])==1:positive.update(batting)
+                    elif not batting:pass
                     else:possible.update(batting)
-                elif error and not row.get('errorContactPlay'):
-                    pass  # A separately scored, noncontact error-only advance.
                 else:
                     possible.update(batting|{runner})
         output[pa]=dict(positivePlayers=sorted(positive),possiblePositivePlayers=sorted(possible))
@@ -364,7 +374,7 @@ def resolution_census_players(rows, roster, resolution, individual):
     if not (individual.get('rosterComplete') is True and
             individual.get('plateAppearanceInventoryComplete') is True):return set()
     resolved={p['plateAppearance'] for p in (individual.get('paResolutions') or {}).get('plateAppearances',[])
-              if p['status']=='admitted'}
+              if p['status']=='admitted' or p.get('emptyGameStatus')=='admitted'}
     owners=defaultdict(set)
     for row in rows:
         if row['kind']!='plate_appearance':continue

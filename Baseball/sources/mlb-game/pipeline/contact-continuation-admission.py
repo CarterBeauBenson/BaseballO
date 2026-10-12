@@ -38,7 +38,7 @@ def census(raw, game_pk):
     for play in document['liveData']['plays']['allPlays']:
         if play.get('result', {}).get('eventType') not in CONTEXT.BATTED_RUNNER_RESULT_TYPES:
             continue
-        if not any(r.get('details', {}).get('eventType') == 'other_out' for r in play.get('runners', [])):
+        if not any(r.get('details', {}).get('eventType') in {'other_out','error'} for r in play.get('runners', [])):
             continue
         pa = str(play['about']['atBatIndex'])
         links = CONTEXT.batted_runner_resolution_links(play, pa, histories)

@@ -115,8 +115,17 @@ EG5 engineering fixes completed all five selected additive repairs and cleared
 three player-game exclusions. All 30 remaining games are covered by the
 [EG6 review](archive/design-records/mlb-game-empty-game-final-boundaries/README.md), covering
 shared attribution, generic selection and called-game census boundaries.
-EG6A/B/C were accepted together on October 12. Implement all three slices,
-then let NiFi apply their matching additions and publish the affected results.
+EG6A/B/C were accepted together in decision commit `cb62852c` on October 12.
+All three slices are implemented: error-step and substituted-batter attribution,
+the generic source selections, and the Empty Games-only called-final census.
+NiFi must now apply matching EG1 additions, refresh affected source proofs,
+and publish the offensive player results. Counts above are the measured baseline,
+not a projected gain. The milestone stays open until the UI reports zero incomplete.
+
+Unchanged ordinary-game query answers retain their original query provenance.
+Changed RDF, substituted batters, interference awards and compound sacrifice
+classifications receive the updated query. This avoids re-querying the season
+merely to apply the approved binary reader changes.
 
 Deliver one complete metric before switching the primary task. Empty Games
 requires supported offensive eligibility and whether the player made any

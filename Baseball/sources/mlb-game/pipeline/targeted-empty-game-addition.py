@@ -30,6 +30,7 @@ REVIEW_WALK_DECISION='archive/design-records/mlb-game-walk-after-reconciled-revi
 SELECTION_DECISION='archive/design-records/mlb-game-empty-game-remaining-selections/review.json'
 PA_CREDIT_DECISION='archive/design-records/mlb-game-official-pa-credit/review.json'
 ERROR_DECISION='archive/design-records/mlb-game-secondary-error-attribution/review.json'
+FINAL_DECISION='archive/design-records/mlb-game-empty-game-final-boundaries/review.json'
 INVENTORY=ROOT/Path(DECISION).parent/'candidate-inventory.json'
 SUCCESS=R.SUCCESS|{'resolved-by-reader','no-supported-addition'}
 PA_MAPS=('PlateAppearanceMap','PlateAppearanceIntervalMap','BatterActMap',
@@ -48,7 +49,7 @@ MAPS=tuple(dict.fromkeys(R.MAPS+BK.MAPS+D2.MAPS+SCORING.MAPS+PA_MAPS+RESULT_MAPS
 
 
 def approved_case(game_pk):
-    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION,SELECTION_DECISION,PA_CREDIT_DECISION,ERROR_DECISION):
+    for decision in (DECISION,BALK_DECISION,WALK_DECISION,INDEPENDENT_DECISION,REVIEW_WALK_DECISION,SELECTION_DECISION,PA_CREDIT_DECISION,ERROR_DECISION,FINAL_DECISION):
         if W.read(ROOT/decision)['status']!='accepted':raise ValueError('EG1 selected repair is not accepted')
     case=next((g for g in W.read(INVENTORY)['games'] if g['gamePk']==game_pk),None)
     if case is None:raise ValueError('Game is outside the approved EG1 inventory')
@@ -150,7 +151,7 @@ def select(raw,game_pk,players):
     selected['context'][C.CONTEXT_KEY].update(scoring)
     selected.update(balks=balks,independent=independent,plateAppearances=sorted(pas),unresolved=unsupported,players=players,
         contactCensus=CONTACT.census(raw,game_pk),scoring=scoring,
-        battingCensus=SCORING.B.census(raw,game_pk) if scoring['officialPACredits'] else {})
+        battingCensus=SCORING.B.census(raw,game_pk) if scoring['officialPACredits'] or parts else {})
     return selected
 
 
@@ -196,6 +197,8 @@ def project_census(field,source,selected):
     if field=='battingAdmission':
         current=selected.get('battingCensus',{})
         selected_pas={r['subject'] for r in selected.get('scoring',{}).get('officialPACredits',[])}
+        selected_pas.update(r['pa'] for r in current.get('members',[]) if r.get('compoundResultType')
+            and str(r['atBatIndex']) in selected['plateAppearances'])
         if not selected_pas:return None
         new={r['pa']:r for r in current.get('members',[]) if r['pa'] in selected_pas}
         if len(new)!=len(selected_pas) or source['roster']!=current['roster']:
@@ -203,7 +206,7 @@ def project_census(field,source,selected):
         updated['members']=[copy.deepcopy(new.get(r['pa'],r)) for r in source['members']]
         indices={r['atBatIndex'] for r in new.values()}
         updated['issues']=[i for i in source['issues'] if not (
-            i.get('code')=='OFFENSIVE_REPLACEMENT_WITHIN_TURN' and i.get('atBatIndex') in indices)
+            i.get('code') in {'OFFENSIVE_REPLACEMENT_WITHIN_TURN','UNRESOLVED_COMPLETED_RESULT'} and i.get('atBatIndex') in indices)
             and i.get('code')!='PLAYER_PA_MISMATCH']
         from collections import Counter
         counts=Counter(r['player'] for r in updated['members'] if r.get('resultType'))
@@ -288,7 +291,7 @@ def revalidate(*args):
     return W.revalidate(*args,shape_text=shapes,decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
         reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
-        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION),
+        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION,finalEmptyGameDecision=FINAL_DECISION),
         project_census=project_census)
 
 
@@ -449,10 +452,11 @@ def selection_repair_families(state,case,previous,players=None):
             if any(str(r['atBatIndex'])==str(play.get('atBatIndex')) and row_key(r) not in old_scoring[name]
                    for name in old_scoring for r in scoring_rows[name]):families.add('EG5-scoring-completion')
         if prior_context and raw is not None and affected:
+            if contact_history is None:contact_history=C.personal_runner_histories(raw)
             if any((r['atBatIndex'],r['runnerIndex']) not in old_independent
-                   for r in C.defensive_indifference_evidence(play)):families.add('D2-defensive-indifference')
+                   for r in C.defensive_indifference_evidence(play,contact_history)):families.add('EG6-independent-running')
         if (award_completion and raw is not None and affected
-                and play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch'}):
+                and play.get('result',{}).get('eventType') in {'walk','intent_walk','hit_by_pitch','catcher_interf'}):
             # Earlier repairs can have skipped a then-unresolved turn entirely.
             # Compare selected facts, not decision labels or the successful
             # receipt alone. The unchanged source selector owns award evidence.
@@ -463,12 +467,31 @@ def selection_repair_families(state,case,previous,players=None):
             if any(award_key(r) not in old_awards for r in awards):families.add('EG1-award-completion')
         if (eg2_completion and raw is not None and affected
                 and str(play.get('atBatIndex')) in old_contacts
-                and not old_contacts[str(play['atBatIndex'])].get('links')):
+                and play.get('result',{}).get('eventType') in C.BATTED_RUNNER_RESULT_TYPES):
             # Reopen only an earlier withheld B2 selection that the current
             # approved selector can complete from the hash-checked response.
             if contact_history is None:contact_history=C.personal_runner_histories(raw)
-            if C.batted_runner_resolution_links(play,str(play['atBatIndex']),contact_history):
+            new=C.batted_runner_resolution_links(play,str(play['atBatIndex']),contact_history)
+            if any(r not in old_contacts.get(str(play['atBatIndex']),{}).get('links',[]) for r in new):
                 families.add('EG2a-contact-prefix')
+        if (affected or substituted) and previous.get('finalEmptyGameDecision')!=FINAL_DECISION:
+            old_parts=prior_context.get(C.CONTEXT_KEY,{}).get('compoundDoublePlayParts',[])
+            if any(p not in old_parts for p in C.compound_double_play_parts(play)):
+                families.add('EG6-compound-result')
+            if raw is None and prior_context:
+                # This hashed context diagnoses a new selection only. Execution
+                # still recovers and checks original bytes through EG1's owner.
+                complete_rows=all(str(r.get(C.CONTEXT_KEY,{}).get('runnerIndex',i))==str(i)
+                    for i,r in enumerate(play.get('runners',[])))
+                if complete_rows and any(row_key(r) not in old_scoring['secondaryErrors']
+                       for r in C.secondary_error_rows(play,case['gamePk'],not C.accounted_runner_history_reviews(play)['issues'])):
+                    families.add('EG6-error-association')
+                kinds={r.get('details',{}).get('eventType') for r in play.get('runners',[])}
+                placement=any(e.get('details',{}).get('eventType')=='runner_placed' for e in play.get('playEvents',[]))
+                if 'other_out' in kinds and ('error' in kinds or placement):
+                    if (play.get('result',{}).get('eventType') in C.BATTED_RUNNER_RESULT_TYPES
+                            and not old_contacts.get(str(play.get('atBatIndex')),{}).get('links')):
+                        families.add('EG6-contact-completion')
         if eg4 and substituted:families.add('EG4-official-pa-credit')
         if eg5 and affected and any(r.get('details',{}).get('eventType') in SCORING.S.ERROR_EVENTS for r in play.get('runners',[])):
             families.add('EG5-secondary-error-attribution')
@@ -592,7 +615,7 @@ def tick(state,game_pk,java,mapper,classpath):
     result=dict(gamePk=game_pk,implementationSha256=version,checkedAtUtc=W.TX.now(),
         automaticWalkDecision=WALK_DECISION,independentRunningDecision=INDEPENDENT_DECISION,
         reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
-        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION,
+        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION,finalEmptyGameDecision=FINAL_DECISION,
         attempts=previous.get('attempts',0)+1 if previous.get('implementationSha256')==version else 1)
     try:
         players=outstanding(state,case)
@@ -607,7 +630,7 @@ def tick(state,game_pk,java,mapper,classpath):
                 result.update(W.add_game(state,game_pk,witness,java,mapper,classpath,repair=dict(
                     decisions=dict(decision=DECISION,balkDecision=BALK_DECISION,automaticWalkDecision=WALK_DECISION,
                         independentRunningDecision=INDEPENDENT_DECISION,reviewedWalkDecision=REVIEW_WALK_DECISION,emptySelectionDecision=SELECTION_DECISION,
-                        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION),select=lambda raw,pk:selected,
+                        officialPACreditDecision=PA_CREDIT_DECISION,secondaryErrorDecision=ERROR_DECISION,finalEmptyGameDecision=FINAL_DECISION),select=lambda raw,pk:selected,
                     execution_inputs=execution_inputs,revalidate=revalidate,
                     validation_scope='eg1-selected-pa-runner-patterns-and-retained-admissions')))
                 result['unresolved']=selected['unresolved']

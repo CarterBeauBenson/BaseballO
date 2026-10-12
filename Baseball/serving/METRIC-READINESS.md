@@ -21,6 +21,29 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
+## October 12: EG6 implementation, publication pending
+
+The user accepted EG6A/B/C together in decision commit `cb62852c`, before
+implementation. The source and serving owners now implement all three:
+
+- An adjudicated error step supplies no new positive, including in contact;
+  separate safe steps and eligible explicit RBI credit remain.
+- Substituted turns credit the actual award recipient or contact batter.
+- Generic selectors complete the approved placement/contact paths, noncontact
+  advances, primary/secondary error associations, interference force chains,
+  and sacrifice-fly double plays using existing identities and vocabulary.
+- A called final game's independently reconciled complete resolutions may
+  qualify for Empty Games alone. Missing inning totals remain missing, and
+  totals-dependent products retain their withholding.
+
+The existing EG1 owner discovers matching still-held cases and adds only missing
+facts and required dependencies. The source profiles still check the graph.
+Older successful work is not reopened solely because a fingerprint changed.
+Ordinary unchanged game answers remain reusable with their original query
+provenance; changed RDF and cases requiring new query facts are re-read.
+NiFi owns the additions, proof refresh and prepared SQL publication. The last
+measured UI population below is still the delivery baseline, not a claimed gain.
+
 ## Latest measured publication: October 12 at 06:38 Eastern
 
 Offense publication `20261012T102243Z-dashboard-offense-92574551` contains all
@@ -37,9 +60,10 @@ as false; these are displayed prepared values, not projected repair gains.
 NiFi's repair plan for this publication contains no unapplied approved
 selection. Every remaining game is already represented in the prepared EG6
 witness inventory; this publication introduces no new case family. EG6A/B/C
-were accepted together on October 12; implementation follows this published decision. These are attribution/selection decisions, not a request
-for a new gate or a rebuild. The next running build may refresh independently
-available products, but its existence does not settle those decisions.
+were accepted together on October 12 and are implemented above. This historical
+publication predates their execution; its empty work list is not the new repair
+queue. NiFi must publish the resulting player classifications before coverage
+can be called complete.
 
 ## Earlier measured publication: October 11 at 22:44 Eastern
 
@@ -736,7 +760,7 @@ schedule snapshot at 19:10, after that publication. The next incremental SQL
 publication must import that snapshot and the later game evidence; the check
 must not be bypassed or the old publication described as current.
 
-A separate September 16ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“27 HTTP check covers 159 games with a complete schedule
+A separate September 16ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ27 HTTP check covers 159 games with a complete schedule
 and all 159 rosters. It returns **11/19 populated cards**, including 119 Offensive
 Reach players, 140 Help Without Advancing players, 396 Empty Games counts,
 246 Scoring History Length players and 170 Run Contributors players. Player

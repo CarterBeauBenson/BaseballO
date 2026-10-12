@@ -388,7 +388,8 @@ class EmptyGameAddition(unittest.TestCase):
             E.execution_inputs(self.raw,'566279',selected,context,mapping)
             self.assertEqual((Path(directory)/'game.json').read_bytes(),self.raw)
             graph=Graph().parse(mapping);rr=Namespace('http://www.w3.org/ns/r2rml#')
-            self.assertEqual({str(s).rsplit('#',1)[-1] for s in graph.subjects(RDF.type,rr.TriplesMap)},set(E.MAPS))
+            expected={name for name in E.MAPS if not name.startswith('UncaughtThirdStrike')}
+            self.assertEqual({str(s).rsplit('#',1)[-1] for s in graph.subjects(RDF.type,rr.TriplesMap)},expected)
             self.assertNotIn('{$.',mapping.read_text())
         self.assertEqual(self.raw,(ROOT/'data/raw/game-566279.json').read_bytes())
         with self.assertRaisesRegex(ValueError,'outside the approved'):E.approved_case('566279')

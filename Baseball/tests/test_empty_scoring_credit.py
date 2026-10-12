@@ -39,11 +39,13 @@ class EmptyScoringCredit(unittest.TestCase):
         rows[1]['creditedPlayer']=U+'1'
         with self.assertRaises(M.EvidenceError):M.batting_qualification(rows,graphs=[G+'1'],admissions={G+'1':PROOF},date_scope=SCOPE)
 
-    def test_error_only_is_zero_but_mixed_contact_remains_unknown(self):
+    def test_adjudicated_error_step_is_zero_even_within_contact(self):
         rows=[self.turn(),self.error()]
         self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
         rows[1]['errorContactPlay']='contact'
-        self.assertEqual(self.read(rows)['possiblePositivePlayers'],[U+'1',U+'2'])
+        rows[1]['contactPlay']='contact'
+        self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
+        rows[1].pop('contactPlay')
         rows[1].pop('errorContactPlay');rows[1].pop('errorDecision')
         self.assertEqual(self.read(rows)['possiblePositivePlayers'],[U+'1',U+'2'])
 
@@ -128,7 +130,7 @@ class EmptyScoringCredit(unittest.TestCase):
         other=dict(first,batter=U+'2');other.pop('metricOrigin')
         rows=[dict(self.turn(),paResultType=BASE+'WalkProcess'),
               dict(self.turn(),player=U+'2',act='bat2',paResultType=BASE+'WalkProcess'),first,other]
-        self.assertEqual(self.read(rows),dict(positivePlayers=[U+'1'],possiblePositivePlayers=[U+'2']))
+        self.assertEqual(self.read(rows),dict(positivePlayers=[U+'1'],possiblePositivePlayers=[]))
         # Official eligibility does not move the actual award to someone else.
         for r in rows[:2]:r.update(creditedPlayer=U+'2',creditJudgment='cj',creditDecision='cd',creditRecord='cr')
         self.assertEqual(self.read(rows)['positivePlayers'],[U+'1'])
@@ -140,6 +142,18 @@ class EmptyScoringCredit(unittest.TestCase):
         self.assertEqual(self.read(rows)['positivePlayers'],[])  # incomplete C1 path
         rows.extend(self.terminal_path()[3:])
         self.assertEqual(self.read(rows),dict(positivePlayers=[],possiblePositivePlayers=[]))
+
+    def test_contact_credits_the_actual_replacement_and_keeps_conflicts_unknown(self):
+        first=self.terminal_path()[1]
+        first.update(contactPlay='contact',contactBatter=U+'1')
+        other=dict(first,batter=U+'2');other.pop('metricOrigin')
+        rows=[self.turn(),dict(self.turn(),player=U+'2',act='bat2'),first,other]
+        self.assertEqual(self.read(rows),dict(positivePlayers=[U+'1'],possiblePositivePlayers=[]))
+        other['contactBatter']=U+'2'
+        self.assertEqual(self.read(rows)['positivePlayers'],[])
+        other['contactBatter']=U+'1'
+        first.pop('contactBatter');other.pop('contactBatter')
+        self.assertEqual(self.read(rows)['positivePlayers'],[])
 
     def test_scoring_refinement_preserves_known_batting_zero_and_all_out_exclusion(self):
         def completed(pa,player):

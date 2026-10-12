@@ -4900,5 +4900,237 @@
       "EG5 recognizes the explicit f_error_dropped_ball scoring credit through the existing secondary-error selection and identity. This affects only secondaryErrors; the six census and derived proof contracts do not use that error-credit set.",
       "EG5 distinguishes a separately credited secondary error at the primary-error event by its unique row credit and a distinct known primary credit. No census producer or derived proof uses secondary_error_rows; prior proof outcomes remain unchanged."
     ]
+  },
+  "emptyGameFinalBoundaries": {
+    "decision": "archive/design-records/mlb-game-empty-game-final-boundaries/review.json",
+    "baselineCommit": "cb62852c",
+    "previousRepair": "emptyGameScoringCompletion",
+    "previousContextSha256": "1d6f187f3ca071973df72848868dcaf4c29399ce5cc8ad3796de4c92e8da204b",
+    "currentContextSha256": "11110d7c5b51b4902093652abdb6c4dd34f9449f97b98ac2d2b41cc5dbe2e0cb",
+    "families": {
+      "batting": {
+        "previousImplementationSha256": "5521c3970d48bb84cc488002d0decccf04e143f179b2954b77acbfe6572bdb22",
+        "currentImplementationSha256": "63a2ce31d144c12f7e5bf5aa51447b6ec03e2ddb266c86bd3543f36d0090df94",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "scoring-run": {
+        "previousImplementationSha256": "7aba12af139ace7eb548af9963227507b83244165df23ad4f49b269cac7d1227",
+        "currentImplementationSha256": "841a061141361056e3678ca84b14e835295a377d3821312d4fa6e1dd0aa3891a",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-resolution": {
+        "previousImplementationSha256": "36e75d99b5df3a599a78ee5b12c4d251f4785dd130c641ea2c11269cc4c21cda",
+        "currentImplementationSha256": "b93100b767404452ec285ba8c9e528f529ed7ce5bc125ee7247c464ab903369c",
+        "reuseKind": "prior-stricter-scoring-selection"
+      },
+      "pitch-count": {
+        "previousImplementationSha256": "5cd71de50821ee65f6fa702d2aa697354c86caa811ad097002da82412af87627",
+        "currentImplementationSha256": "5197519977059d79af6422abfb72a669d30134ec56dc0bc0bdd45a773b284c17",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "runner-boundary": {
+        "previousImplementationSha256": "04d05c67ab3cb5587903bc7e034c3d7bedba3285d8a4a38fb5c06bc4bc178bb6",
+        "currentImplementationSha256": "93d1a27772c99c09218a99b46fbe589bca6e1fd8282ce90d3382e15535abdd65",
+        "reuseKind": "unchanged-proof-dependencies"
+      },
+      "defensive": {
+        "previousImplementationSha256": "30f9134bae223e0297d1aff8ca5ce67060b1fcddb447f5455c9e1ecd88869da4",
+        "currentImplementationSha256": "534606b03bfcd912d4c66ccf92f937efdf8901d502f9e1a0278473a34a9f40a9",
+        "reuseKind": "unchanged-proof-dependencies"
+      }
+    },
+    "independentProofs": {
+      "batting": {
+        "currentImplementationSha256": "4a6718ed2c633a2eb29d9816393e606f8a571ee1bf04e1b67c6e4774b171c798",
+        "previous": [
+          {
+            "previousImplementationSha256": "5e30d1def00d4721fe5e6030df282b7e6924ec51019093cd3f1a181a5e14fafa",
+            "previousSourceProducerSha256": "5521c3970d48bb84cc488002d0decccf04e143f179b2954b77acbfe6572bdb22",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "scoring-run": {
+        "currentImplementationSha256": "c70d2ee46b19c2769dc6018b56cb6d3cfdaa179a7c94442db95179add9d3653c",
+        "previous": [
+          {
+            "previousImplementationSha256": "18f1ba855869342c0f4ab70cbb8233bd19d3bc95c618751147e0775ad6fb78d4",
+            "previousSourceProducerSha256": "7aba12af139ace7eb548af9963227507b83244165df23ad4f49b269cac7d1227",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "runner-resolution": {
+        "currentImplementationSha256": "a2e0a3ad3d6bde6cd30ebb1fec73c43e699cf8bcf96e8fade462032ddc829b9a",
+        "previous": [
+          {
+            "previousImplementationSha256": "fe6de1612bbb23b2f35d8c5e9677767b348983eae04c97fe66430f66ab820dd6",
+            "previousSourceProducerSha256": "36e75d99b5df3a599a78ee5b12c4d251f4785dd130c641ea2c11269cc4c21cda",
+            "requiresOriginalAdmission": true
+          }
+        ],
+        "requiresOriginalAdmission": true
+      },
+      "pitch-count": {
+        "currentImplementationSha256": "7bacef2b35b3f7832f3fee4053e08f6ae3a923fd0ddc3548056b5dbd77ee8241",
+        "previous": [
+          {
+            "previousImplementationSha256": "d5bccdc13c73cb8475444ba92ba7f36ce1a75cc4a5219ececb09e7a10ea8bd12",
+            "previousSourceProducerSha256": "5cd71de50821ee65f6fa702d2aa697354c86caa811ad097002da82412af87627",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "runner-boundary": {
+        "currentImplementationSha256": "ef6e9a8a4aeb018cb4b7734810880909d98681d44809ecb60ed720787fd226e3",
+        "previous": [
+          {
+            "previousImplementationSha256": "e16dcf624d90aae0f7b8f6112d3a8d8edfa3656fc490729f2769771d8d69ae3c",
+            "previousSourceProducerSha256": "04d05c67ab3cb5587903bc7e034c3d7bedba3285d8a4a38fb5c06bc4bc178bb6",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      },
+      "defensive": {
+        "currentImplementationSha256": "a506a38aa69f267b7f8ea7dbd2821a50d4e686a3c1e7fa8cf05096150ed41fe8",
+        "previous": [
+          {
+            "previousImplementationSha256": "a1e6cce2082edffef43995e5db4b3cbb9f7fe89441aca4ba751136c8f3e4c041",
+            "previousSourceProducerSha256": "30f9134bae223e0297d1aff8ca5ce67060b1fcddb447f5455c9e1ecd88869da4",
+            "requiresOriginalAdmission": false
+          }
+        ],
+        "requiresOriginalAdmission": false
+      }
+    },
+    "derivedProofs": {
+      "players": {
+        "currentImplementationSha256": "3329578061027f412565a856a9adb24a0ab67f546b024d5afa3b9d34deb268a6",
+        "previousImplementationSha256s": [
+          "a723e52c7401d066de4bbf6c806e5963aae7941b489d667838362c1f4bc6179f",
+          "473a63dcf30285e0e0519e2b39e59280511d7134fa68df1ffe1d30ce41aa40dd",
+          "47bd0ca37edd941dec44cdefc51b3b4fd5aab22e3e0e69fadd546add1e5b9413",
+          "60ead0fa218c5e9c5b15c4a841ef9b766bc3013fbfd3d5eabca7debed2213c49",
+          "e8a2a971b24efbbd8e606d921f1f8d0e06775e60c6fd5389d38c649e61660bd0",
+          "343befe7a01fe3da57ee7b843b909c7882390d7dbca38e0b3ba2ed916c4138aa",
+          "0ea85bfbe665fc0a4b7cff986614076bdbc4e64d726d99b48b8fb3489617c806",
+          "d2a169e02913fd13902df3a4ecb9988251619a51478c264f545079ff7447eb1a",
+          "75b8c08f446b482c66e0b3159bba776af196f8fc8c7cd25401a5e45a33d53eaa",
+          "8cb765a70f37e8dc2570cafd8ccd86a5b5cd0ab14761593d29469d7301fafe6c",
+          "9503a9efedaae32a7234d9635d511af30c0f06824376029fe99a4f302d243bfa",
+          "fe9cfe7f2defc663fc065fb567bee78c15d5e3a2be41e4e156b6107f8a6c2bc7",
+          "e4f1dca7cc98bda644809cbc6ca39ac4d5201ef16253afb0605abd2396e3c1d3",
+          "eb0b1235f409be7ada5d7363f21b1f93d6442ee3b3bca55eeed3fcd39157a1db",
+          "d6dc3c4e7ccec61482df5fea7076aeab341aa6bcede3cf090cbb5d497b752234",
+          "8d1c41bf3f91c83ad45b968c2597630699257980a73eb0dbd81332dec36d02a6",
+          "af37a2c0e325d82303bd98b5b3a4a7853a1832de4194ec40f7644f338ac9697b",
+          "f1ee38368f44ad5d5543a6d6022af4d49f2952b3e8721582efd48698b92a72b8",
+          "0591aa9fc37c993b542defee9b7a006f643e6126dbf8c514c1b4af0f48e5605f",
+          "9630ad5d1891142d65c081a0ce0844871127d41583fa4c8a3e5a9ec844c1cb37",
+          "3bdba40753642a7d6e5e4a30630d465fcc57c74c1d6a59c8b1e425291b021051",
+          "ea53cf17db11939b03f52047923fc322462b9090cc37827faf3fadf2f6b3e43d",
+          "df540b869db8c02ab3b9d58317de8fcb227c8223e0418378b53768deea48cbfd",
+          "ff3ee02cf238f48d6831fd5b60a3bee763694791d7eb9cd68432cf75e6935da9",
+          "e275ed04756c05c8fb8abed9662722ea98ab5b84601a982deba90964078943b0",
+          "eec79277b51bd8ee75abadd782b9d595e7cdde37c5305e15fef5c7162d4226e4",
+          "50aa783f28c5846f60be79dadb25ab5bf9d906bfcfa4572f3f1cf2ebfed9f08e",
+          "f6c6ab2040b1cf3a497e1445c314e15e35824dc64ce8ec666ac6a4cd463d0094"
+        ]
+      },
+      "pa": {
+        "currentImplementationSha256": "e7f06c09b92049d3cfd07414963cf70850d5885610d41ec9c6334462a9789f76",
+        "previousImplementationSha256s": [
+          "e30e9ce9475f2b83ac20006f012f7e8f2fb68247a707fe049ac6245fd7a07ce0",
+          "98d9c00deae915d9d6f19fcb3336149293625373386d15d2d331110c0f0f8c77",
+          "725b4cfd75994b22c7ab89d13f859f5cd8c87e57262eb8f3f1cc4802793fd54f",
+          "692b0798271f1363c53237a113ba570a7c346d4633f26e8ca4c26fe4ee23e3d8",
+          "174abdce90b669f67e50ef859fa98e5dbaf5c4abbf3acfaa18404f01d5ce7866",
+          "8817a0d99eda10dee596ee502fd7676ea7d7513eff4e17b119030c0d11bf871c",
+          "9c449239f98787ba2d8cdd0c9c9aec15f70258ed773940ab8da042ec10476817",
+          "267640d5196076214f7ec9b0ad954ac976554617047c8240e4cd005fb6046c0c",
+          "bbb6201c711d0ffd55f129ed0c78be81e9a15a3921dbf6eb038420b8c31195c4",
+          "e3bfc417a834bf1df788f81eb772da9ed32615b285369d550262e4f4915941a5",
+          "0307e78e35666d96b8623fce676aabb0d523191b4193b4f9dcd1de28e8516785",
+          "313d39b781b4f18dd1143cf2157e32046ee9db60bb6a39f7800042a85d602357",
+          "35b9acd9dad4814acd432930d0afab6433591855abe75c46d0df4d674a31c146",
+          "cd674a03f35fce820f3ec2f4bb40d7d3c2e2b951c898cc975a36f70d0263b128",
+          "ffbf4f7c0487ad1636c8bfae3032c11f63738b9592ea2e492c649cebd0cfdf84",
+          "ca9e059a256a0d23ee937391bffd3076170a64f88b5ab065740e6734803039e2",
+          "233815f267bb8f92a2bcd006aa74e9d0f1bb3c06c6698bff37ecdc68b687a06a",
+          "5dc50818a5a9f24c8f3b45c7c2d7c2d72eaee7a390a686cef89cc46d4c33e596",
+          "78836179c8fef71636dd00b083f3331e377aad47f97a0e419c51f080acdcffa4",
+          "84d73443f688a138975799102170d17af88e28583116fdc52837946112313544",
+          "28ac65202e48dfec58cab9807d3e101cf744b75f08031fd12c00a91e7bc39d90",
+          "4394aa6c44721748f27bb373c3c8ed5c0f119dc8df4c9a201bed18abbd86c3de",
+          "d20f35699a24ec5009e473902a6d3a690b8b93114584e3d69735ff3702aa9fe5",
+          "28ae860bd0d01aedf5545469ba19c8cc9e8c039d7b6298d7cb834af1ae16c6a2",
+          "2b5ec76b132a89331c77b48f168d37a66872d3b9f52420a4dedc76a838748651"
+        ]
+      },
+      "c2pa": {
+        "currentImplementationSha256": "caf077d34de7458a297f53651f2d879bb8ece6f700971edf542b832be52f3ac3",
+        "previousImplementationSha256s": [
+          "174835adf7bac080cd6defd3f29b90499c3333abafa800eb032a8a8b4eafda0e",
+          "3d33aa5d9262f5439719a2453e63a76ee75219c68e8062b81fbaf672f299357e",
+          "174ca92e346744b4de40557933b251aadc38fd89750020e3f308246f11598f8b",
+          "4897efe12a3642780b31e05853ef072d48d9aa0c52e38b05064f0f589c5d6dce",
+          "bb8294d0935911001ddfbd5c4c3e6cdee17a14bc73b0d022263a52a9a4eef8cc",
+          "8f751db49c738d55889c288bc4ba07f23325d43696feb90f42003b3d6c89ef15",
+          "847b8db8e11d0678ce19f5ebea61d5f4e807e5a59bf7e917b00a64c8b9fabdc2",
+          "ec215b6f0fa22db89de2043cb9063680bd8c9ed98c52ebc278a429be749430a5",
+          "8d6574431c668f364034968add055f2f75b1d4d738e255b0fe774450a77db613",
+          "cb7c68b231953cf952312ee01b9992e18e52d20c5206d3fef2e96d9e1495290b",
+          "486940618d1113dcad7abed1ba69e3f227a8b4732aa1e616430ef76882015e0d",
+          "f77458ac4b83e39bdf1b808e9309eb498930cae8baae70d07fe894a2bd8a6c64",
+          "643c6be7e3e418b8c37fd426a6e4cf057cf095de6f0db6c5e4b02727e75000e5",
+          "8d2f06fe1833518b604b53fb503b4d45d183c2f8287dbe95cc03a969816a0ce2",
+          "b1ec414982dcda31c901bf948ec155ec0aebf6f38c726b8c5ac3016597c66dff",
+          "7c2ff771c158481f9daac5451d31794ebc23211024aa1fa25af5ece6e471b2e8",
+          "1c688300c7047a3c21b059e0ac482cba60a4c96921156ce73b3ac09e92baf274",
+          "f00f92f37fc910945d9ceeec354612f951ec27e2e68371bd97a4fd5d70632a13",
+          "0c25baae1fcfe564f2aa6aa75c6add9a537193cc3b12a2a091ef11866c15e3fd",
+          "12b19cae660f2cadaa4344410b881a0cae507bdc6dbf93b1012d7b53714e61c1",
+          "760645e6912352f524e9b49129cba75b6043525f757b4f30660a5b5cb13d8b48",
+          "9d4a2a9e97e051374ab0bee7faf95e3c8d1c6951c1c517be40c789f431f12116",
+          "45d11a02b9baeb6ef83b34941c8f3cece2160cbb1607402b28e5d6f5b885f4d2",
+          "b4b34a14c10a12b4b318cd213b83b5e7ad540525d14f050a03e8eb63061bc017",
+          "222abe1d2c719f4e6abe93c56ebbce27b325c77b9299e8f87e78bd7a86ab9dfd",
+          "d822838c45cbfc45e37cee31d40c22d4c5d50e75a82383bdca67bb5a998a46b2"
+        ]
+      },
+      "retained-batting": {
+        "currentImplementationSha256": "419d577535c5e230123dc6c13de9fc4b9664fde5fba2c8b1952f30020d04f3dc",
+        "previousImplementationSha256s": [
+          "e93b9cfb9cf384deb7954f56dd3f208adc0e285439bbebf4d6d54eab04662cb0",
+          "639d5b7f8878156fb069bae5c02fd70f0da3d3368b1368a57dbc432c19951c5c",
+          "8772b7763e9268fad5fd97cacfa16e8d1db8b08cabcec959129351012726e6a6",
+          "aeb4b85652358a0e5acaf1c7a53bfb6d66b6e2fee292d59950d73bc9401c0687",
+          "af822c1783cf5fe65f9481bf5abd0713c7286b0feac6244954b16d98c89337a1",
+          "4f9f6da0305a7de7ae16e1dcd97d9aa0b46237fb6958e4ccc69feb7161fd3376"
+        ]
+      }
+    },
+    "changedDefinitions": [
+      "BATTED_RUNNER_RESULT_TYPES",
+      "batted_runner_resolution_links",
+      "contact_continuation_supported",
+      "compound_double_play_parts",
+      "sacrifice_fly_double_play_parts",
+      "defensive_indifference_evidence",
+      "runner_metric_evidence",
+      "interference_award_advances",
+      "scored_error_selections",
+      "secondary_error_rows",
+      "main"
+    ],
+    "notes": [
+      "EG6 retains prior producers and outcomes for unchanged graphs. Expanded batting and runner-type source selections do not reuse older negative outcomes as current answers. Targeted additions project and recheck affected obligations.",
+      "The called-final Empty Games branch refreshes prior scoped proofs with missing inning totals; their general withholding and original diagnostics remain. It neither changes the source nor admits totals-dependent products.",
+      "Scoring-run, pitch-count, PA-start and defensive census semantics are unchanged. The context/B1 file dependency changes do not require regenerating RDF."
+    ]
   }
 }

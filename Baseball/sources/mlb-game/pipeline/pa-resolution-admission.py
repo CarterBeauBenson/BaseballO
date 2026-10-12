@@ -52,7 +52,41 @@ def with_reconciliation_scope(source, raw):
                         if p.get('about',{}).get('inning')==number
                         and p.get('about',{}).get('halfInning')==half]
         if affected:scopes.append(dict(issue=issue,plateAppearances=affected))
-    return dict(source,reconciliationScopes=scopes)
+    return dict(source,reconciliationScopes=scopes,
+        emptyGameCalledFinal=called_final_census(doc,source,scopes))
+
+
+def called_final_census(doc,source,scopes):
+    """EG6's source boundary; the same exact C2 SHACL still checks the RDF."""
+    resolution,batting=source['resolution'],source['batting']
+    issues=resolution.get('issues',[]);plays=doc['liveData']['plays']['allPlays']
+    status=doc.get('gameData',{}).get('status',{})
+    if (status.get('abstractGameState')!='Final' or status.get('codedGameState')!='F'
+            or not str(status.get('detailedState','')).startswith('Completed Early:')
+            or batting.get('status') not in {'reconciled','withheld'}
+            or any(i not in issues for i in batting.get('issues',[])) or not plays or not issues
+            or any(p.get('about',{}).get('isComplete') is not True for p in plays)
+            or any(i.get('code')!='SOURCE_RECONCILIATION'
+                or i.get('detail',{}).get('code')!='INNING_RUN_TOTAL_MISMATCH'
+                or i['detail'].get('reported') is not None
+                or not any(s['issue']==i for s in scopes) for i in issues)):
+        return False
+    scores={'away':0,'home':0}
+    for play in plays:
+        side={'top':'away','bottom':'home'}.get(play['about'].get('halfInning'))
+        if side is None:return False
+        runs=0
+        for row in play.get('runners',[]):
+            move,detail=row.get('movement',{}),row.get('details',{})
+            if type(move.get('isOut')) is not bool or type(detail.get('isScoringEvent')) is not bool:return False
+            counted=move.get('end')=='score' and move['isOut'] is False
+            if detail['isScoringEvent']!=counted:return False
+            runs+=counted
+        scores[side]+=runs
+        if any(type(play.get('result',{}).get(team+'Score')) is not int
+            or play['result'][team+'Score']!=scores[team] for team in scores):return False
+    totals=doc.get('liveData',{}).get('linescore',{}).get('teams',{})
+    return all(type(totals.get(side,{}).get('runs')) is int and totals[side]['runs']==value for side,value in scores.items())
 
 
 def fingerprint():
@@ -142,7 +176,9 @@ def shape_text(source):
         if unknown:issues.append(dict(code='SOURCE_PA_INVENTORY'))
         member=dict(plateAppearance=pa,status='withheld' if issues else 'pending',issues=issues)
         members.append(member)
-        if issues:continue
+        empty_only=bool(issues and not unknown and source.get('emptyGameCalledFinal') is True)
+        if empty_only:member['emptyGameStatus']='pending'
+        elif issues:continue
         selected=dict(resolution,resolutions=[r for r in resolution['resolutions'] if r['pa']==pa],
             nonMovementRecords=[r for r in resolution.get('nonMovementRecords',[]) if r['pa']==pa])
         original=R.SHAPE
@@ -159,9 +195,10 @@ def shape_text(source):
 def outcome(members,report):
     failures={str(n) for n in report.objects(None,SH.sourceShape)}
     for member in members:
-        if member['status']!='pending':continue
-        member['status']='withheld' if member.pop('shape') in failures else 'admitted'
-        if member['status']=='withheld':member['issues'].append(dict(code='PA_RESOLUTION_GRAPH_CONFORMANCE'))
+        field='emptyGameStatus' if member.get('emptyGameStatus')=='pending' else 'status'
+        if member[field]!='pending':continue
+        member[field]='withheld' if member.pop('shape') in failures else 'admitted'
+        if member[field]=='withheld':member['issues'].append(dict(code='PA_RESOLUTION_GRAPH_CONFORMANCE'))
     return members
 
 
@@ -192,6 +229,10 @@ def load(evidence,state,promotion):
     if any(source[k].get('sourceSha256')!=proof.get('sourceSha256') or source[k].get('gamePk')!=promotion['gamePk']
             for k in ('resolution','batting')):raise ValueError('Scoped resolution source identities changed')
     evidence.checked_marker(promotion)
+    if version!=fingerprint() and 'emptyGameCalledFinal' not in source and any(
+            i.get('code')=='SOURCE_RECONCILIATION' and i.get('detail',{}).get('code')=='INNING_RUN_TOTAL_MISMATCH'
+            and i['detail'].get('reported') is None for i in source['resolution'].get('issues',[])):
+        return None
     if version!=fingerprint() and any(i.get('code')=='SOURCE_RECONCILIATION' and
             (i.get('detail',{}).get('code')=='INCOMPLETE_SOURCE_PLAY' or
              i.get('detail',{}).get('code')=='INNING_RUN_TOTAL_MISMATCH' and

@@ -9,7 +9,7 @@ SELECT DISTINCT ?graph ?game ?plateAppearance ?resolution ?act ?runner ?episode
        ?originDesignation ?originRecord ?originBase ?originCode ?destinationBase ?destinationCode
        ?safeJudgment ?safeDecision
        ?trajectory ?trajectoryHalf ?trajectoryInterval
-       ?batter ?metricOrigin ?awardRule
+       ?batter ?metricOrigin ?awardRule ?contactBatter
        ?contactPlay ?award ?record ?hasSafeType ?hasOutType ?hasRunType ?independentStealAct
        ?independentRunningProcess ?independentRunningType ?independentRunningJudgment ?independentRunningDecision
        ?secondaryError ?errorJudgment ?errorDecision ?errorContactPlay
@@ -61,6 +61,15 @@ WHERE {
     OPTIONAL {
       ?contactPlay a base:BattedBallPlayProcess ;
           bfo:BFO_0000132 ?plateAppearance ; bfo:BFO_0000117 ?resolution .
+      OPTIONAL {
+        ?contactPlay bfo:BFO_0000117 ?contact .
+        ?contact a base:BatBallContactProcess .
+        ?contactAct bfo:BFO_0000063 ?contact ; bfo:BFO_0000132 ?plateAppearance ;
+          bfo:BFO_0000055 ?contactRole .
+        VALUES ?contactActType { base:SwingAct base:BuntAct }
+        ?contactAct a ?contactActType .
+        ?contactRole a base:BatterRole ; bfo:BFO_0000197 ?contactBatter .
+      }
     }
     # Accepted independent-running channel: particular steal attempt and its
     # supported terminal resolution, not a PA-level event label.
@@ -68,6 +77,7 @@ WHERE {
     OPTIONAL {
       ?award bfo:BFO_0000132 ?plateAppearance ; cco:ont00001803 ?act .
         { ?award a base:WalkProcess } UNION { ?award a base:HitByPitchProcess }
+        UNION { ?award a base:InterferenceProcess }
         ?awardRule a base:BaseballRule ; cco:ont00001974 ?act .
         ?awardEpisode a base:RunnerResolutionEpisode ; bfo:BFO_0000117 ?act, ?resolution .
         { ?resolution a base:SafeProcess } UNION { ?resolution a base:RunProcess }

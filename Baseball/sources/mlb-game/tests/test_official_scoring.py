@@ -18,22 +18,25 @@ S=importlib.util.module_from_spec(spec);spec.loader.exec_module(S)
 P=S.B.module(ROOT/'sources/mlb-game/pipeline/player-participation-admission.py','scoring_players')
 
 
-def mapped(selected):
+def mapped(selected, *, document=None, maps=None):
     """Use NiFi's strict RML engine, including its missing-field behavior."""
     mapping=Graph().parse(ROOT/'sources/mlb-game/mapping/mlb-game.rml.ttl')
     rml=Namespace('http://semweb.mmlab.be/ns/rml#');subset=Graph()
-    for name in S.MAPS:
+    for name in maps or S.MAPS:
         node=URIRef('https://baseballontology.org/mapping/mlb-direct#'+name)
         subset+=mapping.cbd(node)
         subset+=mapping.cbd(mapping.value(node,rml.logicalSource))
     java,mapper=installed_tools()
     with tempfile.TemporaryDirectory(prefix='baseballo-scoring-rml-') as temporary:
         directory=Path(temporary)
-        document={'_baseballO':dict(officialPACredits=[],rbiCredits=[],secondaryErrors=[])}
+        document=document or {'_baseballO':dict(officialPACredits=[],rbiCredits=[],secondaryErrors=[])}
         document['_baseballO'].update(selected)
         for filename in ('game.json','game-context.json'):
             (directory/filename).write_text(json.dumps(document),encoding='utf-8')
-        path=directory/'scoring.rml.ttl';subset.serialize(destination=path,format='turtle')
+        path=directory/'scoring.rml.ttl'
+        text=subset.serialize(format='turtle')
+        if 'gamePk' in document:text=text.replace('{$.gamePk}',str(document['gamePk']))
+        path.write_text(text,encoding='utf-8')
         output=directory/'scoring.ttl'
         result=subprocess.run([str(java),'-Xmx256m','-jar',str(mapper),'-m',str(path),'-o',str(output),
             '-s','turtle','-b','https://baseballontology.org/mapping/mlb-direct','--strict'],
@@ -137,7 +140,12 @@ class OfficialScoring(unittest.TestCase):
             elif change=='missing-primary-credit':changed['runners'][0]['credits']=[]
             elif change=='missing-secondary-credit':changed['runners'][1]['credits']=[]
             else:changed['runners'][1]['credits'].append(dict(credit='f_throwing_error',player=dict(id=999)))
-            with self.subTest(change=change):self.assertEqual(S.S.secondary_errors(changed,'823701',True),[])
+            with self.subTest(change=change):
+                selected=S.S.secondary_errors(changed,'823701',True)
+                if change=='conflicting-credit':self.assertEqual(selected,[])
+                else:
+                    self.assertEqual(len(selected),1)
+                    self.assertTrue(selected[0]['error'].endswith('/plate-appearance/44/result'))
 
     def test_two_actual_batters_have_one_official_pa_in_source_owned_shacl(self):
         source,graph=fixture();row=source['members'][0];pa=row['pa'];player2=source['roster'][1]['player']
@@ -168,13 +176,24 @@ class OfficialScoring(unittest.TestCase):
 
     def test_compatibility_keeps_only_prior_positive_expanded_selections(self):
         e=S.B.module(ROOT/'sources/mlb-game/pipeline/admission-evidence.py','eg45_compatibility_test')
-        bridge=e.read(e.COMPATIBILITY_PATH)['emptyGameScoringCompletion']
+        bridge=e.selection_repairs(e.read(e.COMPATIBILITY_PATH))[0]
         self.assertEqual(e.sha(ROOT/'scripts/pipeline/prepare-rml-context.py'),bridge['currentContextSha256'])
         for family,entry in bridge['families'].items():
             adapter=e.module(e.HERE/(family+'-admission.py'),'eg45_'+family)
             self.assertEqual(adapter.fingerprint(),entry['currentImplementationSha256'])
             self.assertEqual(e.code_equivalence(family,entry['previousImplementationSha256'],adapter.fingerprint())['kind'],entry['reuseKind'])
             self.assertIsNone(e.code_equivalence(family,'unknown',adapter.fingerprint()))
+
+    def test_sacrifice_compound_counts_one_pa_and_requires_both_classifications(self):
+        source,graph=fixture();row=source['members'][0];result=URIRef(row['pa']+'/result')
+        graph.remove((result,RDF.type,URIRef(row['resultType'])))
+        row.update(resultType=str(BASE.SacrificeFlyProcess),compoundResultType=str(BASE.DoublePlayProcess))
+        graph.add((result,RDF.type,BASE.SacrificeFlyProcess));graph.add((result,RDF.type,BASE.DoublePlayProcess))
+        for owner in (S.B,P):
+            shapes=Graph().parse(data=owner.shape_text(source),format='turtle')
+            self.assertTrue(validate(graph,shacl_graph=shapes,advanced=True)[0])
+            changed=Graph()+graph;changed.remove((result,RDF.type,BASE.DoublePlayProcess))
+            self.assertFalse(validate(changed,shacl_graph=shapes,advanced=True)[0])
 
     def test_authoritative_decisions_accept_only_supported_scoring_pairs(self):
         W=S.B.module(ROOT/'sources/mlb-game/pipeline/targeted-award-addition.py','scoring_authoritative_test')

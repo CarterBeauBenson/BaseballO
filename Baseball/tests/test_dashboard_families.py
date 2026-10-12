@@ -144,5 +144,38 @@ class DashboardFamilies(unittest.TestCase):
         offense=next(m for m in self.query()['metrics'] if m['metricId']=='tfs')
         self.assertEqual(offense['playerResults'][0]['value'],D.METRICS.exact(D.METRICS.Fraction(1,4)))
 
+    def test_eg6_reuses_unchanged_graph_answers_with_their_original_query_provenance(self):
+        query=D.METRICS.evidence_query
+        with patch.object(D.METRICS,'evidence_query',side_effect=lambda graphs:query(graphs,prior_empty_game=True)):
+            self.assertEqual(D.build(self.args)['status'],'published')
+        with closing(sqlite3.connect(self.working())) as db:
+            before=db.execute('SELECT query_sha256 FROM dashboard_evidence_checkpoint').fetchall()
+        self.fetched.clear()
+        with patch.object(D.ADMISSION_EVIDENCE,'load',return_value=dict(PROOF,proofSha256='eg6-proof')):
+            self.assertEqual(D.build(self.args)['status'],'published')
+        self.assertEqual(self.fetched,[])
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(db.execute('SELECT query_sha256 FROM dashboard_evidence_checkpoint').fetchall(),before)
+        self.snapshot['inventory']['games']['101']['authoritativeRdfSha256']='c'*64
+        self.assertEqual(D.build(self.args)['status'],'published')
+        self.assertTrue(self.fetched)  # A targeted graph addition always requires a new answer.
+
+    def test_eg6_refreshes_ambiguous_actors_interference_and_compound_results(self):
+        owner=D.module(D.ROOT/'serving/family_build.py','eg6_retained_answers')
+        graph='https://w3id.org/baseball/graph/game/1';m=D.METRICS;base='https://baseballontology.org/'
+        old=D.digest(m.evidence_query([graph],prior_empty_game=True));current=D.digest(m.evidence_query([graph]))
+        row=dict(kind='plate_appearance',entity='pa',player='player',paResultType=base+'SingleProcess')
+        variants=[[row],[row,dict(row,player='replacement')],[dict(row,paResultType=base+'InterferenceProcess')],
+            [dict(row,paResultType=base+'SacrificeFlyProcess'),dict(row,paResultType=base+'DoublePlayProcess')]]
+        for index,rows in enumerate(variants):
+            with closing(sqlite3.connect(':memory:')) as db:
+                db.execute('CREATE TABLE dashboard_evidence_checkpoint (graph_iri,rdf_sha256,query_sha256,row_count)')
+                db.execute('CREATE TABLE metric_suite_evidence (graph_iri,binding_sha256,binding_json)')
+                db.execute('INSERT INTO dashboard_evidence_checkpoint VALUES (?,?,?,?)',(graph,'rdf',old,len(rows)))
+                for item in rows:
+                    text=m._json(item);db.execute('INSERT INTO metric_suite_evidence VALUES (?,?,?)',(graph,m._hash(text),text))
+                result=owner.retained_rows(D,db,graph,dict(authoritativeRdfSha256='rdf'),None,current,None)
+                self.assertEqual(result is not None,index==0)
+
 
 if __name__=='__main__':unittest.main()

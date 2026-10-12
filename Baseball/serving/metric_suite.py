@@ -877,7 +877,7 @@ def public_catalog():
     return result
 
 
-def evidence_query(graphs):
+def evidence_query(graphs, *, prior_empty_game=False):
     """Compose accepted inventories within explicit promoted game graphs."""
     graph_list = sorted(set(graphs))
     if any(not isinstance(g, str) or not re.fullmatch(r'https://w3id\.org/baseball/graph/game/[0-9]+', g)
@@ -890,6 +890,15 @@ def evidence_query(graphs):
     prefixes, queries = set(), []
     for name in ('suite-evidence.rq', 'runner-movement-evidence.rq', 'pitch-count-evidence.rq', 'runner-location-evidence.rq'):
         source = (METRICS / name).read_text(encoding='utf-8')
+        if prior_empty_game and name=='runner-movement-evidence.rq':
+            source=source.replace('?batter ?metricOrigin ?awardRule ?contactBatter','?batter ?metricOrigin ?awardRule')
+            start=source.index('      OPTIONAL {\n        ?contactPlay bfo:BFO_0000117 ?contact .')
+            end=source.index('\n      }',start)+len('\n      }')
+            source=source[:start-1]+source[end:]
+            source=source.replace('\n        UNION { ?award a base:InterferenceProcess }','')
+        elif prior_empty_game and name=='suite-evidence.rq':
+            source=source.replace('        # EG6: a sacrifice-fly double play is one batting result, with a compound out whole.\n'
+                '        FILTER(?paResultType != base:DoublePlayProcess || NOT EXISTS { ?paResult a base:SacrificeFlyProcess })\n','')
         # Both canonical files name the same OBO namespace with different
         # aliases. Use one alias in the composed query for RDFLib/Jena parity.
         source = source.replace('bfo:', 'obo:')
@@ -921,7 +930,7 @@ def normalize_bindings(bindings, graphs):
                       'playerTeamRole', 'team', 'teamRole', 'paResult', 'paResultType',
                       'paResultJudgment', 'paResultDecision', 'paResultRecord', 'compoundOut',
                       'creditedPlayer','creditJudgment','creditDecision','creditRecord',
-                      'secondaryError','errorJudgment','errorDecision','errorContactPlay',
+                      'secondaryError','errorJudgment','errorDecision','errorContactPlay','contactBatter',
                       'rbiPlayer','rbiJudgment','rbiDecision','rbiRecord',
                       'original', 'operative', 'disposition', 'plateAppearance', 'resolution',
                       'reviewPA', 'reviewPitch', 'reviewMotion', 'reviewBatterAct', 'affectedPlayer',

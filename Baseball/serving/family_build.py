@@ -89,10 +89,25 @@ def retained_rows(d, db, graph, promotion, dimension, query_sha, calculation):
         if not legacy or not any(legacy[0]==d.input_identity(promotion,dimension,previous,v,legacy=old)
                                 for v in versions for old in (False,True)):return None
         saved=(promotion['authoritativeRdfSha256'],query_sha,json.loads(legacy[1])['evidenceRows'])
-    if saved[:2]!=(promotion['authoritativeRdfSha256'],query_sha):return None
+    if saved[0]!=promotion['authoritativeRdfSha256']:return None
+    prior=saved[1]!=query_sha
+    if prior and saved[1]!=d.digest(m.evidence_query([graph],prior_empty_game=True)):return None
     rows=[m._blocks.decode(m._block_api(),text,sha) for text,sha in db.execute(
         'SELECT binding_json,binding_sha256 FROM metric_suite_evidence WHERE graph_iri=?',(graph,))]
     if len(rows)!=saved[2]:raise m.EvidenceError('Retained dashboard evidence is incomplete')
+    if prior:
+        # EG6 changes only substituted contact attribution, interference awards
+        # and sacrifice-fly compound classification. Ordinary single-batter
+        # turns use the unchanged bindings. Keep their original query provenance.
+        actors={};types={}
+        for row in rows:
+            if row['kind']!='plate_appearance':continue
+            actors.setdefault(row['entity'],set()).add(row.get('player'))
+            types.setdefault(row['entity'],set()).add(row.get('paResultType'))
+        base='https://baseballontology.org/'
+        if (not actors or any(None in people or len(people)!=1 for people in actors.values())
+                or any(base+'InterferenceProcess' in kinds or
+                    {base+'SacrificeFlyProcess',base+'DoublePlayProcess'}<=kinds for kinds in types.values())):return None
     rows.sort(key=m._json)
     return rows
 
@@ -197,8 +212,10 @@ def build(d, args, state, serving, work):
                             'away_team_iri=excluded.away_team_iri,away_team_label=excluded.away_team_label',values)
                         proof=m.materialize_game(db,graph,None,normalized_rows=rows,metric_ids=selected,
                             player_admission=individual,replace_evidence=replace_evidence,**admissions)
+                        retained=db.execute('SELECT query_sha256 FROM dashboard_evidence_checkpoint WHERE graph_iri=?',(graph,)).fetchone()
+                        evidence_query_sha=query_sha if replace_evidence or retained is None else retained[0]
                         db.execute('INSERT OR REPLACE INTO dashboard_evidence_checkpoint VALUES (?,?,?,?)',
-                            (graph,promotion['authoritativeRdfSha256'],query_sha,len(rows)))
+                            (graph,promotion['authoritativeRdfSha256'],evidence_query_sha,len(rows)))
                         db.execute('INSERT OR REPLACE INTO dashboard_family_checkpoint VALUES (?,?,?)',(family,graph,identity))
                         if family=='offense':
                             db.execute('INSERT OR REPLACE INTO dashboard_checkpoint VALUES (?,?,?)',(graph,identity,m._json(proof)))

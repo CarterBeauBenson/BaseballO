@@ -824,3 +824,10 @@ official_scoring_completion:
   decisions:
     - archive/design-records/mlb-game-official-pa-credit/review.json
     - archive/design-records/mlb-game-secondary-error-attribution/review.json
+
+# EG6 reuses existing individuals. A continuation of one primary error refers
+# to plate-appearance/{atBatIndex}/result, judgment/result and decision/result.
+# The exact runner-record identity supplies the affected-resolution association.
+# Sacrifice-fly double plays use the existing PA result and counted out identities.
+# Interference force-chain rules use rule/official-baseball/{season}/interference-forced-advance
+# with identifier code 5.06(b)(3)(D); no new predicate or event identity is introduced.

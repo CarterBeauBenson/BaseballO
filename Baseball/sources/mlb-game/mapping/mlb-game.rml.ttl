@@ -476,7 +476,7 @@
 <#Result_sac_fly_Source> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_fly')]" .
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_fly' || @._baseballO.hasSacFlyDoublePlay == true)]" .
 
 <#Result_double_play_Source> a rml:LogicalSource ;
   rml:source "game-context.json" ;
@@ -526,7 +526,7 @@
 <#SacrificeResultSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;
   rml:referenceFormulation ql:JSONPath ;
-  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_fly' || @._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_bunt')]" .
+  rml:iterator "$.liveData.plays.allPlays[?(@._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_fly' || @._baseballO.hasCompletedPlateAppearanceResult == true && @.result.eventType == 'sac_bunt' || @._baseballO.hasSacFlyDoublePlay == true)]" .
 
 <#OutResultSource> a rml:LogicalSource ;
   rml:source "game-context.json" ;

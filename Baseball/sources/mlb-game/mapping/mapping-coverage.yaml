@@ -222,3 +222,12 @@ official_scoring_completion:
   rbi: Explicit runner RBI flags must agree with completed play and official per-person/team totals before a decision about the batter and counted Run is emitted.
   missing: Ambiguous replacements, reviews, errors or mismatched totals remain unselected; no invented scorer or timestamp.
   execution: Existing NiFi ingestion and bounded EG1 additive repair use the same selectors, RML and official-scoring SHACL profile.
+
+empty_game_final_boundaries:
+  review: archive/design-records/mlb-game-empty-game-final-boundaries/review.json
+  contact: Reconciled placement prefixes and complete C1 mixed error/other-out paths; preserve existing A1 links when an expanded path remains unsupported.
+  running: Explicit contiguous defensive indifference, supported safe pickoff-event advances and blocked terminal-strike advances reuse actual StealAttemptAct identities, without stolen-base statistics.
+  error: Explicit unique credits associate exact runner records with the existing primary error or a distinct secondary error; ambiguous identities stay unresolved.
+  interference: Reconciled operative catcher interference and a complete observed one-base force chain use the existing award and required-running pattern.
+  compound: An explicit reconciled sacrifice-fly double play retains SacrificeFlyProcess classification and the DoublePlayProcess whole with two existing counted outs.
+  census: Empty Games alone may use completed called-final PA resolutions after source totals and existing C2 SHACL reconcile; missing inning-total diagnostics remain.
