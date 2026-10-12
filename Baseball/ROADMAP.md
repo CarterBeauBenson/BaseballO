@@ -50,9 +50,9 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | --- | --- | --- |
 | Promoted RDF | 2,455 active games; the published 2026 regular-season selection contains all 2,429 games | Game presence does not establish complete player classifications |
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
-| Dashboard build, October 12 at 02:44 UTC | `20261012T021601Z-dashboard-offense-dd6784f6` published | All four families have independent publications |
-| Published dashboard, October 11 at 22:44 Eastern | 628 of 662 Empty Games hitters complete (94.9%); 34 incomplete, 35 held player-games across 33 games | Unchanged from 21:29; the captured inputs predate the next five additions; zero incomplete remains the finish line |
-| EG5 completion, additions complete | Five repairs added 65 missing scoring triples at 22:45-22:49 Eastern, including the distinct secondary error in 823701 | Offensive admissions are available; the next offensive publication must demonstrate the gain |
+| Dashboard build, October 12 at 10:38 UTC | `20261012T102243Z-dashboard-offense-92574551` published | All four families have independent publications |
+| Published dashboard, October 12 at 06:38 Eastern | 631 of 662 Empty Games hitters complete (95.3%); 31 incomplete, 32 held player-games across 30 games | Three more hitters are complete; zero incomplete remains the finish line |
+| EG5 completion, published | Five repairs added 65 missing scoring triples; 823331, 823664 and 823855 have cleared | 823701 and 824992 retain the reviewed mixed-error boundary; no unapplied approved repair remains in the current work list |
 | Repair publication priority | A newly completed Empty Games repair receives one offensive build attempt before normal family rotation | Preserve active builds, bounded retries and independent sibling publication |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
 | EG2 contact selection repair, published | Four cases select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Targeted additions completed; their gains are included in the 628 complete hitters |
@@ -109,14 +109,14 @@ parallel heavy processes or change the ingestion topology.
 
 ### Empty Games: complete population execution plan
 
-**October 11 decision checkpoint:** the latest measured population is 628/662
-complete hitters (94.9%), with 35 held player-games across 33 games. Published
-EG5 engineering fixes completed all five selected additive repairs; their
-offensive admissions are available for the next publication. The
-[EG6 review](proposals/mlb-game-empty-game-final-boundaries/README.md) captures
-the remaining shared attribution, generic selection and called-game census
-boundaries with the retained witnesses. EG6A/B/C await separate decisions;
-continue the existing approved repairs while those decisions are pending.
+**October 12 decision checkpoint:** the latest measured population is 631/662
+complete hitters (95.3%), with 32 held player-games across 30 games. Published
+EG5 engineering fixes completed all five selected additive repairs and cleared
+three player-game exclusions. All 30 remaining games are covered by the
+[EG6 review](proposals/mlb-game-empty-game-final-boundaries/README.md), covering
+shared attribution, generic selection and called-game census boundaries.
+EG6A/B/C await named decisions. NiFi has no unapplied approved selection in the
+current work list; independent supported processing remains enabled.
 
 Deliver one complete metric before switching the primary task. Empty Games
 requires supported offensive eligibility and whether the player made any
@@ -173,7 +173,7 @@ The shared heavy-worker lease and memory reserve stay in place. Inspect NiFi
 at a publication or recorded failure, not by continuously polling healthy work.
 
 The latest measured publication and subsequent fixes are recorded in
-[metric readiness](serving/METRIC-READINESS.md#latest-measured-publication-october-9-at-1517-eastern).
+[metric readiness](serving/METRIC-READINESS.md).
 NiFi refreshes these reader corrections from retained bindings without source
 work or unrelated metric recalculation. Keep a running snapshot intact and
 collect later changes in its next incremental publication; a code commit is

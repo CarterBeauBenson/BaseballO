@@ -21,7 +21,27 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
-## Latest measured publication: October 11 at 22:44 Eastern
+## Latest measured publication: October 12 at 06:38 Eastern
+
+Offense publication `20261012T102243Z-dashboard-offense-92574551` contains all
+2,429 selected regular-season games. **631 of 662 eligible hitters are complete
+(95.3%)**, with **31 incomplete hitters and 32 held player-games in 30 games**.
+All five EG5 additions are promoted. Games 823331, 823664 and 823855 no longer
+have an Empty Games exclusion; 823701 and 824992 retain the mixed-error
+attribution boundary despite their completed scoring additions.
+The live dashboard API independently returns 631 player results for the full
+selected season, with 11,103 Empty Games over 46,734 eligible player-games in
+that complete-player population. It correctly reports population completeness
+as false; these are displayed prepared values, not projected repair gains.
+
+NiFi's repair plan for this publication contains no unapplied approved
+selection. Every remaining game is already represented in the prepared EG6
+witness inventory; this publication introduces no new case family. EG6A/B/C
+remain under review. These are attribution/selection decisions, not a request
+for a new gate or a rebuild. The next running build may refresh independently
+available products, but its existence does not settle those decisions.
+
+## Earlier measured publication: October 11 at 22:44 Eastern
 
 Offense publication `20261012T021601Z-dashboard-offense-dd6784f6` contains all
 2,429 selected regular-season games. **628 of 662 eligible hitters are complete
