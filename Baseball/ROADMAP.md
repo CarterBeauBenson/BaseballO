@@ -26,8 +26,8 @@ and other metrics separately, sharing the existing working store and memory
 lease. Each family publishes an immutable prepared snapshot; the dashboard
 combines those snapshots with their own freshness. A defensive exception does
 not roll back, delay, or relabel offensive results. Actual runner outcomes remain
-offensive dependencies, and this isolation does not resolve pending EG2â€“EG5
-decisions or count previously incomplete players as complete.
+offensive dependencies. Isolation neither changes the accepted contribution
+rules nor counts incomplete players as complete.
 
 Metric, performance and UI work starts from existing promoted RDF. A missing
 input is a precisely recorded gap. An approved source addition preserves unrelated
@@ -52,7 +52,7 @@ metric meanings. This update changes the plan, not runtime behavior or semantics
 | NiFi repair failures, October 11 | Shared optional-field and scoring-shape defects fixed; 78 affected additions completed | One old failed receipt has no remaining Empty Games exclusion and does not block serving |
 | Dashboard build, October 12 at 01:29 UTC | `20261012T011456Z-dashboard-offense-d204c753` published | All four families have independent publications |
 | Published dashboard, October 11 at 21:29 Eastern | 628 of 662 Empty Games hitters complete (94.9%); 34 incomplete, 35 held player-games across 33 games | The reader correction and five targeted additions have published; zero incomplete remains the finish line |
-| EG5 completion, awaiting publication | Recognize explicit dropped-ball error credits, retry omitted scoring selections and preserve explicit counted RBI independently of path reconstruction | Four retained games have newly supported scoring additions; publication must demonstrate the gain |
+| EG5 completion, awaiting publication | Recognize explicit dropped-ball error credits, retry omitted scoring selections and preserve explicit counted RBI independently of path reconstruction | Five retained games have newly supported scoring additions, including the distinct secondary error in 823701; publication must demonstrate the gain |
 | Eligibility repair, addition complete | B1 reconciles neutral defensive prefixes; NiFi added 823565's missing EG4 PA credit | The affected player clears in the corrected reader projection |
 | EG2 contact selection repair, published | Four cases select complete runner links after neutral pre-pitch administration or a reconciled pinch-hitter chain | Targeted additions completed; their gains are included in the 628 complete hitters |
 | Integration | Seventeen conditional player producers; two unfinished review player integrations | Finishing the repair queue alone cannot finish all nineteen cards |
@@ -108,6 +108,14 @@ parallel heavy processes or change the ingestion topology.
 
 ### Empty Games: complete population execution plan
 
+**October 11 decision checkpoint:** the latest measured population is 628/662
+complete hitters (94.9%), with 35 held player-games across 33 games. Published
+EG5 engineering fixes have five newly selected additive repairs. The
+[EG6 review](proposals/mlb-game-empty-game-final-boundaries/README.md) captures
+the remaining shared attribution, generic selection and called-game census
+boundaries with the retained witnesses. EG6A/B/C await separate decisions;
+continue the existing approved repairs while those decisions are pending.
+
 Deliver one complete metric before switching the primary task. Empty Games
 requires supported offensive eligibility and whether the player made any
 accepted positive batting or independent-running contribution during that game.
@@ -129,7 +137,7 @@ The existing dashboard owner emits the grouped remainder after publication;
 the existing source owner caches a grouped work list for each publication and
 implementation. This adds no validation gate or new pipeline topology.
 
-The 19:17 UTC offense publication has 520 complete eligible players and 142 incomplete
+The historical October 9, 19:17 UTC offense publication had 520 complete eligible players and 142 incomplete
 players, spanning 153 player-games in 139 games. The entire approved existing-
 pattern repair scope has been examined: 316 candidate games no longer contain
 their original exclusions; 139 still do, and none currently has an unapplied
