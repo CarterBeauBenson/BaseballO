@@ -119,7 +119,11 @@ def observe(state,owner,runner_owner=None,current_history_proof=None,current_his
         if owner.completed_case(previous,case):selected_complete+=1
         else:selected_pending.append(pk)
     fixed_pending=sorted({case['gamePk'] for case in owner.cases()
-        if case['gamePk'] not in excluded and not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
+        if case['gamePk'] not in excluded
+        # The worker replaces the old fixed selection with its discovered
+        # request. Its current completion/failure is already counted above.
+        and discovery.get(case['gamePk'],{}).get('status')!='selected'
+        and not owner.completed_case(records['history-addition'].get(case['gamePk'],{}),case)})
     runner_pending=sorted({case['gamePk'] for case in runner_owner.repair_cases()
         if case['gamePk'] not in excluded and not runner_owner.completed_case(records['runner-addition'].get(case['gamePk'],{}),case)}) if runner_owner else []
     empty_pending=sorted(case['gamePk'] for case in empty_game_cases if case['gamePk'] not in excluded

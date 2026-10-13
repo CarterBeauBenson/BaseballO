@@ -16,6 +16,21 @@ def write(path,value):
 
 
 class RepairStatus(unittest.TestCase):
+    def test_discovered_request_replaces_fixed_checkpoint_in_pending_count(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state=Path(temp);control=state/'pipeline/control/mlb-game'
+            owner=self.owner();owner.cases=lambda:[dict(gamePk='1',repairRequestSha256='old')]
+            write(control/'history-discovery/inventory.json',dict(games={
+                '1':dict(status='selected',case=dict(repairRequestSha256='new'))}))
+            checkpoint=control/'history-addition/1.json'
+            write(checkpoint,dict(status='complete',repairRequestSha256='new'))
+            report=S.observe(state,owner)['historyDiscovery']
+            self.assertEqual(report['selectedCompleted'],1)
+            self.assertEqual(report['selectedPending'],[]);self.assertEqual(report['fixedPending'],[])
+            write(checkpoint,dict(status='failed',repairRequestSha256='new'))
+            report=S.observe(state,owner)['historyDiscovery']
+            self.assertEqual(report['selectedPending'],['1']);self.assertEqual(report['fixedPending'],[])
+
     def test_empty_game_candidates_remain_visible_until_handled(self):
         with tempfile.TemporaryDirectory() as temp:
             state=Path(temp);cases=[dict(gamePk='1'),dict(gamePk='2')]

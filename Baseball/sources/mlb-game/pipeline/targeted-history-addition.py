@@ -160,12 +160,29 @@ def select_history(manifest, case, raw=None):
     return history, delta
 
 
-def history_maps(delta_context):
+def history_execution_context(game_pk, history, delta_context, raw=None):
+    """Reuse D2's accepted selector for the resolution census checked by H3.
+
+    Only its existing act-type overlay accompanies the selected histories;
+    this does not select other runner maps or replace any source facts.
+    """
+    independent = [row for play in json.loads(raw)['liveData']['plays']['allPlays']
+        for row in H.CONTEXT.defensive_indifference_evidence(play, history)] if raw else []
+    document = dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=delta_context))
+    if independent:
+        document['liveData'] = dict(plays=dict(allPlays=[dict(
+            _baseballO=dict(defensiveIndifferenceActs=independent))]))
+    return document, independent
+
+
+def history_maps(delta_context, independent_acts=()):
     maps=list(MAPS)
     if delta_context['placementAdjudications']:
         maps.extend('RunnerPlacement'+name+'Map' for name in ('Judgment','Membership','Decision','Base','BaseIdentifier','Rule','Record'))
     if any(h.get('gameEndInstantIri') for h in delta_context['histories']):
         maps.append('PersonalRunnerGameEndIntervalMap')
+    if independent_acts:
+        maps.append('DefensiveIndifferenceAttemptOverlayMap')
     return tuple(maps)
 
 
@@ -508,9 +525,10 @@ def add_game(state, game_pk, java, mapper, classpath):
     evidence = state / 'pipeline/evidence/mlb-game' / game_pk / run
     evidence.mkdir(parents=True)
     context = evidence / 'game-context.json'
-    atomic(context, dict(gamePk=int(game_pk), _baseballO=dict(runnerHistoryReconciliation=delta_context)))
+    document, independent = history_execution_context(game_pk, history, delta_context, raw)
+    atomic(context, document)
     mapping = evidence / 'history.rml.ttl'
-    subset_mapping(game_pk,mapping,history_maps(delta_context))
+    subset_mapping(game_pk,mapping,history_maps(delta_context, independent))
     delta_path = evidence / 'history-addition.ttl'
     command([java, '-Xmx256m', '-jar', mapper, '-m', mapping, '-o', delta_path,
         '-s', 'turtle', '-b', manifest['mappingBaseIri'], '--strict'], evidence, evidence / 'rml.log')
@@ -548,6 +566,11 @@ def add_game(state, game_pk, java, mapper, classpath):
         addedHistories=len(delta_context['histories']), addedTriples=len(combined) - len(base),
         baseTripleCount=len(base), resultingTripleCount=len(combined),
         mutation='additive-graph-store-post', acquiredInputs=int(witness is not None and witness['kind']=='targeted-reacquisition'))
+    if independent:
+        addition['independentRunningDependencies'] = dict(
+            decision='archive/design-records/mlb-game-defensive-indifference-running/review.json',
+            mapping='DefensiveIndifferenceAttemptOverlayMap',
+            acts=[{key:row[key] for key in ('atBatIndex','runnerIndex')} for row in independent])
     if 'selectedHistoryKeys' in case:
         inventory = SELECTION if witness else COMPLETION
         addition.update(scopeDecision=read(inventory)['scopeDecision'],

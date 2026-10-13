@@ -63,3 +63,19 @@ artifacts are preserved. The RML manifest explicitly identifies a retained
 base plus targeted delta; its nested addition receipt carries the new context
 and mapping execution hashes. Legacy mapping provenance describes the base,
 not a fictitious full rerun.
+
+On October 13, the five remaining discovered repairs (823064, 823394, 823546,
+824654 and 824998) all failed the current runner-resolution census because
+one existing defensive-indifference act per game lacked the accepted D2 type.
+The history worker now includes `DefensiveIndifferenceAttemptOverlayMap` when
+the unchanged accepted selector finds such acts in the repair's retained source.
+It adds only the existing `StealAttemptAct` typing alongside the selected
+histories and records those dependency rows in the addition receipt. The full
+runner-resolution check remains enforced; no RML definition, SHACL contract,
+ontology term, source bytes or unrelated RDF is changed. The worker fingerprint
+reopens bounded attempts for failed cases while preserving completed cases.
+
+The repair observer also follows the worker's effective request: a discovered
+request replaces an older fixed-list selection for the same game. Its pending
+or complete state is counted once, rather than comparing the new completion
+receipt against the superseded selection and reporting false pending work.

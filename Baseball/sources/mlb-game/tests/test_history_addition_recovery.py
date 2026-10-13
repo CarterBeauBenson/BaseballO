@@ -12,6 +12,29 @@ spec=importlib.util.spec_from_file_location('history_repair',ROOT/'sources/mlb-g
 H=importlib.util.module_from_spec(spec);spec.loader.exec_module(H)
 
 class HistoryAdditionRecovery(unittest.TestCase):
+    def test_history_delta_includes_existing_independent_running_dependency_only(self):
+        witness=H.read(ROOT/'archive/design-records/mlb-game-defensive-indifference-running/evidence.json')['witnesses'][0]
+        source=dict(gamePk=1,liveData=dict(plays=dict(allPlays=[witness['play']])))
+        raw=H.json.dumps(source).encode()
+        delta=dict(histories=[{}],placementAdjudications=[])
+        document,acts=H.history_execution_context('1',{},delta,raw)
+        expected=H.H.CONTEXT.defensive_indifference_evidence(witness['play'],{})
+        self.assertTrue(expected)
+        self.assertEqual(acts,expected)
+        self.assertEqual(document['liveData']['plays']['allPlays'],[
+            dict(_baseballO=dict(defensiveIndifferenceActs=expected))])
+        self.assertEqual(H.history_maps(delta,acts),(*H.MAPS,'DefensiveIndifferenceAttemptOverlayMap'))
+        self.assertEqual(H.json.loads(raw),source)
+        with tempfile.TemporaryDirectory() as temp:
+            mapping=Path(temp)/'delta.ttl';H.subset_mapping('1',mapping,H.history_maps(delta,acts))
+            graph=Graph().parse(mapping)
+            self.assertEqual({str(s).rsplit('#',1)[1] for s in graph.subjects(RDF.type,
+                URIRef('http://www.w3.org/ns/r2rml#TriplesMap'))},set(H.history_maps(delta,acts)))
+        source['liveData']['plays']['allPlays']=[]
+        document,acts=H.history_execution_context('1',{},delta,H.json.dumps(source).encode())
+        self.assertEqual(acts,[]);self.assertNotIn('liveData',document)
+        self.assertEqual(H.history_maps(delta,acts),H.MAPS)
+
     def test_legacy_completion_requires_its_own_history_check_only_for_withheld_boundaries(self):
         case=dict(legacyHistoryEvidence=True)
         previous=dict(status='evidence-refreshed',historyEvidence=dict(status='withheld'))
