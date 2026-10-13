@@ -36,8 +36,12 @@ permission is not a standing rebuild instruction.
 
 ## 1. Complete the nineteen metrics: execution plan
 
-Updated October 12, 2026. Empty Games reached its complete published player
-population at 21:36 UTC. Continue with the offensive rate/contribution families
+Updated October 13, 2026. Empty Games reached its complete published player
+population at 21:36 UTC on October 12, then regressed to 608 when a new build
+overtook the participation checks for two repaired games. Those checks are now
+available. Publish their derived refresh and verify restored population first;
+the handoff repair retains complete results during future pending checks.
+Then continue with the offensive rate/contribution families
 and the shared count/history repairs; keep the nineteen-population finish line. The execution sequence
 below replaces the earlier immediate-work list; prior versions remain in Git.
 [Metric readiness](serving/METRIC-READINESS.md) retains

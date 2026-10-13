@@ -118,6 +118,55 @@ class DashboardFamilies(unittest.TestCase):
         self.assertEqual(result['status'],'published',result)
         with D.SOURCE._reader.dashboard_database(self.state,self.pointer()['families']['offense']):pass
 
+    def test_known_roster_with_pending_pa_credit_retains_players_until_refresh(self):
+        D.build(self.args);old=self.pointer()['families']['offense']
+        before=next(m for m in self.query()['metrics'] if m['metricId']=='empty-game-rate')
+        self.assertTrue(before['playerPopulationComplete'])
+        self.assertEqual(len(before['playerResults']),1)
+        self.fetched.clear()
+        with patch.object(D.ADMISSION_EVIDENCE,'load',side_effect=lambda adapter,state,promotion,family:
+                PROOF if family=='scoring-run' else {'status':'withheld'}):
+            pending=D.build(self.args)
+        self.assertEqual(pending['status'],'waiting-for-source',pending)
+        self.assertEqual(pending['pendingParticipationGames'],self.graphs[:1])
+        self.assertEqual(self.pointer()['families']['offense'],old)
+        after=next(m for m in self.query()['metrics'] if m['metricId']=='empty-game-rate')
+        self.assertEqual(after['playerResults'],before['playerResults'])
+        self.assertEqual(after['freshness']['status'],'retained')
+        with closing(sqlite3.connect(self.working())) as db:
+            self.assertEqual(db.execute('SELECT MIN(roster_complete) FROM dashboard_player_game').fetchone()[0],1)
+            self.assertEqual(db.execute("SELECT DISTINCT reason FROM dashboard_player_metric "
+                "WHERE metric_id='empty-game-rate'").fetchall(),[('OFFENSIVE_ELIGIBILITY',)])
+        ready=D.build(self.args)
+        self.assertEqual(ready['status'],'published',ready)
+        self.assertNotEqual(self.pointer()['families']['offense']['buildId'],old['buildId'])
+        self.assertEqual(self.fetched,[])  # Proof refresh reuses the prepared RDF answers.
+        restored=next(m for m in self.query()['metrics'] if m['metricId']=='empty-game-rate')
+        self.assertEqual(restored['playerResults'],before['playerResults'])
+        self.assertEqual(restored['freshness']['status'],'published')
+
+    def test_player_check_completion_prioritizes_only_the_current_eligibility_gap(self):
+        owner=D.module(D.ROOT/'serving/family_build.py','test_player_check_priority')
+        published={'offense':dict(buildId='pending-players',sourceSnapshotCapturedAtUtc='2026-10-13T00:47:35Z')}
+        remainder=self.state/'serving/dashboard/empty-game-remainder.json'
+        remainder.parent.mkdir(parents=True,exist_ok=True)
+        remainder.write_text(json.dumps(dict(publicationId='pending-players',families=[
+            dict(family='OFFENSIVE_ELIGIBILITY',records=[dict(graph=self.graphs[0])])])),encoding='utf-8')
+        receipt=self.state/'pipeline/control/mlb-game/admission-evidence/101.json'
+        receipt.parent.mkdir(parents=True,exist_ok=True)
+        row=dict(gamePk='101',rosterComplete=True,refreshed=['player-participation'],
+            checkedAtUtc='2026-10-13T01:04:18Z')
+        receipt.write_text(json.dumps(row),encoding='utf-8')
+        self.assertEqual(owner.completed_offense_repair(self.state,published),
+            datetime(2026,10,13,1,4,18,tzinfo=timezone.utc))
+        for change in (dict(refreshed=['runner-boundary']),dict(rosterComplete=False),
+                       dict(checkedAtUtc='2026-10-13T00:00:00Z')):
+            receipt.write_text(json.dumps(dict(row,**change)),encoding='utf-8')
+            self.assertIsNone(owner.completed_offense_repair(self.state,published))
+        receipt.write_text(json.dumps(row),encoding='utf-8')
+        published['offense']['buildId']='newer-publication'
+        self.assertIsNone(owner.completed_offense_repair(self.state,published))
+
     def test_completed_empty_game_repair_gets_one_turn_then_rotation_resumes(self):
         owner=D.module(D.ROOT/'serving/family_build.py','test_repair_priority')
         families=['offense','defense','combined','other']

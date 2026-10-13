@@ -1002,8 +1002,10 @@ def query_dashboard_families(args, request, pointer):
             freshness.update(status='published',buildId=publication['buildId'],
                 corpusFingerprint=publication['corpusFingerprint'],
                 publishedAtUtc=publication.get('promotedAtUtc'),sourceCapturedAtUtc=publication.get('sourceSnapshotCapturedAtUtc'))
-            if pointer.get('familyBuildStatus',{}).get(family,{}).get('status')=='failed':
-                freshness.update(status='retained',updateStatus='retry-pending')
+            update_status=pointer.get('familyBuildStatus',{}).get(family,{}).get('status')
+            if update_status in {'failed','waiting-for-source'}:
+                freshness.update(status='retained',updateStatus=
+                    'retry-pending' if update_status=='failed' else 'source-checks-pending')
             reader=paired_reader(publication)
             with reader.dashboard_database(args.state_root,publication) as (db,_):
                 actual={r[0] for r in db.execute('SELECT graph_iri FROM game_dimension WHERE game_set=? AND official_date BETWEEN ? AND ?',params)}

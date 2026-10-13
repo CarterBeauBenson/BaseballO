@@ -35,11 +35,10 @@ def completed_offense_repair(state, published):
     offense=published.get('offense',{})
     captured=offense.get('sourceSnapshotCapturedAtUtc')
     path=state/'pipeline/control/mlb-game/empty-game-repair-plan.json'
-    if not captured or not path.is_file():return None
-    plan=json.loads(path.read_text(encoding='utf-8'))
-    if plan.get('publicationId')!=offense.get('buildId'):return None
+    if not captured:return None
+    plan=json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {}
     latest=datetime.fromisoformat(captured.replace('Z','+00:00'))
-    for family in plan.get('families',[]):
+    for family in plan.get('families',[]) if plan.get('publicationId')==offense.get('buildId') else []:
         for game in family.get('games',[]):
             pk=game.get('gamePk','')
             if not isinstance(pk,str) or not pk.isdecimal():continue
@@ -47,6 +46,23 @@ def completed_offense_repair(state, published):
             if not receipt.is_file():continue
             row=json.loads(receipt.read_text(encoding='utf-8'))
             if row.get('gamePk')!=pk or row.get('status')!='complete':continue
+            completed=row.get('checkedAtUtc')
+            if completed:latest=max(latest,datetime.fromisoformat(completed.replace('Z','+00:00')))
+    # Graph additions can finish before the independent participation check.
+    # Its completion deserves the same one-attempt priority as an RDF repair;
+    # the builder still loads and verifies the actual proofs before using them.
+    remainder_path=state/'serving/dashboard/empty-game-remainder.json'
+    remainder=json.loads(remainder_path.read_text(encoding='utf-8')) if remainder_path.is_file() else {}
+    if remainder.get('publicationId')==offense.get('buildId'):
+        games={r['graph'].rsplit('/',1)[-1] for group in remainder.get('families',[])
+               if group.get('family')=='OFFENSIVE_ELIGIBILITY' for r in group.get('records',[])}
+        for pk in games:
+            if not pk.isdecimal():continue
+            receipt=path.parent/'admission-evidence'/(pk+'.json')
+            if not receipt.is_file():continue
+            row=json.loads(receipt.read_text(encoding='utf-8'))
+            if (row.get('gamePk')!=pk or row.get('rosterComplete') is not True
+                    or 'player-participation' not in row.get('refreshed',[])):continue
             completed=row.get('checkedAtUtc')
             if completed:latest=max(latest,datetime.fromisoformat(completed.replace('Z','+00:00')))
     return latest if latest>datetime.fromisoformat(captured.replace('Z','+00:00')) else None
@@ -135,14 +151,22 @@ def retain(d, directory, published):
             except OSError:pass
 
 
-def roster_gaps(db, family):
+def participation_gaps(db, family):
     if family not in {'offense','defense','combined','other'}:raise ValueError('Unknown metric family')
     table=(f"(SELECT * FROM dashboard_family_player_game WHERE family='{family}')"
            if family!='offense' else 'dashboard_player_game')
-    return [r[0] for r in db.execute('SELECT g.graph_iri FROM game_dimension g '
+    missing={r[0] for r in db.execute('SELECT g.graph_iri FROM game_dimension g '
         f'LEFT JOIN {table} p USING(graph_iri) '
         "WHERE g.game_set='regular_season' AND g.season=(SELECT MAX(season) FROM game_dimension WHERE game_set='regular_season') "
-        'GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0')]
+        'GROUP BY g.graph_iri HAVING MAX(COALESCE(p.roster_complete,0))=0')}
+    if family=='offense':
+        # A verified team roster does not establish who received an official
+        # PA. Preserve the published population while those checks catch up.
+        missing.update(r[0] for r in db.execute("SELECT DISTINCT p.graph_iri FROM dashboard_player_metric p "
+            "JOIN game_dimension g USING(graph_iri) WHERE p.metric_id='empty-game-rate' "
+            "AND p.complete=0 AND p.reason='OFFENSIVE_ELIGIBILITY' AND g.game_set='regular_season' "
+            "AND g.season=(SELECT MAX(season) FROM game_dimension WHERE game_set='regular_season')"))
+    return sorted(missing)
 
 
 def build(d, args, state, serving, work):
@@ -298,21 +322,24 @@ def build(d, args, state, serving, work):
                 db.execute('INSERT OR REPLACE INTO dashboard_state VALUES (?,?)',('reference-version-'+family,version))
         checkpoint(phase='player-ranges')
         player_ranges=d.PLAYER_RANGES.prepare_family(m,db,family,selected,players,checkpoint)
-        missing_rosters=roster_gaps(db,family)
+        missing_rosters=participation_gaps(db,family)
         if missing_rosters and prior and not publication_issue:
             previously_complete=False
             try:
                 prior_root=d.RELEASE.resolve_pointer_release(state,prior)
                 reader=d.module(prior_root/'scripts/pipeline/query-serving-layer.py','prior_family_reader') if prior_root else d.SOURCE._reader
                 with reader.dashboard_database(state,prior) as (previous,_):
-                    previously_complete=not roster_gaps(previous,prior.get('family','offense'))
+                    previously_complete=not participation_gaps(previous,prior.get('family','offense'))
             except (OSError,ValueError,sqlite3.Error) as error:
                 checkpoint(previousPublicationIssue=str(error))
             if previously_complete:
                 attempt['attempts']=max(0,attempt['attempts']-1)
+                attempt['status']='waiting-for-source'
                 d.RELEASE.atomic(attempts_path,attempts)
-                checkpoint(status='waiting-for-source',pendingRosterGames=missing_rosters,
-                           reason='Captured game roster checks are pending',publicationBuildId=prior['buildId'])
+                if not args.no_promote and not args.max_games:
+                    d.RELEASE.atomic(pointer_path,composition(published,attempts))
+                checkpoint(status='waiting-for-source',pendingParticipationGames=missing_rosters,
+                           reason='Captured game participation checks are pending',publicationBuildId=prior['buildId'])
                 return progress
         checkpoint(phase='season-ranges')
         ranges=d.SOURCE._reader._range_query.prepare_seasons(m,d.PLAYER_RANGES,db,input_set,metric_ids=sorted(selected),family=family)

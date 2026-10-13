@@ -28,9 +28,27 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
+## October 13 at 01:03 UTC: Empty Games participation handoff regression
+
+Publication `20261013T004338Z-dashboard-offense-2e6c2a01` reduced Empty Games
+from 662 to **608 ranked players**. Its `OFFENSIVE_ELIGIBILITY` gaps affect
+107 rostered players in games **824125 and 824385**, including 54 previously
+ranked hitters. The descending sort and appearance minimum did not remove them.
+The builder captured repaired games before their independent player checks
+finished; the checks refreshed at 01:04 UTC, after publication.
+
+The family builder now preserves the previous publication when official-PA
+eligibility checks are pending, even when the roster itself is verified. The
+reader labels that publication as retained. Completion of a pending player check
+gives offense one refresh attempt before normal family rotation resumes. This
+changes scheduling and publication only; existing RDF and eligibility meanings
+are unchanged. The focused family tests cover population retention, subsequent
+restoration, prepared-answer reuse, and bounded scheduling priority. The next
+NiFi offense publication must still be measured before claiming 662 restored.
+
 ## October 12 at 21:36 UTC: complete Empty Games publication
 
-The live dashboard serves publication
+At this checkpoint the live dashboard served publication
 `20261012T203817Z-dashboard-offense-61dcb86a`: **662/662 eligible hitters**,
 **49,627 eligible player-games**, and all **2,429 regular-season games**.
 There are **11,757 Empty Games**. All fourteen eligible hitters with zero
