@@ -7,6 +7,41 @@ The [previous roadmap](archive/operational-history/2026-09-23/ROADMAP.md) is
 retained as history; its completed setup tasks and superseded design questions
 are not instructions to repeat that work.
 
+## October 13 handoff: history batch complete; development paused
+
+The user asked to unblock the five remaining discovered history repairs, then
+set this project aside. Do not start another metric expansion or repository
+sweep as part of this handoff. Resume the execution plan below when requested.
+
+The shared defect in games 823064, 823394, 823546, 824654 and 824998 was one
+missing, already-approved defensive-indifference act classification per game.
+Commit `3d22162c` makes the history worker include that unchanged D2 mapping
+alongside its selected histories. It also removes false pending counts for
+superseded fixed-list repair requests. The focused 27-test check passed.
+NiFi completed and promoted all five repairs by 21:09 UTC (5:09 p.m. Eastern):
+20 histories and 155 added triples. Its 21:10 report lists no pending discovered
+or fixed history repairs and no history-repair failures. The owner receipts are
+under `pipeline/control/mlb-game/history-addition/` and `repair-status.json`.
+All five runner-resolution checks pass. Three games still retain their existing
+whole-history population limitations despite passing selected-history graph
+checks; completion of the requested additions does not erase those limits.
+
+The published dashboard remains available at `http://127.0.0.1:4173/metrics`.
+The latest measured full-season Empty Games population is 662, with no appearance
+minimum. Batting rates now require a PA in 40% of selected team games, rounded up.
+Other rate/defensive/review coverage remains unfinished; see
+[metric readiness](serving/METRIC-READINESS.md) before resuming. Fixing this
+history batch does not make all nineteen metrics complete.
+
+Daily acquisition keeps its existing schedule. The October 6 optional-work
+deferral remains in force. Dashboard SQL and routine admission refresh were
+temporarily paused to let these five repairs use the shared memory slot. Both
+were restored to RUNNING after completion; the operational receipt is
+`operations/history-repair-handoff-2026-10-13.json` under the runtime state root.
+The interrupted SQL build retains its checkpoints and published snapshots;
+NiFi owns its subsequent derived updates. Development is paused, not daily
+acquisition or the restored runtime workers.
+
 ## Fixed architecture and scope
 
 ```text
@@ -80,8 +115,8 @@ See the [audit follow-through](serving/RML-CROSS-METRIC-AUDIT.md#implementation-
 H5 history alignment is now accepted in decision commit `01afdcdb` and implemented
 with passing focused discovery/recovery checks. NiFi can discover separate missing
 histories even where an earlier narrow repair completed. The offense build's
-admission-cache exception is fixed in `d3f510a9`; the 650/662 measurement remains
-the last published result until a subsequent successful build is measured.
+admission-cache exception is fixed in `d3f510a9`; its historical 650/662 measurement
+was superseded by the complete 662-player publications described above.
 
 The cross-metric follow-through now records the same missing K1 compound
 classification in 90 turns across 87 games. NiFi's existing compound owner

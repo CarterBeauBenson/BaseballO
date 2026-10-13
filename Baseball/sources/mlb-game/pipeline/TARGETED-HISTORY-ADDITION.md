@@ -79,3 +79,12 @@ The repair observer also follows the worker's effective request: a discovered
 request replaces an older fixed-list selection for the same game. Its pending
 or complete state is counted once, rather than comparing the new completion
 receipt against the superseded selection and reporting false pending work.
+
+All five retries completed on their first attempt with this fix and were
+promoted by October 13 at 21:09 UTC: 20 histories, 155 added triples, and five
+passing runner-resolution admissions. The 21:10 owner report contains zero
+pending history repairs and zero history-addition failures. Selected-history
+graph checks pass in all five games; existing whole-history population limits
+remain visible for 823064, 823394 and 823546. This closes the five requested
+repair failures, not every metric or every source population gap. The user
+paused development at this handoff; see the [roadmap](../../../ROADMAP.md).
