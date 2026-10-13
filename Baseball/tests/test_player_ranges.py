@@ -19,6 +19,30 @@ SCOPE=dict(gameSet='regular_season',startDate='2026-09-01',endDate='2026-09-02')
 
 
 class PlayerRanges(unittest.TestCase):
+    def test_batter_out_and_safe_advance_reach_the_rate_projection_as_zero_runner_loss(self):
+        from test_contribution_players import fixture, inputs, BATTER, RUNNER, PROOF, G1, GAME
+        evidence=fixture(outs=1,runner_base=2);pa=evidence[0]['entity']
+        evidence[0].update(act=pa+'/batter-act',paResult=pa+'/result',paResultJudgment=pa+'/judgment',
+            paResultDecision=pa+'/decision',paResultRecord=pa+'/record')
+        evidence.append(dict(evidence[-1],runner=RUNNER,entity=pa+'/safe',resolution=pa+'/safe',
+            act=pa+'/runner-act',episode=pa+'/runner-episode',metricOrigin='2',
+            originDesignation=pa+'/origin',originBase=GAME+'/base/2',originCode='2B',
+            originRecord=pa+'/runner-record',hasOutType='false',hasSafeType='true',
+            destinationCode='3B',destinationBase=GAME+'/base/3',
+            safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision'))
+        evidence.extend(dict(kind='player_team_game',graph=G1,game=GAME,player=player,team='team',teamRole='role')
+            for player in (BATTER,RUNNER))
+        score=inputs(evidence)
+        _,records=P.project(M,graph=G1,scope=SCOPE,rows=evidence,
+            proofs=dict(batting=PROOF,run={},resolution=PROOF),
+            inputs=dict(contribution=score,progress={}),runs={},run_people={},
+            metric_ids={'rally-kill-rate','rally-kill-severity','tfs'})
+        own={r[2]:r for r in records if r[1]==BATTER}
+        self.assertEqual(own['tfs'][3],0)
+        for metric in ('rally-kill-rate','rally-kill-severity'):
+            self.assertEqual(own[metric][3],1)
+            self.assertEqual(json.loads(own[metric][4]),dict(kind='mean',sum=M.exact(0),count=1))
+
     def test_zero_out_turns_complete_only_the_erosion_projection(self):
         from test_contribution_players import fixture, inputs, qualification, BATTER, PROOF, G1
         evidence=fixture();score=inputs(evidence);first=evidence[0]['entity'];second=first+'/second'

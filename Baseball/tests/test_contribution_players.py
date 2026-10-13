@@ -77,6 +77,27 @@ class ContributionPlayers(unittest.TestCase):
         out.pop('contactPlay');out['independentStealAct']=out['act']
         self.assertEqual(inputs(rows)['runnerOutPlateAppearances'],[])
 
+    def test_batter_out_with_safe_runners_has_zero_runner_loss_despite_unknown_progress(self):
+        rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
+        rows.append(dict(rows[-1],runner=RUNNER,entity=pa+'/safe',resolution=pa+'/safe',
+            act=pa+'/runner-act',episode=pa+'/runner-episode',metricOrigin='2',
+            originDesignation=pa+'/origin',originBase=GAME+'/base/2',originCode='2B',
+            originRecord=pa+'/runner-record',hasOutType='false',hasSafeType='true',
+            destinationCode='3B',destinationBase=GAME+'/base/3',
+            safeJudgment=pa+'/safe-judgment',safeDecision=pa+'/safe-decision'))
+        result=inputs(rows)
+        self.assertFalse(result['complete'])  # Positive progress ownership remains unresolved.
+        self.assertEqual(result['zeroOutPlateAppearances'],[])  # The batter really was out.
+        self.assertEqual(result['runnerOutPlateAppearances'],[dict(graph=G1,game=GAME,
+            plateAppearance=pa,player=BATTER,runnerOnBase=True,
+            runnerOutOccurred=False,existingDestruction=M.exact(0))])
+        for missing in ('runner_resolution_admission','runner_boundary_admission'):
+            self.assertEqual(inputs(rows,**{missing:{}})['runnerOutPlateAppearances'],[])
+        for change in (dict(hasOutType='true',hasSafeType='false'),dict(hasOutType='true'),
+                       dict(hasSafeType='false',hasRunType='true')):
+            changed=copy.deepcopy(rows);changed[-1].update(change)
+            self.assertEqual(inputs(changed)['runnerOutPlateAppearances'],[])
+
     def test_complete_no_out_census_does_not_need_unknown_progress_or_boundaries(self):
         rows=fixture(outs=1,runner_base=2);pa=rows[0]['entity']
         rows[0]['paResultType']=BASE+'HitByPitchProcess'

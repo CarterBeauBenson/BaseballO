@@ -28,6 +28,45 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
+## October 13 at 02:30 UTC: Empty Games restored; rate work resumed
+
+The live API serves `20261013T021109Z-dashboard-offense-47f6d2ba` with
+**662 Empty Games players, a complete population, and no player-summary gaps**.
+The two-game participation refresh has published successfully.
+
+The same publication contains these complete selected-range player results,
+**before leaderboard participation minimums**:
+
+| Metric | Scored players | Population complete |
+| --- | ---: | --- |
+| Offensive Reach | 207 | No |
+| Help Without Advancing | 270 | No |
+| Runner Out Rate | 54 | No |
+| Runner Loss per PA | 54 | No |
+| Plate Appearance Contribution | 55 | No |
+| Scoring Opportunity Lost | 80 | No |
+
+The shared exact-PA exclusions affect 135 players (151 player-games across
+121 games). Progress exclusions span 899 games; the retained progress diagnostic
+contains 1,170 attribution gaps, 113 coalescence gaps and eight ambiguous-batter
+gaps. These categories overlap and are not player counts. Bounded live-graph
+inspection confirms that some missing award/consequence links are actual graph
+gaps, rather than omitted SPARQL bindings. Empty Games' positive-eligibility
+witness cannot replace an exact PA denominator for these rates.
+
+The rate reader now retains zero existing-runner loss when the complete
+start/resolution census establishes an existing runner stayed safe, even if
+the batter was out and safe-progress ownership remains unknown. Previously its
+zero shortcut required no outs at all. This changes only the derived runner-out
+observations, not positive credit, eligibility, RML or RDF. Eighteen focused
+contribution tests and the final player-projection regression pass; a bounded
+check also exercises three retained games. NiFi owns publication of the change;
+the table above is the measured baseline, not a forecast of the new population.
+
+Continue with metric-specific reader repairs and recorded denominator gaps.
+Pool selected-range sums and applicable observations, retain automatic
+qualification, and do not shrink denominators to the passing subset of games.
+
 ## October 13 at 01:03 UTC: Empty Games participation handoff regression
 
 Publication `20261013T004338Z-dashboard-offense-2e6c2a01` reduced Empty Games
@@ -44,7 +83,7 @@ gives offense one refresh attempt before normal family rotation resumes. This
 changes scheduling and publication only; existing RDF and eligibility meanings
 are unchanged. The focused family tests cover population retention, subsequent
 restoration, prepared-answer reuse, and bounded scheduling priority. The next
-NiFi offense publication must still be measured before claiming 662 restored.
+NiFi offense publication was subsequently measured at 02:30 UTC above.
 
 ## October 12 at 21:36 UTC: complete Empty Games publication
 

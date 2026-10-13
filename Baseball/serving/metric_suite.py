@@ -3036,9 +3036,15 @@ def contribution_game_inputs(rows, *, graph, batting_admission, runner_resolutio
             by_runner[row['runner']].append(row)
         if batter not in by_runner:reasons.append('MISSING_BATTER_RESOLUTION')
         if set(by_runner)-{batter}-set(starts):reasons.append('UNSUPPORTED_WITHIN_PA_ENTRY')
-        if not reasons and pa in no_out_turns:
+        known_outcomes=all((r.get('hasSafeType'),r.get('hasOutType'),r.get('hasRunType')) in
+            {('true','false','false'),('false','true','false'),('false','false','true')}
+            for members in by_runner.values() for r in members)
+        existing_runner_out=any(r.get('hasOutType')=='true'
+            for runner,members in by_runner.items() if runner!=batter for r in members)
+        if not reasons and known_outcomes and not existing_runner_out:
             # With a complete start/resolution census, an unchanged runner or
-            # an all-safe path remains on base. A scoring path might finish
+            # an all-safe path remains on base. The batter's own out cannot
+            # create an existing-runner out or loss. A scoring path might finish
             # independently before the batter consequence, so it cannot prove
             # this denominator without the full attribution below.
             on_base=any(not by_runner.get(runner) or all(r.get('hasSafeType')=='true'
