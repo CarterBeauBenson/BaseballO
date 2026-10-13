@@ -1,8 +1,10 @@
 {
-  "version": 3,
+  "version": 4,
   "decision": "archive/design-records/metric-completion-decisions-2026-09-15/decision.json",
   "followupDecision": "archive/design-records/metric-completion-decisions-2026-09-15/followup-decision.json",
   "countDecision": "archive/design-records/count-leaderboard-minimums-2026-10-01/README.md",
+  "battingDecision": "archive/design-records/batting-game-qualification-2026-10-13/README.md",
+  "battingGameFraction": {"numerator": 2, "denominator": 5},
   "countMetrics": ["empty-game-rate"],
   "eitherBattingOrRunning": ["contribution-path-diversity"],
   "policies": {

@@ -15,20 +15,21 @@ test('selected team schedules exclude a one-game leader without changing its ave
   const db=new DatabaseSync(join(state,'serving/dashboard/builds',id+'.sqlite'));
   db.exec(`CREATE TABLE dashboard_build(build_id TEXT,corpus_fingerprint TEXT,status TEXT);
     CREATE TABLE game_dimension(graph_iri TEXT,official_date TEXT,game_set TEXT);
-    CREATE TABLE dashboard_player_game(graph_iri TEXT,player TEXT,team TEXT);
+    CREATE TABLE dashboard_player_game(graph_iri TEXT,player TEXT,team TEXT,plate_appearances INTEGER);
     INSERT INTO dashboard_build VALUES ('${id}','corpus','validated');`);
   const player=n=>'https://baseballontology.org/data/player/'+n;
   for(let n=1;n<=7;n++) {
     db.prepare('INSERT INTO game_dimension VALUES (?,?,?)').run('g'+n,'2026-09-0'+n,'regular_season');
-    db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run('g'+n,player(3),'B');
-    if(n<=6) db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run('g'+n,player(2),'A');
+    db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g'+n,player(3),'B',n<=2 ? 10 : 0);
+    if(n<=6) db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g'+n,player(2),'A',4);
   }
-  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run('g1',player(1),'A');
-  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run('g1',player(4),'A');
-  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run('g2',player(4),'B');
+  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g1',player(1),'A',3);
+  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g1',player(4),'A',10);
+  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g2',player(4),'B',6);
+  db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run('g3',player(4),'B',6);
   db.close();
   const scope={gameSet:'regular_season',startDate:'2026-09-01',endDate:'2026-09-07'};
-  const rows=[[1,3,1,9],[2,24,6,1],[3,20,7,2],[4,22,2,3]].map(([id,pa,games,value])=>({
+  const rows=[[1,3,1,9],[2,24,6,1],[3,20,7,2],[4,22,3,3]].map(([id,pa,games,value])=>({
     player:player(id),metricId:'offensive-reach',status:'available',completeParticipation:true,
     dateScope:scope,plateAppearances:pa,teamGames:games,
     aggregate:{kind:'mean',sum:{numerator:String(value),denominator:'1'},count:1}}));
@@ -36,7 +37,7 @@ test('selected team schedules exclude a one-game leader without changing its ave
     metric:{playerPopulationComplete:true,playerResults:rows}};
   const output=selectedTeamMinimums(input,state);
   const board=playerLeaderboard(output.metric,{id:'offensive-reach',higherIs:'better'},scope);
-  assert.deepEqual(board.rows.map(r=>[r.player,r.minimumPA]),[[player(4),22],[player(2),19]]);
+  assert.deepEqual(board.rows.map(r=>[r.player,r.battingGames,r.minimumBattingGames]),[[player(4),3,3],[player(2),6,3]]);
   assert.equal(board.belowMinimum,2);
   assert.deepEqual(output.metric.playerResults[0].aggregate,rows[0].aggregate);
   assert.equal(rows[0].qualificationTeamGames,undefined);
@@ -55,14 +56,14 @@ test('family publications use their own rosters and isolate a broken qualificati
     const db=new DatabaseSync(join(state,'serving/dashboard/builds',id+'.sqlite'));
     db.exec(`CREATE TABLE dashboard_build(build_id TEXT,corpus_fingerprint TEXT,status TEXT);
       CREATE TABLE game_dimension(graph_iri TEXT,official_date TEXT,game_set TEXT);
-      CREATE TABLE dashboard_player_game(graph_iri TEXT,player TEXT,team TEXT);
-      CREATE TABLE dashboard_family_player_game(family TEXT,graph_iri TEXT,player TEXT,team TEXT);`);
+      CREATE TABLE dashboard_player_game(graph_iri TEXT,player TEXT,team TEXT,plate_appearances INTEGER);
+      CREATE TABLE dashboard_family_player_game(family TEXT,graph_iri TEXT,player TEXT,team TEXT,plate_appearances INTEGER);`);
     db.prepare('INSERT INTO dashboard_build VALUES (?,?,?)').run(id,family+'-corpus','validated');
     for(let day=1;day<=5;day++) {
       const graph='g'+day;
       db.prepare('INSERT INTO game_dimension VALUES (?,?,?)').run(graph,'2026-09-0'+day,'regular_season');
-      if(day<=2) db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?)').run(graph,player,'A');
-      db.prepare('INSERT INTO dashboard_family_player_game VALUES (?,?,?,?)').run(family,graph,player,'B');
+      if(day<=2) db.prepare('INSERT INTO dashboard_player_game VALUES (?,?,?,?)').run(graph,player,'A',day===1 ? 1 : 0);
+      db.prepare('INSERT INTO dashboard_family_player_game VALUES (?,?,?,?,?)').run(family,graph,player,'B',null);
     }
     db.close();
   }
@@ -73,6 +74,7 @@ test('family publications use their own rosters and isolate a broken qualificati
     metrics:[metric('offensive-reach','offense'),metric('resolution-depth','defense')]};
   const result=selectedTeamMinimums(input,state);
   assert.deepEqual(result.metrics.map(m=>m.playerResults[0].qualificationTeamGames),[2,5]);
+  assert.deepEqual(result.metrics.map(m=>m.playerResults[0].battingGames),[1,null]);
   const firstSplitReader=structuredClone(input);
   delete firstSplitReader.metrics[1].freshness.corpusFingerprint;
   assert.equal(selectedTeamMinimums(firstSplitReader,state).metrics[1].playerResults[0].qualificationTeamGames,5);

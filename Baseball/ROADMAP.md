@@ -121,8 +121,8 @@ Preserve the settled presentation:
 - Pool accepted observation sums and denominators for period averages/rates.
   Empty Games is a count, with every eligible player's supported total, including
   zero, and no appearance minimum. Do not average game averages.
-- Batting averages/rates retain the nearest whole-number 3.1 PA per team game
-  minimum; other metrics use [their accepted participation policies](web/leaderboard-qualification.json).
+- Batting averages/rates require at least one PA in 40% of selected team games,
+  rounded up; other metrics use [their accepted participation policies](web/leaderboard-qualification.json).
   Apply qualification to complete selected-range exposure, including team changes.
 - Contribution Mix retains its pooled channel calculation. Exact arithmetic is
   rounded only for display where applicable; its logarithmic entropy is approximate.

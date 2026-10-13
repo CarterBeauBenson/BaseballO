@@ -103,6 +103,9 @@ class References(unittest.TestCase):
                     self.assertTrue(Q.reference_available(M,db,metric,scope))
                     actual=Q.reference_players(M,db,metric,scope,graphs)
                     self.assert_same_player_scores(actual,expected)
+                    # This fixture has one official PA per selected game;
+                    # qualification must survive prepared-reference reading.
+                    self.assertEqual([p['battingGames'] for p in actual['playerResults']],[len(graphs)])
 
     def test_known_ineligible_selection_stays_empty_and_unprepared_reference_stays_withheld(self):
         db=self.complete_database()

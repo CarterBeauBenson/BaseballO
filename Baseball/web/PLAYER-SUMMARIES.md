@@ -64,9 +64,16 @@ players remain ineligible for batting summaries. Empty Games and non-PA means
 are outside this reducer.
 
 The mean is the exact sum of individual scores divided by their count, with
-the sum/count retained for the public projection. Qualification uses the
-separate official total and the complete team-game list, including missed
-games, team changes and distinct games in a doubleheader. The reducer consumes
+the sum/count retained for the public projection. Batting qualification requires
+at least one official PA in 40% of the team's selected games, rounded up: 65 of
+162 or 3 of 7. Walk-only games count; zero-PA games do not. The reader uses
+distinct PA-game participation and the complete team schedule, including missed
+games, team changes and distinct games in a doubleheader. For multiple teams,
+the denominator is the largest selected team total or the player's evidenced
+game exposure, whichever is greater. Empty Games retains no minimum; existing
+activity-specific observation minimums still apply to specialized metrics.
+See the [accepted decision](../archive/design-records/batting-game-qualification-2026-10-13/README.md).
+The reducer consumes
 those independently admitted inputs; it does not invent their graph paths.
 The existing server remains the owner of qualification and ranking.
 

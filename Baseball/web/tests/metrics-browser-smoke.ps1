@@ -294,13 +294,13 @@ window.fetch = (...args) => {
 (async () => {
   const id=x=>document.getElementById(x),original=window.fetch;
   const assert=(value,message)=>{if(!value)throw Error(message);};
-  // UI-only fixture: backend qualification and one-PA exclusion have separate
+  // UI-only fixture: backend qualification and participation minimums have separate
   // server tests. These names/scores never enter the running data service.
   const fixture=structuredClone(window.dashboardCapture);
   fixture.metrics.find(m=>m.metricId==='tfs').leaderboard={
-    status:'available',order:'Highest scores first',qualification:{rule:'3.1 PA per team game, rounded to the nearest whole PA.'},
+    status:'available',order:'Highest scores first',qualification:{rule:'At least one plate appearance in 40% of team games, rounded up.'},
     rows:Array.from({length:7},(_,i)=>({player:'https://baseballontology.org/data/player/'+(i+1),
-      name:'UI Test Player '+(i+1),rank:i+1,plateAppearances:4,teamGames:1,minimumPA:3,
+      name:'UI Test Player '+(i+1),rank:i+1,plateAppearances:4,teamGames:1,battingGames:1,minimumBattingGames:1,
       value:{numerator:String(7-i),denominator:'1'}}))
   };
   let calls=0;

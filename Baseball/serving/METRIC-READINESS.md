@@ -28,6 +28,38 @@ publication freshness. It does not change the measured counts below. NiFi's
 `serving/dashboard-current.json` contains the independently published snapshots.
 The UI reads those prepared snapshots and labels retained results explicitly.
 
+## October 13 at 12:47 UTC: 40% batting-game qualification is live
+
+The [approved participation rule](../archive/design-records/batting-game-qualification-2026-10-13/README.md)
+now requires an official PA in at least 40% of selected team games, rounded up.
+The live reader applies it to existing prepared SQL in
+`20261013T121635Z-dashboard-offense-329b8617`; this did not rerun RML or rebuild RDF.
+The full-season selection remains January 1 through September 27, 2026.
+
+| Metric | Scored players | Ranked under 40% rule | Ranked under former PA-total rule |
+| --- | ---: | ---: | ---: |
+| Offensive Reach | 210 | 23 | 3 |
+| Help Without Advancing | 273 | 60 | 11 |
+| Plate Appearance Contribution | 51 | 0 | 0 |
+| Runner Out Rate | 50 | 0 | 0 |
+| Runner Loss per PA | 50 | 0 | 0 |
+| Empty Games | 662 | 662 | 662 |
+
+Empty Games remains complete with no participation minimum. The rate populations
+remain incomplete: existing score/official-credit gaps still exclude players,
+independently of the participation rule. A changed minimum is not a coverage fix.
+The UI displays batting games, required games, and PA totals with each ranked
+batting player. Wade Meckler's Offensive Reach row, for example, shows 94 batting
+games, a minimum of 65, and 337 PAs.
+
+A separate live custom-range request for September 21–27 ranks 152 players for
+Plate Appearance Contribution, 327 for Offensive Reach, 341 for Help Without
+Advancing, and 158 for Runner Out Rate; Empty Games includes 420 players. These
+are selected-period results, not single-day or incomplete-season substitutes.
+The qualification, ranking and display tests pass, as does the prepared-reference
+reader check for all four reference-based metrics. NiFi owns future derived
+publications; this record does not claim the remaining nineteen-card work is done.
+
 ## October 13 at 02:30 UTC: Empty Games restored; rate work resumed
 
 The live API serves `20261013T021109Z-dashboard-offense-47f6d2ba` with
@@ -1620,8 +1652,8 @@ from missing evidence; it does not justify lowering the minimum.
 
 The approved display remains a selected-period player average, except Empty
 Games, which is a game count with no appearance minimum. Rate and average
-batting qualification is 3.1 PA per team game,
-rounded to the nearest whole PA; other metrics use the accepted participation
+batting qualification requires at least one PA in 40% of selected team games,
+rounded up under the [October 13 decision](../archive/design-records/batting-game-qualification-2026-10-13/README.md); other metrics use the accepted participation
 minimums. Review mechanisms remain separate. These are settled decisions.
 
 ## Verified component evidence

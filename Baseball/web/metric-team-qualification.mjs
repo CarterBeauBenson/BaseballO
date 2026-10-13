@@ -28,14 +28,17 @@ export function selectedTeamMinimums(result, stateRoot) {
         `(SELECT * FROM dashboard_family_player_game WHERE family='${family}')` : 'dashboard_player_game';
       const scope = result.dateScope;
       const counts = new Map(db.prepare(`WITH selected AS (
-        SELECT p.graph_iri,p.player,p.team FROM ${table} p
+        SELECT p.graph_iri,p.player,p.team,p.plate_appearances FROM ${table} p
         JOIN game_dimension g USING(graph_iri)
         WHERE g.game_set=? AND g.official_date BETWEEN ? AND ?
       ), team_games AS (
         SELECT team,COUNT(DISTINCT graph_iri) AS games FROM selected GROUP BY team
-      ) SELECT p.player,MAX(t.games) AS games FROM selected p
+      ) SELECT p.player,MAX(t.games) AS games,
+        CASE WHEN COUNT(*)=COUNT(p.plate_appearances)
+          THEN COUNT(DISTINCT CASE WHEN p.plate_appearances>0 THEN p.graph_iri END)
+          ELSE NULL END AS battingGames FROM selected p
         JOIN team_games t USING(team) GROUP BY p.player`)
-        .all(scope.gameSet, scope.startDate, scope.endDate).map(row => [row.player, row.games]));
+        .all(scope.gameSet, scope.startDate, scope.endDate).map(row => [row.player, row]));
       cached.set(key,counts);return counts;
     } finally { db.close(); }
   };
@@ -47,11 +50,13 @@ export function selectedTeamMinimums(result, stateRoot) {
     const counts = metric.playerResults?.length ? countsFor(publication) : null;
     return {...metric,
       ...(metric.playerResults ? {playerResults:metric.playerResults.map(row => {
-        const games = counts.get(row.player);
+        const participation = counts.get(row.player);
+        const games = participation?.games;
         if (!Number.isSafeInteger(games) || games < 1) throw new Error('Player team schedule is unavailable.');
         // A trade must not lower the threshold. Retain the larger team total
         // and never reduce the player's already evidenced game exposure.
-        return {...row, qualificationTeamGames:Math.max(games, row.teamGames)};
+        return {...row, qualificationTeamGames:Math.max(games, row.teamGames),
+          battingGames:row.battingGames ?? participation.battingGames};
       })} : {}),
       ...(metric.byMechanism ? {byMechanism:Object.fromEntries(Object.entries(metric.byMechanism)
         .map(([key, group]) => [key, qualify(group,publication)]))} : {})};

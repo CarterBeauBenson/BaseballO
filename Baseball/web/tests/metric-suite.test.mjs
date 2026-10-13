@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { createBaseballServer } from '../server.mjs';
-import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumPA, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
+import { metricCatalog, validateMetricRequest, validateDashboardRequest, compileMetricEvidenceQuery, metricDisplayTargets, compileMetricDisplayQuery, normalizeMetricDisplayLabels, labelMetricPlayers, automaticMinimumBattingGames, automaticMinimumObservations, playerLeaderboard, playerSummaryValue, publicMetricResult, dashboardReadiness } from '../query-builder/metric-suite-query-builder.js';
 import { displayFraction, resultHeadline, movementEvidenceLabel, consequencePresentation, runMetricPresentation, formatMetricValue, resultPresentation, resultDateLabel, selectionFromUrl, displayPlayer, exampleAnswer, dashboardSummary, matchesMetric, metricRanking, dashboardLoadStatus, dashboardCoverageLabel, metricCardPresentation, metricVisible, resultScopeLabel, unresolvedRunRows } from '../metrics.js';
 import { freshnessLabel } from '../metrics.js';
 
@@ -105,7 +105,8 @@ test('card filters retain player rankings without a pooled score and distinguish
 function playerScore(id, numerator, extras = {}) {
   const row = { player: `https://baseballontology.org/data/player/${id}`, playerLabel: `Player ${id}`,
     metricId: 'tfs', status: 'available', dateScope: leaderboardScope, completeParticipation: true,
-    plateAppearances: 25, teamGames: 7, value: { numerator: String(numerator), denominator: '1' }, ...extras };
+    plateAppearances: 25, teamGames: 7, battingGames:Math.min(extras.teamGames ?? 7, extras.plateAppearances ?? 25),
+    value: { numerator: String(numerator), denominator: '1' }, ...extras };
   if (!('aggregate' in extras)) row.aggregate={kind:'mean',count:25,
     sum:{numerator:String(BigInt(row.value.numerator)*25n),denominator:row.value.denominator}};
   return row;
@@ -165,7 +166,7 @@ test('Empty Games includes low-appearance and zero totals without lowering rate 
   const result={metricId:metric.id,playerPopulationComplete:true,playerResults:rows};
   const board=playerLeaderboard(result,metric,leaderboardScope);
   assert.equal(board.rows.length,2); assert.equal(board.belowMinimum,0);
-  assert.deepEqual(board.rows.map(r=>r.value.numerator),['0','1']);
+  assert.deepEqual(board.rows.map(r=>r.value.numerator),['1','0']);
   assert.ok(board.rows.every(r=>r.minimumPA===null && r.minimumObservations===null));
   assert.equal(board.qualification.kind,'count'); assert.match(board.qualification.rule,/No appearance minimum/);
   assert.match(board.rows[0].qualificationLabel,/1 eligible games.*no appearance minimum/);
@@ -235,21 +236,27 @@ test('run contributor details are not presented as episode depth', () => {
     gaps:['UNSUPPORTED_RUN_CONTRIBUTOR']}])[0].reason,/contribution channel/);
 });
 
-test('automatic PA minimum follows the approved rule across selected team-game counts', () => {
-  assert.deepEqual([1, 5, 7, 30, 162].map(automaticMinimumPA), [3, 16, 22, 93, 502]);
-  for (const games of [0, -1, 1.5, NaN]) assert.throws(() => automaticMinimumPA(games));
+test('automatic batting-game minimum rounds 40 percent upward', () => {
+  assert.deepEqual([1, 5, 7, 30, 162].map(automaticMinimumBattingGames), [1, 2, 3, 12, 65]);
+  for (const games of [0, -1, 1.5, NaN]) assert.throws(() => automaticMinimumBattingGames(games));
 });
 
 test('player rankings exclude a one-PA high score and adapt to each team exposure', () => {
   const result = { playerPopulationComplete: true, playerResults: [
     playerScore(1, 999, { plateAppearances: 1 }), playerScore(2, 3),
-    playerScore(3, 4, { teamGames: 5, plateAppearances: 16 }), playerScore(4, 5, { plateAppearances: 21 }),
+    playerScore(3, 4, { teamGames: 5, plateAppearances: 2, battingGames:2 }),
+    playerScore(4, 5, { plateAppearances: 21, battingGames:2 }),
   ] };
   const board = playerLeaderboard(result, leaderboardMetric, leaderboardScope);
-  assert.deepEqual(board.rows.map(row => [row.name, row.minimumPA]), [['Player 3', 16], ['Player 2', 22]]);
+  assert.deepEqual(board.rows.map(row => [row.name, row.minimumBattingGames]), [['Player 3', 2], ['Player 2', 3]]);
   assert.equal(board.belowMinimum, 2);
   const day = playerLeaderboard({ ...result, playerResults: [playerScore(1, 999, { plateAppearances: 1, teamGames: 1 })] }, leaderboardMetric, leaderboardScope);
-  assert.equal(day.status, 'empty');
+  assert.equal(day.status, 'available');
+  assert.match(day.rows[0].qualificationLabel,/1 batting games.*minimum 1.*1 PA/);
+  for (const battingGames of [undefined,-1,1.5,8]) {
+    assert.equal(playerLeaderboard({...result,playerResults:[playerScore(1,1,{battingGames})]},
+      leaderboardMetric,leaderboardScope).status,'unavailable');
+  }
 });
 
 test('player rankings sort exact scores, share tie ranks, and preserve all detail rows', () => {
@@ -263,7 +270,7 @@ test('player rankings sort exact scores, share tie ranks, and preserve all detai
   assert.equal(board.rows[0].name, 'Player 2');
   const displayed = metricRanking({ metric: { ...result, leaderboard: board } }, leaderboardMetric);
   assert.equal(displayed.rows.length, 8);
-  assert.equal(displayed.rows[0].context, '25 PA · minimum 22 PA');
+  assert.equal(displayed.rows[0].context, '7 batting games · minimum 3 · 25 PA');
   const worse = playerLeaderboard(result, { ...leaderboardMetric, higherIs: 'worse' }, leaderboardScope);
   assert.equal(worse.order, 'Highest scores first');
   assert.deepEqual(worse.rows, board.rows);
@@ -472,7 +479,11 @@ print(json.dumps(m.summarize_batting_players('offensive-reach',scores,expected_o
     input: JSON.stringify(leaderboardScope), encoding: 'utf8', timeout: 15000, windowsHide: true,
   });
   assert.equal(result.status, 0, result.stderr || result.error?.message);
-  const board = playerLeaderboard(JSON.parse(result.stdout), {id:'offensive-reach',higherIs:'better'}, leaderboardScope);
+  const scores = JSON.parse(result.stdout);
+  // The SQL participation adapter supplies the distinct PA-game count in
+  // production. Every fixture PA above belongs to the same game.
+  scores.playerResults = scores.playerResults.map(row => ({...row,battingGames:1}));
+  const board = playerLeaderboard(scores, {id:'offensive-reach',higherIs:'better'}, leaderboardScope);
   assert.equal(board.status, 'available');
   assert.equal(board.rows.length, 5);
   assert.equal(board.belowMinimum, 1); // The largest mean belongs to an unqualified player.

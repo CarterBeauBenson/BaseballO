@@ -11,7 +11,7 @@ const scope = {startDate:'2026-09-01', endDate:'2026-09-07', gameSet:'regular_se
 function row(id, extras = {}) {
   return {player:`https://baseballontology.org/data/player/${id}`, playerLabel:`Player ${id}`,
     metricId:metric.id, status:'available', dateScope:scope, completeParticipation:true,
-    teamGames:7, plateAppearances:0, independentRunningEpisodes:3,
+    teamGames:7, plateAppearances:0, battingGames:Math.min(extras.plateAppearances ?? 0,extras.teamGames ?? 7), independentRunningEpisodes:3,
     aggregate:{kind:'channel_entropy', channelCounts:[0, 0, 1]}, ...extras};
 }
 function board(rows, extras = {}) {
@@ -21,7 +21,7 @@ function board(rows, extras = {}) {
 test('either participation minimum qualifies, including zero-PA runners', () => {
   const result = board([row(1), row(2, {plateAppearances:22, independentRunningEpisodes:0,
     aggregate:{kind:'channel_entropy', channelCounts:[2, 1, 0]}}),
-  row(3, {plateAppearances:22}), row(4, {plateAppearances:21, independentRunningEpisodes:2})]);
+  row(3, {plateAppearances:22}), row(4, {plateAppearances:21, battingGames:2, independentRunningEpisodes:2})]);
   assert.equal(result.status, 'available');
   assert.equal(result.belowMinimum, 1);
   const byId = Object.fromEntries(result.rows.map(r => [r.player.split('/').at(-1), r]));
@@ -29,7 +29,7 @@ test('either participation minimum qualifies, including zero-PA runners', () => 
   assert.deepEqual(byId[2].qualifiedThrough, ['batting']);
   assert.deepEqual(byId[3].qualifiedThrough, ['batting', 'running']);
   assert.match(byId[1].qualificationLabel, /3 running episodes/);
-  assert.doesNotMatch(byId[1].qualificationLabel, /minimum 22 PA/);
+  assert.doesNotMatch(byId[1].qualificationLabel, /batting games/);
   assert.match(result.qualification.rule, /either/);
 });
 
@@ -47,16 +47,16 @@ test('channel counts do not substitute for eligible running episodes', () => {
 test('season exposure changes each branch without relaxing thresholds', () => {
   const rows = [row(1, {teamGames:162, independentRunningEpisodes:16}),
     row(2, {teamGames:162, independentRunningEpisodes:17}),
-    row(3, {teamGames:162, plateAppearances:501, independentRunningEpisodes:0}),
-    row(4, {teamGames:162, plateAppearances:502, independentRunningEpisodes:0})];
+    row(3, {teamGames:162, plateAppearances:501, battingGames:64, independentRunningEpisodes:0}),
+    row(4, {teamGames:162, plateAppearances:65, battingGames:65, independentRunningEpisodes:0})];
   const result = board(rows);
   assert.equal(result.rows.length, 2);
-  assert.ok(result.rows.every(r => r.minimumPA === 502 && r.minimumObservations === 17));
+  assert.ok(result.rows.every(r => r.minimumBattingGames === 65 && r.minimumObservations === 17));
 });
 
 test('unknown participation or score coverage cannot silently lower qualification', () => {
   for (const extras of [{independentRunningEpisodes:undefined}, {independentRunningEpisodes:-1},
-    {independentRunningEpisodes:1.5}, {plateAppearances:undefined}, {teamGames:0},
+    {independentRunningEpisodes:1.5}, {plateAppearances:undefined}, {battingGames:undefined}, {teamGames:0},
     {completeParticipation:false}, {dateScope:{...scope, endDate:'2026-09-06'}}])
     assert.equal(board([row(1, extras)]).status, 'unavailable');
   assert.equal(board([row(1)], {playerPopulationComplete:false}).status, 'unavailable');

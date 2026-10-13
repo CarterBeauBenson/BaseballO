@@ -82,7 +82,7 @@ def reference_players(m, db, metric, scope, selected_graphs):
         return dict(m.unavailable(gap),playerPopulationComplete=False,playerRecordsComplete=False,
                     playerResults=[],playerSummaryGaps=[gap],**details)
     if not products:return denied('SEASON_REFERENCE_UNAVAILABLE')
-    people=defaultdict(lambda:dict(pa=0,games=0,count=0,total=Fraction(),graphs=set()))
+    people=defaultdict(lambda:dict(pa=0,games=0,battingGames=0,count=0,total=Fraction(),graphs=set()))
     references=[];seen=set();selected=set(selected_graphs);gaps=set()
     for year,cutoff,graphs,(digest,compressed) in products:
         reference_scope=dict(gameSet='regular_season',startDate=f'{year}-01-01',endDate=cutoff)
@@ -99,6 +99,7 @@ def reference_players(m, db, metric, scope, selected_graphs):
             for player,row in product['games'][graph].items():
                 gaps.update(row['gaps'])
                 person=people[player];person['pa']+=row['pa'];person['games']+=1
+                person['battingGames']+=int(row['pa']>0)
                 person['count']+=row['count'];person['total']+=m.fraction(row['sum'])
                 if row['count']:person['graphs'].add(graph)
     if seen!=selected:raise m.EvidenceError('Selected games escaped the prepared reference')
@@ -111,6 +112,7 @@ def reference_players(m, db, metric, scope, selected_graphs):
         if metric!='paq-2.1':summary['components']=dict(count=count,total=m.exact(total))
         output.append(dict(summary,player=player,metricId=metric,dateScope=dict(scope),
             completeParticipation=True,plateAppearances=person['pa'],teamGames=person['games'],
+            battingGames=person['battingGames'],
             graphs=sorted(person['graphs']),aggregate=dict(kind='mean',sum=m.exact(total),count=count)))
     count=sum(p['aggregate']['count'] for p in output)
     total=sum((m.fraction(p['aggregate']['sum']) for p in output),Fraction())

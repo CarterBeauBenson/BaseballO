@@ -439,7 +439,7 @@ export function metricRanking(payload, metric) {
   const result = payload?.metrics?.find(row => row.metricId === metric.id) ?? payload?.metric;
   const board = result?.leaderboard;
   return { rows: board?.status === 'available' ? board.rows.map(row => ({ ...row,
-    context: row.qualificationLabel ?? `${row.plateAppearances} PA · minimum ${row.minimumPA} PA` })) : [],
+    context: row.qualificationLabel ?? `${row.battingGames} batting games · minimum ${row.minimumBattingGames} · ${row.plateAppearances} PA` })) : [],
     groups: board?.groups ?? [],
     coverageMessage: board?.coverageMessage ?? '',
     scope: board?.summaryKind === 'count' ? 'players' : 'qualified players', order: board?.order ?? '', qualification: board?.qualification?.rule ?? '',
